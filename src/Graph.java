@@ -67,28 +67,26 @@ public class Graph {
     }
 
     void setUpTempLegalMoves(int pitch) {
-        for(int i = 0; i < 15; i++) { //definitely needs to be more element-based like since this
-            int tempPitch = (pitch + allLegalMoves.get(i)); //should be off legalMovesTemplate
-            if(isInRange(tempPitch)) { //which can change size
+        for(Integer i : legalMovesTemplate) {
+            int tempPitch = (pitch + i);
+            if(isInRange(tempPitch)) {
                 if(isDiatonic(tempPitch)) {
-                    tempLegalMoves.add(allLegalMoves.get(i));
+                    tempLegalMoves.add(i);
                 }
             }
         }
     }
 
     //for debugging and testing!
-    void printLegalMovesTemplate() { //may want to clean with a more element-based for loop
-        //style item, look at JavaDoc for ArrayList
-        for(int i = 0; i < 15; i++) {
-            System.out.println(legalMovesTemplate.get(i));
+    void printLegalMovesTemplate() {
+        for(Integer i : legalMovesTemplate) {
+            System.out.println(i);
         }
     }
 
     //for debugging and testing!
-    void printAllLegalMoves() { //may want to clean with a more element-based for loop
-        //style item, look at JavaDoc for ArrayList
-        for(int i = 0; i < 14; i++) {
+    void printAllLegalMoves() {
+        for(Integer i : allLegalMoves) {
             System.out.println(allLegalMoves.get(i));
         }
     }
