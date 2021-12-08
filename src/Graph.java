@@ -9,7 +9,7 @@ public class Graph {
     int lowerBound; //the lower bound is allowed, nothing below it
     int tonic; //the actual pitch value, stuff like 60, not just pitch class
     int climax; //actual pitch value, not just pitch class
-    ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(); //ranging from 0 to 11
+    ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     int length; //8 to 16
     ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
     LinkedList<Integer> legalMovesTemplate = new LinkedList<Integer>();
@@ -39,21 +39,7 @@ public class Graph {
     }
 
     void setUpLegalMovesTemplate() {
-        legalMovesTemplate.add(-12); //descend octave
-        legalMovesTemplate.add(-7); //descend P5
-        legalMovesTemplate.add(-5); //descend P4
-        legalMovesTemplate.add(-4); //descend major third
-        legalMovesTemplate.add(-3); //descend minor third
-        legalMovesTemplate.add(-2); //descend major second
-        legalMovesTemplate.add(-1); //descend minor second
-        legalMovesTemplate.add(1); //ascend minor second
-        legalMovesTemplate.add(2); //ascend major second
-        legalMovesTemplate.add(3); //ascend minor third
-        legalMovesTemplate.add(4); //ascend major third
-        legalMovesTemplate.add(5); //ascend P4
-        legalMovesTemplate.add(7); //ascend P5
-        legalMovesTemplate.add(8); //ascend minor sixth
-        legalMovesTemplate.add(12); //ascend octave
+        legalMovesTemplate.addAll(allLegalMoves);
     }
 
     void removeAllLeaps() {
