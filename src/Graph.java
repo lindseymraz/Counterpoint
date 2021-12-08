@@ -10,11 +10,40 @@ public class Graph {
     int climax; //actual pitch value, not just pitch class
     ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(); //ranging from 0 to 11
     int length; //8 to 16
+    ArrayList<Integer> legalMoves = new ArrayList<Integer>();
+
+    void setUpLegalMoves() {
+        legalMoves.add(-12); //descend octave
+        legalMoves.add(-7); //descend P5
+        legalMoves.add(-5); //descend P4
+        legalMoves.add(-4); //descend major third
+        legalMoves.add(-3); //descend minor third
+        legalMoves.add(-2); //descend major second
+        legalMoves.add(-1); //descend minor second
+        legalMoves.add(1); //ascend minor second
+        legalMoves.add(2); //ascend major second
+        legalMoves.add(3); //ascend minor third
+        legalMoves.add(4); //ascend major third
+        legalMoves.add(5); //ascend P4
+        legalMoves.add(7); //ascend P5
+        legalMoves.add(8); //ascend minor sixth
+        legalMoves.add(12); //ascend octave
+    }
+
+    //for debugging and testing!
+    void printLegalMoves() { //may want to clean with a more element-based for loop
+        //style item, look at JavaDoc for ArrayList
+        for(int i = 0; i < 14; i++) {
+            System.out.println(legalMoves.get(i));
+        }
+    }
 
     Graph() {
+        setUpLegalMoves();
     }
 
     Graph(Mode mode, int key) {
+        setUpLegalMoves();
         this.mode = mode;
         this.key = key;
     }
