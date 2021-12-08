@@ -23,7 +23,11 @@ public class IO {
             System.out.println("Enter length. 8 min, 16 max");
             G.setLength(Integer.parseInt(keyboard.next()));
             System.out.println("Length is " + G.length);
-            G.printLegalMoves();
+            G.setUpLegalMovesTemplate();
+            G.printLegalMovesTemplate();
+            G.removeAllP4AndUpLeaps();
+            G.removeAllLeaps();
+            G.printLegalMovesTemplate();
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();

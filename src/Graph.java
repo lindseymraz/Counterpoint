@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.lang.Math;
 
 public class Graph {
     Mode mode;
@@ -10,40 +11,108 @@ public class Graph {
     int climax; //actual pitch value, not just pitch class
     ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(); //ranging from 0 to 11
     int length; //8 to 16
-    ArrayList<Integer> legalMoves = new ArrayList<Integer>();
+    ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
+    LinkedList<Integer> legalMovesTemplate = new LinkedList<Integer>();
+    LinkedList<Integer> tempLegalMoves = new LinkedList<Integer>();
 
-    void setUpLegalMoves() {
-        legalMoves.add(-12); //descend octave
-        legalMoves.add(-7); //descend P5
-        legalMoves.add(-5); //descend P4
-        legalMoves.add(-4); //descend major third
-        legalMoves.add(-3); //descend minor third
-        legalMoves.add(-2); //descend major second
-        legalMoves.add(-1); //descend minor second
-        legalMoves.add(1); //ascend minor second
-        legalMoves.add(2); //ascend major second
-        legalMoves.add(3); //ascend minor third
-        legalMoves.add(4); //ascend major third
-        legalMoves.add(5); //ascend P4
-        legalMoves.add(7); //ascend P5
-        legalMoves.add(8); //ascend minor sixth
-        legalMoves.add(12); //ascend octave
+    /* void climaxPosPicker() {
+        int a = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
+        //legal to be anywhere from a to 2a - 1
+    }  */
+
+    void setUpAllLegalMoves() {
+        allLegalMoves.add(-12); //descend octave
+        allLegalMoves.add(-7); //descend P5
+        allLegalMoves.add(-5); //descend P4
+        allLegalMoves.add(-4); //descend major third
+        allLegalMoves.add(-3); //descend minor third
+        allLegalMoves.add(-2); //descend major second
+        allLegalMoves.add(-1); //descend minor second
+        allLegalMoves.add(1); //ascend minor second
+        allLegalMoves.add(2); //ascend major second
+        allLegalMoves.add(3); //ascend minor third
+        allLegalMoves.add(4); //ascend major third
+        allLegalMoves.add(5); //ascend P4
+        allLegalMoves.add(7); //ascend P5
+        allLegalMoves.add(8); //ascend minor sixth
+        allLegalMoves.add(12); //ascend octave
+    }
+
+    void setUpLegalMovesTemplate() {
+        legalMovesTemplate.add(-12); //descend octave
+        legalMovesTemplate.add(-7); //descend P5
+        legalMovesTemplate.add(-5); //descend P4
+        legalMovesTemplate.add(-4); //descend major third
+        legalMovesTemplate.add(-3); //descend minor third
+        legalMovesTemplate.add(-2); //descend major second
+        legalMovesTemplate.add(-1); //descend minor second
+        legalMovesTemplate.add(1); //ascend minor second
+        legalMovesTemplate.add(2); //ascend major second
+        legalMovesTemplate.add(3); //ascend minor third
+        legalMovesTemplate.add(4); //ascend major third
+        legalMovesTemplate.add(5); //ascend P4
+        legalMovesTemplate.add(7); //ascend P5
+        legalMovesTemplate.add(8); //ascend minor sixth
+        legalMovesTemplate.add(12); //ascend octave
+    }
+
+    void removeAllLeaps() {
+        legalMovesTemplate.removeFirstOccurrence(-12);
+        legalMovesTemplate.removeFirstOccurrence(-7);
+        legalMovesTemplate.removeFirstOccurrence(-5);
+        legalMovesTemplate.removeFirstOccurrence(-4);
+        legalMovesTemplate.removeFirstOccurrence(-3);
+        legalMovesTemplate.removeFirstOccurrence(3);
+        legalMovesTemplate.removeFirstOccurrence(4);
+        legalMovesTemplate.removeFirstOccurrence(5);
+        legalMovesTemplate.removeFirstOccurrence(7);
+        legalMovesTemplate.removeFirstOccurrence(8);
+        legalMovesTemplate.removeFirstOccurrence(12);
+    }
+
+    void removeAllP4AndUpLeaps() {
+        legalMovesTemplate.removeFirstOccurrence(-12);
+        legalMovesTemplate.removeFirstOccurrence(-7);
+        legalMovesTemplate.removeFirstOccurrence(-5);
+        legalMovesTemplate.removeFirstOccurrence(5);
+        legalMovesTemplate.removeFirstOccurrence(7);
+        legalMovesTemplate.removeFirstOccurrence(8);
+        legalMovesTemplate.removeFirstOccurrence(12);
+    }
+
+    void setUpTempLegalMoves(int pitch) {
+        for(int i = 0; i < 15; i++) { //definitely needs to be more element-based like since this
+            int tempPitch = (pitch + allLegalMoves.get(i)); //should be off legalMovesTemplate
+            if(isInRange(tempPitch)) { //which can change size
+                if(isDiatonic(tempPitch)) {
+                    tempLegalMoves.add(allLegalMoves.get(i));
+                }
+            }
+        }
     }
 
     //for debugging and testing!
-    void printLegalMoves() { //may want to clean with a more element-based for loop
+    void printLegalMovesTemplate() { //may want to clean with a more element-based for loop
+        //style item, look at JavaDoc for ArrayList
+        for(int i = 0; i < 15; i++) {
+            System.out.println(legalMovesTemplate.get(i));
+        }
+    }
+
+    //for debugging and testing!
+    void printAllLegalMoves() { //may want to clean with a more element-based for loop
         //style item, look at JavaDoc for ArrayList
         for(int i = 0; i < 14; i++) {
-            System.out.println(legalMoves.get(i));
+            System.out.println(allLegalMoves.get(i));
         }
     }
 
     Graph() {
-        setUpLegalMoves();
+        setUpAllLegalMoves();
     }
 
     Graph(Mode mode, int key) {
-        setUpLegalMoves();
+        setUpAllLegalMoves();
         this.mode = mode;
         this.key = key;
     }
@@ -201,6 +270,10 @@ public class Graph {
 
     boolean isClimaxInappropriate(int pitch) {
         return((diatonicPitchClasses.get(6)) == (pitch%12));
+    }
+
+    boolean isInRange(int pitch) {
+        return((pitch >= lowerBound) && (pitch <= upperBound));
     }
 
     void setLength(int input) throws InvalidInputException {
