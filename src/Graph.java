@@ -11,7 +11,7 @@ public class Graph {
     int climax; //actual pitch value, not just pitch class
     ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     int length; //8 to 16
-    ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
+    ArrayList<Integer> allLegalMoves = new ArrayList<Integer>(15);
     LinkedList<Integer> legalMovesTemplate = new LinkedList<Integer>();
     LinkedList<Integer> tempLegalMoves = new LinkedList<Integer>();
 
@@ -19,6 +19,21 @@ public class Graph {
         int a = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
         //legal to be anywhere from a to 2a - 1
     }  */
+
+    void generateInit() {
+        Node start = new Node(tonic);
+        generate(start);
+    }
+
+    void generate(Node n) {
+        setUpTempLegalMoves(n.pitch);
+        for(Integer i : tempLegalMoves) {
+            n.getsTo.add(new Node(n.pitch + i));
+        }
+        for(Node gotTo : n.getsTo) {
+            generate(gotTo);
+        }
+    }
 
     void setUpAllLegalMoves() {
         allLegalMoves.add(-12); //descend octave
@@ -67,6 +82,7 @@ public class Graph {
     }
 
     void setUpTempLegalMoves(int pitch) {
+        tempLegalMoves.clear();
         for(Integer i : legalMovesTemplate) {
             int tempPitch = (pitch + i);
             if(isInRange(tempPitch)) {
