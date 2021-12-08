@@ -22,6 +22,7 @@ public class IO {
             System.out.println("Tonic is " + G.tonic + "\nClimax is " + G.climax);
             System.out.println("Enter length. 8 min, 16 max");
             G.setLength(Integer.parseInt(keyboard.next()));
+            System.out.println("Length is " + G.length);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();
