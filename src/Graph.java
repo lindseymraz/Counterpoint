@@ -14,24 +14,55 @@ public class Graph {
     ArrayList<Integer> allLegalMoves = new ArrayList<Integer>(15);
     LinkedList<Integer> legalMovesTemplate = new LinkedList<Integer>();
     LinkedList<Integer> tempLegalMoves = new LinkedList<Integer>();
+    ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
+    ArrayList<ArrayList<Node>> columns;
+    Node start;
+    Node end;
 
     /* void climaxPosPicker() {
         int a = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
         //legal to be anywhere from a to 2a - 1
     }  */
 
-    void generateInit() {
-        Node start = new Node(tonic);
-        generate(start);
+    void setInRangeDiatonics() {
+        for(int i = lowerBound; i <= upperBound; i++) {
+            if (isDiatonic(i)) {
+                inRangeDiatonics.add(i);
+            }
+        }
     }
 
-    void generate(Node n) {
-        setUpTempLegalMoves(n.pitch);
-        for(Integer i : tempLegalMoves) {
-            n.getsTo.add(new Node(n.pitch + i));
+    void setColumns() {
+        columns = new ArrayList<ArrayList<Node>>(length);
+        for(int i = 0; i < length; i++) {
+            ArrayList<Node> a = new ArrayList<Node>(inRangeDiatonics.size());
+            for(int j = 0; j < inRangeDiatonics.size(); j++) {
+                a.add(new Node(inRangeDiatonics.get(j)));
+            }
+            columns.add(a);
         }
-        for(Node gotTo : n.getsTo) {
-            generate(gotTo);
+    }
+
+    void makeGetsTo() {
+        start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
+        for(Integer i : allLegalMoves) {
+            if (inRangeDiatonics.contains(tonic + i)) {
+                start.addEdge(columns.get(1).get(inRangeDiatonics.indexOf(tonic + i)));
+            }
+        }
+        for(int j = 1; j < (length - 1); j++) {
+            for(int k = 0; k < inRangeDiatonics.size(); k++) {
+                makeGetsToHelper(columns.get(j).get(k), j);
+            }
+        }
+        end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
+    }
+
+    void makeGetsToHelper(Node node, int currColumn) {
+        for(Integer i : allLegalMoves) {
+            if (inRangeDiatonics.contains(node.pitch + i)) {
+                node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
+            }
         }
     }
 

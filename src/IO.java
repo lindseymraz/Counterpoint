@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class IO {
@@ -25,9 +26,10 @@ public class IO {
             System.out.println("Length is " + G.length);
             G.setUpLegalMovesTemplate();
             G.printLegalMovesTemplate();
-            G.removeAllP4AndUpLeaps();
-            G.removeAllLeaps();
-            G.printLegalMovesTemplate();
+            G.setInRangeDiatonics();
+            G.setColumns();
+            G.makeGetsTo();
+            G.start.printLinkedList(G.start.giveRoute(G.end, new LinkedList<Node>()));
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();
