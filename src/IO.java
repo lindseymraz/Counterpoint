@@ -29,7 +29,7 @@ public class IO {
             G.setInRangeDiatonics();
             G.setColumns();
             G.makeGetsTo();
-            G.start.printLinkedList(G.start.giveRoute(G.end, new LinkedList<Node>()));
+            G.start.printLots(G.end);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();
