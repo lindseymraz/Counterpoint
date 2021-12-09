@@ -18,11 +18,14 @@ public class Graph {
     ArrayList<ArrayList<Node>> columns;
     Node start;
     Node end;
+    Node testnode;
+    int climaxEarlyBound; //earliest climax can occur
+    int climaxLateBound; //latest climax can occur
 
-    /* void climaxPosPicker() {
-        int a = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
-        //legal to be anywhere from a to 2a - 1
-    }  */
+    void climaxPosPicker() {
+        climaxEarlyBound = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
+        climaxLateBound = ((climaxEarlyBound * 2) - 1);
+    }
 
     void setInRangeDiatonics() {
         for(int i = lowerBound; i <= upperBound; i++) {
@@ -56,6 +59,10 @@ public class Graph {
             }
         }
         end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
+    }
+
+    void pickTestNode() {
+        testnode = columns.get(1).get(4);
     }
 
     void makeGetsToHelper(Node node, int currColumn) {

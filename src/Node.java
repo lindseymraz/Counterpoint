@@ -53,35 +53,67 @@ public class Node {
         }
     }
 
-    void giveRouteH(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list) {
+    boolean hasClimax(LinkedList<Node> list, int climax) {
+        for(Node n : list) {
+            if(n.pitch == climax) {
+                return true;
+            }
+        } return false;
+    }
+
+    boolean giveRouteHHelper(Node n, LinkedList<Node> currPath, int climax, int earlyBound, int lateBound) {
+        if(!(n.getsTo.size() > 0)) {return false;}
+        if(n.pitch == climax) {
+           if((currPath.size() + 1) < earlyBound) {
+               return false;
+           } else if((currPath.size()) >= lateBound) {
+               return false;
+           } else if(hasClimax(currPath, climax)) {
+               return false;
+            }
+        }
+        if(currPath.size() >= lateBound) {
+            if(!hasClimax(currPath, climax)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    void giveRouteH(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int leaps, int bigLeaps, int earlyBound, int lateBound, int climax) {
         if (this.equals(to)) {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
             currPath.remove(this);
-        } else if (this.getsTo.size() > 0 ) {
+        } else if (giveRouteHHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                n.giveRouteH(to, currPath, list);
+                n.giveRouteH(to, currPath, list, leaps, bigLeaps, earlyBound, lateBound, climax);
             }
             currPath.remove(this);
         }
     }
 
-    /*
-    after you find a need to backtrack, go back until the first thing with
-    unseen getsTos. only now does the node you backtracked from to get to
-    the thing with unfinished getsTos should go on a separate "seen" list.
-    keep it there until you've got a whole column separating you and the
-    node you wanna take off the "seen" list (you're in column 1, there's
-    column 2, thing you wanna remove is in 3, that's the earliest you can
-    get rid of it)
-    once you end up with the start node having all its getsTos on the seen
-    list, then you found everything and you're done.
-     */
+    boolean startsBigLeapTo(Node next) {
+        int a = (this.pitch - next.pitch);
+        return ((a >= 5) || (a <= -5));
+    }
 
-    void printLots(Node to) {
+    boolean startsLeapUpTo(Node next) {
+        return((next.pitch - this.pitch) >= 3);
+    }
+
+    boolean startsLeapDownTo(Node next) {
+        return((this.pitch - next.pitch) >= 3);
+    }
+
+    boolean startsLeapTo(Node next) {
+        int a = (this.pitch - next.pitch);
+        return ((a > 2) || (a < -2));
+    }
+
+    void printLots(Node to, int earlyBound, int laterBound, int climax) {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
-        this.giveRouteH(to, new LinkedList<Node>(), cantusFirmi);
+        this.giveRouteH(to, new LinkedList<Node>(), cantusFirmi, 0, 0, earlyBound, laterBound, climax);
         for(LinkedList<Node> cantus : cantusFirmi) {
             printLinkedList(cantus);
         }

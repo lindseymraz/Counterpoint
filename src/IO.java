@@ -29,7 +29,13 @@ public class IO {
             G.setInRangeDiatonics();
             G.setColumns();
             G.makeGetsTo();
-            G.start.printLots(G.end);
+            G.climaxPosPicker();
+            G.pickTestNode();
+            System.out.println("pitch is " + G.testnode.pitch);
+            System.out.println("getsTo is ");
+            G.testnode.printLinkedList(G.testnode.getsTo);
+            System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
+            G.start.printLots(G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();
