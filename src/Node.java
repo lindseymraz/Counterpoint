@@ -25,7 +25,7 @@ public class Node {
         } return false;
     }
 
-    boolean giveRouteHHelper(Node n, LinkedList<Node> currPath, int climax, int earlyBound, int lateBound) {
+    boolean giveRouteHelper(Node n, LinkedList<Node> currPath, int climax, int earlyBound, int lateBound) {
         if(!(n.getsTo.size() > 0)) {return false;}
         if(n.pitch == climax) {
            if((currPath.size() + 1) < earlyBound) {
@@ -87,7 +87,7 @@ public class Node {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
             currPath.remove(this);
-        } else if (giveRouteHHelper(this, currPath, climax, earlyBound, lateBound)){
+        } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
                 if (leapHelper(this, n, currPath)) {
