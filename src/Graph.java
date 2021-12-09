@@ -124,10 +124,10 @@ public class Graph {
 
     void intervalSizeOK(int distance, int smallest, int greatest, String quality) throws InvalidInputException {
         if(distance < smallest) {
-            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must span at least a " + quality + "third");
+            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must span at least a " + quality + " third");
         }
         if(distance > greatest) {
-            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must not exceed a " + quality + "tenth");
+            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must not exceed a " + quality + " tenth");
         }
     }
 
