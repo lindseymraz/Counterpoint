@@ -164,7 +164,7 @@ public class Graph {
     void setKey(int input) throws InvalidInputException {
         switch(input) {
             case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = input; break;
-            default: throw new InvalidInputException(Integer.toString(input), "is not an integer between 1 and 11");
+            default: throw new InvalidInputException(Integer.toString(input), "is not an integer between 0 and 11");
         }
     }
 
