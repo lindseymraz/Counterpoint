@@ -3,12 +3,12 @@ import java.util.Scanner;
 
 public class IO {
     Scanner keyboard = new Scanner(System.in);
-    Graph G = new Graph();
     IO (){}
 
     public void input() throws InvalidInputException {
         try {
-            userInputSequence();
+            Graph G = new Graph();
+            userInitSequence(G);
             G.setUpLegalMovesTemplate();
             //G.printLegalMovesTemplate();
             G.setInRangeDiatonics();
@@ -22,12 +22,12 @@ public class IO {
             System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
             G.start.printLots(G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, G.length);
         } catch (InvalidInputException e) {
-            System.out.println(e.badInput + " " + e.whyBad);
+            System.out.println(e.badInput + e.whyBad);
             input();
         }
     }
 
-    public void userInputSequence() throws InvalidInputException {
+    public void userInitSequence(Graph G) throws InvalidInputException {
         System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
         G.setMode(Integer.parseInt(keyboard.next()));
         System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
