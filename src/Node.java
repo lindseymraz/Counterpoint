@@ -166,10 +166,11 @@ public class Node {
     }
 
     void printLinkedList(LinkedList<Node> a) {
-        for(Node n : a) {
-            System.out.print(n.pitch + ", ");
+        int size = (a.size() - 1);
+        for(int i = 0; (i < size); i++) {
+            System.out.print(a.get(i).pitch + ", ");
         }
-        System.out.print("done\n");
+        System.out.print(a.get(size).pitch + "\n");
     }
 
 }
