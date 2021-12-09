@@ -17,42 +17,6 @@ public class Node {
         this.getsTo.add(toNode);
     }
 
-    public boolean hasRoute(Node to, LinkedList<Node> visited) {
-        if (this.equals(to)) {
-            return true;
-        } else if (visited.contains(this)) {
-            return false;
-        } else {
-            visited.add(this);
-            for (Node n : this.getsTo) {
-                if (n.hasRoute(to, visited)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    LinkedList<Node> giveRoute(Node to, LinkedList<Node> visited) {
-        if (visited.contains(this)) {
-            return new LinkedList<Node>(); //empty
-        } else if (this.equals(to)) {
-            LinkedList<Node> newRoute = new LinkedList<Node>();
-            newRoute.addFirst(this);
-            return newRoute;
-        } else {
-            visited.add(this);
-            for(Node n : this.getsTo) {
-                LinkedList<Node> nRoute = n.giveRoute(to,visited);
-                if(nRoute.size() > 0) {
-                    nRoute.addFirst(this);
-                    return nRoute;
-                }
-            }
-            return new LinkedList<Node>(); //empty
-        }
-    }
-
     boolean hasClimax(LinkedList<Node> list, int climax) {
         for(Node n : list) {
             if(n.pitch == climax) {
@@ -118,7 +82,7 @@ public class Node {
         }
     }
 
-    void giveRouteH(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax) {
+    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax) {
         if (this.equals(to)) {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
@@ -127,7 +91,7 @@ public class Node {
             currPath.add(this);
             for (Node n : this.getsTo) {
                 if (leapHelper(this, n, currPath)) {
-                    n.giveRouteH(to, currPath, list, earlyBound, lateBound, climax);
+                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax);
                 }
             }
             currPath.remove(this);
@@ -154,7 +118,7 @@ public class Node {
 
     void printLots(Node to, int earlyBound, int laterBound, int climax) {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
-        this.giveRouteH(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax);
+        this.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax);
         for(LinkedList<Node> cantus : cantusFirmi) {
             printLinkedList(cantus);
         }
