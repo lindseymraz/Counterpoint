@@ -158,7 +158,12 @@ public class Node {
         for(LinkedList<Node> cantus : cantusFirmi) {
             printLinkedList(cantus);
         }
-        System.out.println(cantusFirmi.size() + " cantus firmi generated!");
+        int size = cantusFirmi.size();
+        switch(size) {
+            case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;
+            case 1: System.out.println(size + " cantus firmus generated!"); break;
+            default: System.out.println(size + " cantus firmi generated!");
+        }
     }
 
     void printLinkedList(LinkedList<Node> a) {
