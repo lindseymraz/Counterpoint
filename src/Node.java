@@ -61,15 +61,58 @@ public class Node {
     }
 
     boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int length) {
-        if(curr.startsLeapTo(n)) {
+        if (curr.startsLeapTo(n)) {
             LinkedList<Integer> leapList = countLeaps(currPath);
-            if(leapList.get(0) < 4) {
-                if (curr.startsBigLeapTo(n)) {
-                    if ((leapList.get(1) < 2) && (!(currPath.size() == (length - 2)))) {
-                        return true;
-                    } return false;
-                } return true;
-            } return false;
+            if (leapList.get(0) > 3) {
+                return false;
+            }
+            if (curr.startsBigLeapTo(n)) {
+                if ((leapList.get(1) > 1) || ((currPath.size() == (length - 2)))) {
+                    return false;
+                }
+            }
+            if(currPath.size() >= 2) {
+                Node prevNode = currPath.get((currPath.indexOf(curr) - 1));
+                if (currPath.size() >= 3) {
+                    Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
+                    if (prevPrevNode.startsLeapTo(prevNode) && prevNode.startsLeapTo(curr)) {
+                        return false;
+                    }
+                }
+                if (prevNode.startsLeapTo(curr)) {
+                    if (!((prevNode.startsUpwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) ||
+                            (prevNode.startsDownwardMotionTo(curr) && curr.startsUpwardMotionTo(n)))) {
+                        int topInt;
+                        int bottomInt;
+                        if (prevNode.startsUpwardMotionTo(curr) && curr.startsUpwardMotionTo(n)) {
+                            topInt = (n.pitch - curr.pitch);
+                            bottomInt = (curr.pitch - prevNode.pitch);
+                        } else {
+                            topInt = (prevNode.pitch - curr.pitch);
+                            bottomInt = (curr.pitch - n.pitch);
+                        }
+                        switch (topInt) {
+                            case 5:
+                                if ((((bottomInt != 7) && (bottomInt != 4)) && (bottomInt != 3))) {
+                                    return false;
+                                }
+                                break;
+                            case 4:
+                                if (bottomInt != 3) {
+                                    return false;
+                                }
+                                break;
+                            case 3:
+                                if (bottomInt != 4) {
+                                    return false;
+                                }
+                                break;
+                            default:
+                                return false;
+                        }
+                    }
+                }
+            }
         } return true;
     }
 
@@ -100,12 +143,12 @@ public class Node {
         return ((a >= 5) || (a <= -5));
     }
 
-    boolean startsLeapUpTo(Node next) {
-        return((next.pitch - this.pitch) >= 3);
+    boolean startsUpwardMotionTo(Node next) {
+        return((next.pitch - this.pitch) > 0);
     }
 
-    boolean startsLeapDownTo(Node next) {
-        return((this.pitch - next.pitch) >= 3);
+    boolean startsDownwardMotionTo(Node next) {
+        return((this.pitch - next.pitch) > 0);
     }
 
     void printLots(Node to, int earlyBound, int laterBound, int climax, int length) {
