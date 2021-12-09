@@ -44,6 +44,40 @@ public class Node {
         return true;
     }
 
+    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax) {
+        if (this.equals(to)) {
+            currPath.add(this);
+            list.add(new LinkedList<Node>(currPath));
+            currPath.remove(this);
+        } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
+            currPath.add(this);
+            for (Node n : this.getsTo) {
+                if (leapHelper(this, n, currPath)) {
+                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax);
+                }
+            }
+            currPath.remove(this);
+        }
+    }
+
+    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath) {
+        if(curr.startsLeapTo(n)) {
+            LinkedList<Integer> leapList = countLeaps(currPath);
+            if(leapList.get(0) < 4) {
+                if (curr.startsBigLeapTo(n)) {
+                    if (leapList.get(1) < 2) {
+                        return true;
+                    } return false;
+                } return true;
+            } return false;
+        } return true;
+    }
+
+    boolean startsLeapTo(Node next) {
+        int a = (this.pitch - next.pitch);
+        return ((a > 2) || (a < -2));
+    }
+
     LinkedList<Integer> countLeaps(LinkedList<Node> list) {
         LinkedList<Integer> leapList = new LinkedList<Integer>();
         int allLeaps = 0;
@@ -61,43 +95,6 @@ public class Node {
         return leapList;
     }
 
-    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath) {
-        if(curr.startsLeapTo(n)) {
-            LinkedList<Integer> leapList = countLeaps(currPath);
-            if(leapList.get(0) < 4) {
-                if (curr.startsBigLeapTo(n)) {
-                    if (leapList.get(1) < 2) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return true;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
-    }
-
-    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax) {
-        if (this.equals(to)) {
-            currPath.add(this);
-            list.add(new LinkedList<Node>(currPath));
-            currPath.remove(this);
-        } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
-            currPath.add(this);
-            for (Node n : this.getsTo) {
-                if (leapHelper(this, n, currPath)) {
-                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax);
-                }
-            }
-            currPath.remove(this);
-        }
-    }
-
     boolean startsBigLeapTo(Node next) {
         int a = (this.pitch - next.pitch);
         return ((a >= 5) || (a <= -5));
@@ -109,11 +106,6 @@ public class Node {
 
     boolean startsLeapDownTo(Node next) {
         return((this.pitch - next.pitch) >= 3);
-    }
-
-    boolean startsLeapTo(Node next) {
-        int a = (this.pitch - next.pitch);
-        return ((a > 2) || (a < -2));
     }
 
     void printLots(Node to, int earlyBound, int laterBound, int climax) {

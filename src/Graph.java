@@ -22,55 +22,14 @@ public class Graph {
     int climaxEarlyBound; //earliest climax can occur
     int climaxLateBound; //latest climax can occur
 
-    void climaxPosPicker() {
-        climaxEarlyBound = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
-        climaxLateBound = ((climaxEarlyBound * 2) - 1);
+    Graph() {
+        setUpAllLegalMoves();
     }
 
-    void setInRangeDiatonics() {
-        for(int i = lowerBound; i <= upperBound; i++) {
-            if (isDiatonic(i)) {
-                inRangeDiatonics.add(i);
-            }
-        }
-    }
-
-    void setColumns() {
-        columns = new ArrayList<ArrayList<Node>>(length);
-        for(int i = 0; i < length; i++) {
-            ArrayList<Node> a = new ArrayList<Node>(inRangeDiatonics.size());
-            for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                a.add(new Node(inRangeDiatonics.get(j)));
-            }
-            columns.add(a);
-        }
-    }
-
-    void makeGetsTo() {
-        start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
-        for(Integer i : allLegalMoves) {
-            if (inRangeDiatonics.contains(tonic + i)) {
-                start.addEdge(columns.get(1).get(inRangeDiatonics.indexOf(tonic + i)));
-            }
-        }
-        for(int j = 1; j < (length - 1); j++) {
-            for(int k = 0; k < inRangeDiatonics.size(); k++) {
-                makeGetsToHelper(columns.get(j).get(k), j);
-            }
-        }
-        end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
-    }
-
-    void pickTestNode() {
-        testnode = columns.get(1).get(4);
-    }
-
-    void makeGetsToHelper(Node node, int currColumn) {
-        for(Integer i : allLegalMoves) {
-            if (inRangeDiatonics.contains(node.pitch + i)) {
-                node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
-            }
-        }
+    Graph(Mode mode, int key) {
+        setUpAllLegalMoves();
+        this.mode = mode;
+        this.key = key;
     }
 
     void setUpAllLegalMoves() {
@@ -91,70 +50,6 @@ public class Graph {
         allLegalMoves.add(12); //ascend octave
     }
 
-    void setUpLegalMovesTemplate() {
-        legalMovesTemplate.addAll(allLegalMoves);
-    }
-
-    void removeAllLeaps() {
-        legalMovesTemplate.removeFirstOccurrence(-12);
-        legalMovesTemplate.removeFirstOccurrence(-7);
-        legalMovesTemplate.removeFirstOccurrence(-5);
-        legalMovesTemplate.removeFirstOccurrence(-4);
-        legalMovesTemplate.removeFirstOccurrence(-3);
-        legalMovesTemplate.removeFirstOccurrence(3);
-        legalMovesTemplate.removeFirstOccurrence(4);
-        legalMovesTemplate.removeFirstOccurrence(5);
-        legalMovesTemplate.removeFirstOccurrence(7);
-        legalMovesTemplate.removeFirstOccurrence(8);
-        legalMovesTemplate.removeFirstOccurrence(12);
-    }
-
-    void removeAllP4AndUpLeaps() {
-        legalMovesTemplate.removeFirstOccurrence(-12);
-        legalMovesTemplate.removeFirstOccurrence(-7);
-        legalMovesTemplate.removeFirstOccurrence(-5);
-        legalMovesTemplate.removeFirstOccurrence(5);
-        legalMovesTemplate.removeFirstOccurrence(7);
-        legalMovesTemplate.removeFirstOccurrence(8);
-        legalMovesTemplate.removeFirstOccurrence(12);
-    }
-
-    void setUpTempLegalMoves(int pitch) {
-        tempLegalMoves.clear();
-        for(Integer i : legalMovesTemplate) {
-            int tempPitch = (pitch + i);
-            if(isInRange(tempPitch)) {
-                if(isDiatonic(tempPitch)) {
-                    tempLegalMoves.add(i);
-                }
-            }
-        }
-    }
-
-    //for debugging and testing!
-    void printLegalMovesTemplate() {
-        for(Integer i : legalMovesTemplate) {
-            System.out.println(i);
-        }
-    }
-
-    //for debugging and testing!
-    void printAllLegalMoves() {
-        for(Integer i : allLegalMoves) {
-            System.out.println(allLegalMoves.get(i));
-        }
-    }
-
-    Graph() {
-        setUpAllLegalMoves();
-    }
-
-    Graph(Mode mode, int key) {
-        setUpAllLegalMoves();
-        this.mode = mode;
-        this.key = key;
-    }
-
     void setMode(int input) throws InvalidInputException {
         switch(input) {
             case 1: mode = Mode.IONIAN; break;
@@ -164,7 +59,7 @@ public class Graph {
             case 5: mode = Mode.MIXOLYDIAN; break;
             case 6: mode = Mode.AEOLIAN; break;
             case 7: mode = Mode.LOCRIAN; break;
-            default: throw new InvalidInputException(Integer.toString(input), "is not an integer between 1 and 7");
+            default: throw new InvalidInputException(Integer.toString(input), " is not an integer between 1 and 7");
         }
     }
 
@@ -175,21 +70,31 @@ public class Graph {
         }
     }
 
-    void setDiatonicPitchClasses() { //may want to clean with a more element-based for loop
-        //style item, look at JavaDoc for ArrayList
-        diatonicPitchClasses.add(key);
+    //starting with the tonic, add steps (from mode.steps) needed to jump to the next diatonic note.
+    //the % 12 ensures the values are 0-11
+    void setDiatonicPitchClasses() {
+        diatonicPitchClasses.add(key); //adds tonic
         int hop = key;
-        for(int i = 0; i < 6; i++) {
-            hop = (hop + mode.steps.get(i)) % 12;
+        for(int i = 0; i < 6; i++) { //not using element-based for because you need to avoid the last
+            hop = (hop + mode.steps.get(i)) % 12; //item in mode.steps, which is ti2Do.
             diatonicPitchClasses.add(hop);
         }
     }
 
-    //for debugging and testing!
-    void printDiatonicPitchClasses() { //may want to clean with a more element-based for loop
-        //style item, look at JavaDoc for ArrayList
-        for(int i = 0; i < 7; i++) {
-            System.out.println(diatonicPitchClasses.get(i));
+    //for debugging and testing
+    void printDiatonicPitchClasses() {
+        for(Integer i : diatonicPitchClasses) {
+            System.out.println(i);
+        }
+    }
+
+    void boundOK(int input) throws InvalidInputException {
+        if(input < 0) {
+            throw new InvalidInputException(Integer.toString(input), "is less than 0");
+        } if(input > 127) {
+            throw new InvalidInputException(Integer.toString(input), "is greater than 127");
+        } if(!isDiatonic(input)) {
+            throw new InvalidInputException(Integer.toString(input), "is not diatonic");
         }
     }
 
@@ -197,17 +102,7 @@ public class Graph {
         return diatonicPitchClasses.contains(pitch%12);
     }
 
-    void boundHelper(int input) throws InvalidInputException {
-        if(input < 0) {
-            throw new InvalidInputException(Integer.toString(input), "is less than 0");
-        } else if(input > 127) {
-            throw new InvalidInputException(Integer.toString(input), "is greater than 127");
-        } else if(!isDiatonic(input)) {
-            throw new InvalidInputException(Integer.toString(input), "is not diatonic");
-        }
-    }
-
-    void setBounds(int input1, int input2) throws InvalidInputException {
+    void setBoundsTonicClimax(int input1, int input2) throws InvalidInputException {
         int distance;
         int upper;
         int lower;
@@ -221,25 +116,18 @@ public class Graph {
             lower = input2;
         }
         switch(mode) {
-            case IONIAN, LYDIAN, MIXOLYDIAN: intervalSizeOK(true, distance); break;
-            case DORIAN, PHRYGIAN, AEOLIAN, LOCRIAN: intervalSizeOK(false, distance); break;
+            case IONIAN, LYDIAN, MIXOLYDIAN: intervalSizeOK(distance, 4, 16, "major"); break;
+            case DORIAN, PHRYGIAN, AEOLIAN, LOCRIAN: intervalSizeOK(distance, 3, 15, "minor"); break;
         }
         setTonic(upper, lower);
     }
 
-    void intervalSizeOK(boolean isMajThirdTenth, int distance) throws InvalidInputException {
-        if(isMajThirdTenth) {
-            if(distance < 4) {
-                throw new InvalidInputException(Integer.toString(distance), "is distance between bounds,\ninterval must span at least a major third");
-            } else if(distance > 16) {
-                throw new InvalidInputException(Integer.toString(distance), "is distance between bounds,\ninterval must not exceed a major tenth");
-            }
-        } else {
-            if(distance < 3) {
-                throw new InvalidInputException(Integer.toString(distance), "is distance between bounds,\ninterval must span at least a minor third");
-            } else if(distance > 15) {
-                throw new InvalidInputException(Integer.toString(distance), "is distance between bounds,\ninterval must not exceed a minor tenth");
-            }
+    void intervalSizeOK(int distance, int smallest, int greatest, String quality) throws InvalidInputException {
+        if(distance < smallest) {
+            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must span at least a " + quality + "third");
+        }
+        if(distance > greatest) {
+            throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must not exceed a " + quality + "tenth");
         }
     }
 
@@ -295,11 +183,10 @@ public class Graph {
                     foundATonic = true;
                 }
             } else {
+                hop = hop + mode.steps.get(counter);
                 if(counter == 6) {
-                    hop = hop + mode.steps.get(counter);
                     counter = 0;
                 } else {
-                    hop = hop + mode.steps.get(counter);
                     counter = counter + 1;
                 }
             }
@@ -310,16 +197,122 @@ public class Graph {
         return((diatonicPitchClasses.get(6)) == (pitch%12));
     }
 
+    void setLength(int input) throws InvalidInputException {
+        if(input < 8) {
+            throw new InvalidInputException(Integer.toString(input), " is less than 8");
+        }
+        if(input > 16) {
+            throw new InvalidInputException(Integer.toString(input), " is greater than 16");
+        } this.length = input;
+    }
+
+    void setUpLegalMovesTemplate() {
+        legalMovesTemplate.addAll(allLegalMoves);
+    }
+
+    void setInRangeDiatonics() {
+        for(int i = lowerBound; i <= upperBound; i++) {
+            if (isDiatonic(i)) {
+                inRangeDiatonics.add(i);
+            }
+        }
+    }
+
+    void setColumns() {
+        columns = new ArrayList<ArrayList<Node>>(length);
+        for(int i = 0; i < length; i++) {
+            ArrayList<Node> a = new ArrayList<Node>(inRangeDiatonics.size());
+            for(int j = 0; j < inRangeDiatonics.size(); j++) {
+                a.add(new Node(inRangeDiatonics.get(j)));
+            }
+            columns.add(a);
+        }
+    }
+
+    void makeGetsTo() {
+        start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
+        for(Integer i : allLegalMoves) {
+            if (inRangeDiatonics.contains(tonic + i)) {
+                start.addEdge(columns.get(1).get(inRangeDiatonics.indexOf(tonic + i)));
+            }
+        }
+        for(int j = 1; j < (length - 1); j++) {
+            for(int k = 0; k < inRangeDiatonics.size(); k++) {
+                makeGetsToHelper(columns.get(j).get(k), j);
+            }
+        }
+        end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
+    }
+
+    void makeGetsToHelper(Node node, int currColumn) {
+        for(Integer i : allLegalMoves) {
+            if (inRangeDiatonics.contains(node.pitch + i)) {
+                node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
+            }
+        }
+    }
+
+    void climaxPosPicker() {
+        climaxEarlyBound = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
+        climaxLateBound = ((climaxEarlyBound * 2) - 1);
+    }
+
+    void pickTestNode() {
+        testnode = columns.get(1).get(4);
+    }
+
+    void removeAllLeaps() {
+        legalMovesTemplate.removeFirstOccurrence(-12);
+        legalMovesTemplate.removeFirstOccurrence(-7);
+        legalMovesTemplate.removeFirstOccurrence(-5);
+        legalMovesTemplate.removeFirstOccurrence(-4);
+        legalMovesTemplate.removeFirstOccurrence(-3);
+        legalMovesTemplate.removeFirstOccurrence(3);
+        legalMovesTemplate.removeFirstOccurrence(4);
+        legalMovesTemplate.removeFirstOccurrence(5);
+        legalMovesTemplate.removeFirstOccurrence(7);
+        legalMovesTemplate.removeFirstOccurrence(8);
+        legalMovesTemplate.removeFirstOccurrence(12);
+    }
+
+    void removeAllP4AndUpLeaps() {
+        legalMovesTemplate.removeFirstOccurrence(-12);
+        legalMovesTemplate.removeFirstOccurrence(-7);
+        legalMovesTemplate.removeFirstOccurrence(-5);
+        legalMovesTemplate.removeFirstOccurrence(5);
+        legalMovesTemplate.removeFirstOccurrence(7);
+        legalMovesTemplate.removeFirstOccurrence(8);
+        legalMovesTemplate.removeFirstOccurrence(12);
+    }
+
+    void setUpTempLegalMoves(int pitch) {
+        tempLegalMoves.clear();
+        for(Integer i : legalMovesTemplate) {
+            int tempPitch = (pitch + i);
+            if(isInRange(tempPitch)) {
+                if(isDiatonic(tempPitch)) {
+                    tempLegalMoves.add(i);
+                }
+            }
+        }
+    }
+
     boolean isInRange(int pitch) {
         return((pitch >= lowerBound) && (pitch <= upperBound));
     }
 
-    void setLength(int input) throws InvalidInputException {
-        if(input < 8) {
-            throw new InvalidInputException(Integer.toString(input), " is less than 8");
-        } else if(input > 16) {
-            throw new InvalidInputException(Integer.toString(input), " is greater than 16");
-        } else this.length = input;
+    //for debugging and testing!
+    void printLegalMovesTemplate() {
+        for(Integer i : legalMovesTemplate) {
+            System.out.println(i);
+        }
+    }
+
+    //for debugging and testing!
+    void printAllLegalMoves() {
+        for(Integer i : allLegalMoves) {
+            System.out.println(allLegalMoves.get(i));
+        }
     }
 }
 
