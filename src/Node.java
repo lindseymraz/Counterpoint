@@ -158,6 +158,7 @@ public class Node {
         for(LinkedList<Node> cantus : cantusFirmi) {
             printLinkedList(cantus);
         }
+        System.out.println(cantusFirmi.size() + " cantus firmi generated!");
     }
 
     void printLinkedList(LinkedList<Node> a) {
