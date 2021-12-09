@@ -231,17 +231,24 @@ public class Graph {
 
     void makeGetsTo() {
         start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
-        for(Integer i : allLegalMoves) {
+        for (Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(tonic + i)) {
                 start.addEdge(columns.get(1).get(inRangeDiatonics.indexOf(tonic + i)));
             }
         }
-        for(int j = 1; j < (length - 1); j++) {
-            for(int k = 0; k < inRangeDiatonics.size(); k++) {
+        for (int j = 1; j < (length - 2); j++) {
+            for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 makeGetsToHelper(columns.get(j).get(k), j);
             }
         }
         end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
+        int re = (tonic + mode.steps.get(0));
+        int ti = (tonic - mode.steps.get(6));
+        for (int l = 0; l < inRangeDiatonics.size(); l++) {
+            if ((columns.get(length - 2).get(l).pitch == re) || (columns.get(length - 2).get(l).pitch == ti)) {
+                columns.get(length - 2).get(l).addEdge(end);
+            }
+        }
     }
 
     void makeGetsToHelper(Node node, int currColumn) {

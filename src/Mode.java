@@ -11,7 +11,7 @@ public enum Mode {
 
     ArrayList<Integer> steps = new ArrayList<Integer>();
 
-    private Mode(int do2Re, int re2Mi, int mi2Fa, int fa2So, int so2La, int la2Ti, int ti2Do) {
+    Mode(int do2Re, int re2Mi, int mi2Fa, int fa2So, int so2La, int la2Ti, int ti2Do) {
         steps.add(do2Re);
         steps.add(re2Mi);
         steps.add(mi2Fa);

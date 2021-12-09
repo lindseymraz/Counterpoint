@@ -20,7 +20,7 @@ public class IO {
             //System.out.println("getsTo is ");
             //G.testnode.printLinkedList(G.testnode.getsTo);
             System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
-            G.start.printLots(G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax);
+            G.start.printLots(G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, G.length);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + " " + e.whyBad);
             input();
