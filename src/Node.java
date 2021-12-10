@@ -89,17 +89,9 @@ public class Node {
                         int topInt;
                         int bottomInt;
                         if (prevNode.startsUpwardMotionTo(curr) && curr.startsUpwardMotionTo(n)) {
-                            if(currPath.size() >= 3) {
-                                Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
-                                if(prevPrevNode.startsUpwardMotionTo(prevNode)) { return false; }
-                            }
                             topInt = (n.pitch - curr.pitch);
                             bottomInt = (curr.pitch - prevNode.pitch);
                         } else {
-                            if(currPath.size() >= 3) {
-                                Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
-                                if(prevPrevNode.startsDownwardMotionTo(prevNode)) { return false; }
-                            }
                             topInt = (prevNode.pitch - curr.pitch);
                             bottomInt = (curr.pitch - n.pitch);
                         }
@@ -122,6 +114,14 @@ public class Node {
                             default:
                                 return false;
                         }
+                    } if(currPath.size() >= 3) {
+                        Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
+                        if(prevPrevNode.startsUpwardMotionTo(prevNode) && prevNode.startsUpwardMotionTo(curr)) {
+                            return false;
+                        }
+                        if(prevPrevNode.startsDownwardMotionTo(prevNode) && prevNode.startsDownwardMotionTo(curr)) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -142,6 +142,16 @@ public class Node {
                         break;
                     default:
                         break;
+                }
+                if(currPath.size() >= 3) {
+                    Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
+                    if(prevPrevNode.startsLeapTo(prevNode) && prevNode.startsLeapTo(curr)) {
+                        if(prevNode.startsUpwardMotionTo(curr) && curr.startsUpwardMotionTo(n)) {
+                            return false;
+                        } if(prevNode.startsDownwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
