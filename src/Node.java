@@ -151,6 +151,14 @@ public class Node {
                         } if(prevNode.startsDownwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) {
                             return false;
                         }
+                    } else {
+                        if((!prevPrevNode.startsLeapTo(prevNode)) && prevNode.startsBigLeapTo(curr)) {
+                            if((prevPrevNode.startsUpwardMotionTo(prevNode) && prevNode.startsUpwardMotionTo(curr)) && curr.startsUpwardMotionTo(n)) {
+                                return false;
+                            }if((prevPrevNode.startsDownwardMotionTo(prevNode) && prevNode.startsDownwardMotionTo(curr)) && curr.startsDownwardMotionTo(n)) {
+                                return false;
+                            }
+                        }
                     }
                 }
             }
