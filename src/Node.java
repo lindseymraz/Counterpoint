@@ -73,6 +73,12 @@ public class Node {
             }
             if(currPath.size() >= 2) {
                 Node prevNode = currPath.get((currPath.indexOf(curr) - 1));
+                int dist = n.pitch - curr.pitch;
+                switch(dist) {
+                    case 12, 8: { if(prevNode.startsUpwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return false; } break;}
+                    case -12: { if(prevNode.startsDownwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return false; } break;}
+                    default: break;
+                }
                 if (currPath.size() >= 3) {
                     Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
                     if (prevPrevNode.startsLeapTo(prevNode) && prevNode.startsLeapTo(curr)) {
@@ -113,7 +119,16 @@ public class Node {
                     }
                 }
             }
-        } return true;
+        } if(currPath.size() >= 2) {
+            Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
+            int dist = curr.pitch - prevNode.pitch;
+            switch(dist) {
+                case 12, 8: if(curr.startsUpwardMotionTo(n) || curr.startsLeapTo(n)) { return false; } break;
+                case -12: if(curr.startsDownwardMotionTo(n) || curr.startsLeapTo(n)) { return false; } break;
+                default: break;
+            }
+        }
+        return true;
     }
 
     boolean startsLeapTo(Node next) {
