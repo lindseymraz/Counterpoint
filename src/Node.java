@@ -72,6 +72,16 @@ public class Node {
                     case -12: { if(prevNode.startsDownwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return false; } break;}
                     default: break;
                 }
+                if(dist >= 7) {
+                    if(prevNode.startsUpwardMotionTo(curr)) { return false; }
+                }
+                if(dist <= -7) {
+                    if(prevNode.startsDownwardMotionTo(curr)) {
+                        if (!((dist == -7) && ((prevNode.pitch - curr.pitch) == -5))) {
+                            return false;
+                        }
+                    }
+                }
                 if (currPath.size() >= 3) {
                     Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
                     if (prevPrevNode.startsLeapTo(prevNode) && prevNode.startsLeapTo(curr)) {
