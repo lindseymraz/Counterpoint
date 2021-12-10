@@ -89,9 +89,17 @@ public class Node {
                         int topInt;
                         int bottomInt;
                         if (prevNode.startsUpwardMotionTo(curr) && curr.startsUpwardMotionTo(n)) {
+                            if(currPath.size() >= 3) {
+                                Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
+                                if(prevPrevNode.startsUpwardMotionTo(prevNode)) { return false; }
+                            }
                             topInt = (n.pitch - curr.pitch);
                             bottomInt = (curr.pitch - prevNode.pitch);
                         } else {
+                            if(currPath.size() >= 3) {
+                                Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
+                                if(prevPrevNode.startsDownwardMotionTo(prevNode)) { return false; }
+                            }
                             topInt = (prevNode.pitch - curr.pitch);
                             bottomInt = (curr.pitch - n.pitch);
                         }
