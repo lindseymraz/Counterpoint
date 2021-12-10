@@ -227,7 +227,7 @@ public class Node {
         }
         for(int i = (currPath.size() - 1); i > 0; i--) {
             if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
-                int diff = (n.pitch - currPath.get(i-1).pitch);
+                int diff = (curr.pitch - currPath.get(i-1).pitch);
                 switch(diff) {
                     case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14: return false;
                     default: return true;
