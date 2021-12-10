@@ -33,7 +33,7 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if (leapHelper(this, n, currPath, length)) {
+                if ((leapHelper(this, n, currPath, length)) && doesntOutlineDissonantMelodic(this, n, currPath, length)) {
                     n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, length);
                 }
             }
@@ -218,6 +218,22 @@ public class Node {
 
     boolean startsDownwardMotionTo(Node next) {
         return((this.pitch - next.pitch) > 0);
+    }
+
+    boolean doesntOutlineDissonantMelodic(Node curr, Node n, LinkedList<Node> currPath, int length) {
+        int dir = 1;
+        if(curr.startsDownwardMotionTo(n)) {
+            dir = -1;
+        }
+        for(int i = (currPath.size() - 1); i > 0; i--) {
+            if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
+                int diff = (n.pitch - currPath.get(i-1).pitch);
+                switch(diff) {
+                    case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14: return false;
+                    default: return true;
+                }
+            }
+        } return true;
     }
 
     void printLots(Node to, int earlyBound, int laterBound, int climax, int length) {
