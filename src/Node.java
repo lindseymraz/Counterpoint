@@ -62,15 +62,8 @@ public class Node {
 
     boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int length) {
         if (curr.startsLeapTo(n)) {
-            LinkedList<Integer> leapList = countLeaps(currPath);
-            if (leapList.get(0) > 3) {
-                return false;
-            }
-            if (curr.startsBigLeapTo(n)) {
-                if ((leapList.get(1) > 1) || ((currPath.size() == (length - 2)))) {
-                    return false;
-                }
-            }
+            if(isLeapCountBad(curr, n, currPath)) { return false; }
+            if(curr.startsBigLeapTo(n) && (currPath.size() == (length - 2))) { return false; }
             if(currPath.size() >= 2) {
                 Node prevNode = currPath.get((currPath.indexOf(curr) - 1));
                 int dist = n.pitch - curr.pitch;
@@ -150,6 +143,15 @@ public class Node {
     boolean startsLeapTo(Node next) {
         int a = (this.pitch - next.pitch);
         return ((a > 2) || (a < -2));
+    }
+
+    boolean isLeapCountBad(Node curr, Node n, LinkedList<Node> currPath) {
+        LinkedList<Integer> leapList = countLeaps(currPath);
+        if (leapList.get(0) > 3) { return true; }
+        if (curr.startsBigLeapTo(n)) {
+            if (leapList.get(1) > 1) { return true; }
+        }
+        return false;
     }
 
     LinkedList<Integer> countLeaps(LinkedList<Node> list) {
