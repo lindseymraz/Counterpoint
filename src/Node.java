@@ -84,6 +84,11 @@ public class Node {
                     if (prevPrevNode.startsLeapTo(prevNode) && prevNode.startsLeapTo(curr)) {
                         return false;
                     }
+                    int dist3 = curr.pitch - prevNode.pitch;
+                    switch(dist3) {
+                        case 12, 8, -12: return false;
+                        default: break;
+                    }
                 }
                 if (prevNode.startsLeapTo(curr)) {
                     if (!((prevNode.startsUpwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) ||
@@ -119,13 +124,24 @@ public class Node {
                     }
                 }
             }
-        } if(currPath.size() >= 2) {
-            Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
-            int dist = curr.pitch - prevNode.pitch;
-            switch(dist) {
-                case 12, 8: if(curr.startsUpwardMotionTo(n) || curr.startsLeapTo(n)) { return false; } break;
-                case -12: if(curr.startsDownwardMotionTo(n) || curr.startsLeapTo(n)) { return false; } break;
-                default: break;
+        } else {
+            if (currPath.size() >= 2) {
+                Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
+                int dist = curr.pitch - prevNode.pitch;
+                switch (dist) {
+                    case 12, 8:
+                        if (curr.startsUpwardMotionTo(n)) {
+                            return false;
+                        }
+                        break;
+                    case -12:
+                        if (curr.startsDownwardMotionTo(n)) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         return true;
