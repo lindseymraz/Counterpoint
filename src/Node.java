@@ -33,7 +33,7 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if ((leapHelper(this, n, currPath, length)) && doesntOutlineDissonantMelodic(this, n, currPath, length)) {
+                if ((leapHelper(this, n, currPath, length)) && doesntOutlineDissonantMelodic(this, n, currPath)) {
                     n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, length);
                 }
             }
@@ -106,8 +106,7 @@ public class Node {
                             bottomInt = (curr.pitch - n.pitch);
                         }
                         switch (topInt) {
-                            case 5:
-                                if ((((bottomInt != 7) && (bottomInt != 4)) && (bottomInt != 3))) {
+                            case 5: if ((((bottomInt != 7) && (bottomInt != 4)) && (bottomInt != 3))) {
                                     return false;
                                 }
                                 break;
@@ -220,20 +219,62 @@ public class Node {
         return((this.pitch - next.pitch) > 0);
     }
 
-    boolean doesntOutlineDissonantMelodic(Node curr, Node n, LinkedList<Node> currPath, int length) {
-        int dir = 1;
-        if(curr.startsDownwardMotionTo(n)) {
-            dir = -1;
-        }
-        for(int i = (currPath.size() - 1); i > 0; i--) {
-            if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
-                int diff = (curr.pitch - currPath.get(i-1).pitch);
-                switch(diff) {
-                    case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14: return false;
-                    default: return true;
+    boolean doesntOutlineDissonantMelodic(Node curr, Node n, LinkedList<Node> currPath) {
+        if(currPath.size() >= 2) {
+            Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
+            if((prevNode.startsUpwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) || (prevNode.startsDownwardMotionTo(curr) && curr.startsUpwardMotionTo(n))) {
+                int dir = -1;
+                if (curr.startsDownwardMotionTo(n)) {
+                    dir = 1;
+                }
+                for (int i = (currPath.size() - 1); i > -1; i--) {
+                    if(i == 0) {
+                        int diff = (curr.pitch - currPath.get(i).pitch);
+                        switch (diff) {
+                            case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                                return false;
+                            default:
+                                return true;
+                        }
+                    }
+                    if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
+                        int diff = (curr.pitch - currPath.get(i).pitch);
+                        switch (diff) {
+                            case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                                return false;
+                            default:
+                                return true;
+                        }
+                    }
                 }
             }
-        } return true;
+        } if((currPath.size() - 2) == currPath.indexOf(curr)) {
+            int dir = 1;
+            if (curr.startsDownwardMotionTo(n)) {
+                dir = -1;
+            }
+            for (int i = (currPath.size() - 1); i > -1; i--) {
+                if(i == 0) {
+                    int diff = (n.pitch - currPath.get(i).pitch);
+                    switch (diff) {
+                        case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                            return false;
+                        default:
+                            return true;
+                    }
+                }
+                if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
+                    int diff = (n.pitch - currPath.get(i).pitch);
+                    switch (diff) {
+                        case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                            return false;
+                        default:
+                            return true;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     void printLots(Node to, int earlyBound, int laterBound, int climax, int length) {
