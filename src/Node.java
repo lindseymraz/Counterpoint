@@ -33,7 +33,7 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if ((leapHelper(this, n, currPath, length)) && doesntOutlineDissonantMelodic(this, n, currPath)) {
+                if ((leapHelper(this, n, currPath, length)) && doesntOutlineDissonantMelodic(this, n, currPath, length)) {
                     n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, length);
                 }
             }
@@ -219,7 +219,7 @@ public class Node {
         return((this.pitch - next.pitch) > 0);
     }
 
-    boolean doesntOutlineDissonantMelodic(Node curr, Node n, LinkedList<Node> currPath) {
+    boolean doesntOutlineDissonantMelodic(Node curr, Node n, LinkedList<Node> currPath, int length) {
         if(currPath.size() >= 2) {
             Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
             if((prevNode.startsUpwardMotionTo(curr) && curr.startsDownwardMotionTo(n)) || (prevNode.startsDownwardMotionTo(curr) && curr.startsUpwardMotionTo(n))) {
@@ -236,9 +236,35 @@ public class Node {
                             default:
                                 return true;
                         }
-                    }
-                    if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
+                    } else { if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
                         int diff = (curr.pitch - currPath.get(i).pitch);
+                        switch (diff) {
+                            case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                                return false;
+                            default:
+                                return true; }
+                        }
+                    }
+                }
+            }
+        } if((length - 2) == currPath.indexOf(curr)) {
+            Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
+            if((prevNode.startsUpwardMotionTo(curr) && curr.startsUpwardMotionTo(n)) || ((prevNode.startsDownwardMotionTo(curr) && curr.startsDownwardMotionTo(n)))) {
+                int dir = 1;
+                if (curr.startsDownwardMotionTo(n)) {
+                    dir = -1;
+                }
+                for (int i = (currPath.size() - 1); i > -1; i--) {
+                    if (i == 0) {
+                        int diff = (n.pitch - currPath.get(i).pitch);
+                        switch (diff) {
+                            case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
+                                return false;
+                            default:
+                                return true;
+                        }
+                    } else { if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
+                        int diff = (n.pitch - currPath.get(i).pitch);
                         switch (diff) {
                             case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
                                 return false;
@@ -246,30 +272,6 @@ public class Node {
                                 return true;
                         }
                     }
-                }
-            }
-        } if((currPath.size() - 2) == currPath.indexOf(curr)) {
-            int dir = 1;
-            if (curr.startsDownwardMotionTo(n)) {
-                dir = -1;
-            }
-            for (int i = (currPath.size() - 1); i > -1; i--) {
-                if(i == 0) {
-                    int diff = (n.pitch - currPath.get(i).pitch);
-                    switch (diff) {
-                        case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
-                            return false;
-                        default:
-                            return true;
-                    }
-                }
-                if ((dir * (currPath.get(i).pitch - currPath.get(i - 1).pitch)) < 0) {
-                    int diff = (n.pitch - currPath.get(i).pitch);
-                    switch (diff) {
-                        case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14:
-                            return false;
-                        default:
-                            return true;
                     }
                 }
             }
