@@ -9,7 +9,6 @@ public class IO {
         try {
             Graph G = new Graph();
             userInitSequence(G);
-            G.setUpLegalMovesTemplate();
             //G.printLegalMovesTemplate();
             G.setInRangeDiatonics();
             G.setColumns();
@@ -20,7 +19,7 @@ public class IO {
             //System.out.println("getsTo is ");
             //G.testnode.printLinkedList(G.testnode.getsTo);
             System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
-            G.start.printLots(G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, G.length);
+            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2));
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             input();

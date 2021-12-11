@@ -12,8 +12,6 @@ public class Graph {
     ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     int length; //8 to 16
     ArrayList<Integer> allLegalMoves = new ArrayList<Integer>(15);
-    LinkedList<Integer> legalMovesTemplate = new LinkedList<Integer>();
-    LinkedList<Integer> tempLegalMoves = new LinkedList<Integer>();
     ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
     ArrayList<ArrayList<Node>> columns;
     Node start;
@@ -206,10 +204,6 @@ public class Graph {
         } this.length = input;
     }
 
-    void setUpLegalMovesTemplate() {
-        legalMovesTemplate.addAll(allLegalMoves);
-    }
-
     void setInRangeDiatonics() {
         for(int i = lowerBound; i <= upperBound; i++) {
             if (isDiatonic(i)) {
@@ -231,11 +225,7 @@ public class Graph {
 
     void makeGetsTo() {
         start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
-        for (Integer i : allLegalMoves) {
-            if (inRangeDiatonics.contains(tonic + i)) {
-                start.addEdge(columns.get(1).get(inRangeDiatonics.indexOf(tonic + i)));
-            }
-        }
+        makeGetsToHelper(start, 0);
         for (int j = 1; j < (length - 2); j++) {
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 makeGetsToHelper(columns.get(j).get(k), j);
@@ -268,57 +258,30 @@ public class Graph {
         testnode = columns.get(1).get(4);
     }
 
-    void removeAllLeaps() {
-        legalMovesTemplate.removeFirstOccurrence(-12);
-        legalMovesTemplate.removeFirstOccurrence(-7);
-        legalMovesTemplate.removeFirstOccurrence(-5);
-        legalMovesTemplate.removeFirstOccurrence(-4);
-        legalMovesTemplate.removeFirstOccurrence(-3);
-        legalMovesTemplate.removeFirstOccurrence(3);
-        legalMovesTemplate.removeFirstOccurrence(4);
-        legalMovesTemplate.removeFirstOccurrence(5);
-        legalMovesTemplate.removeFirstOccurrence(7);
-        legalMovesTemplate.removeFirstOccurrence(8);
-        legalMovesTemplate.removeFirstOccurrence(12);
-    }
-
-    void removeAllP4AndUpLeaps() {
-        legalMovesTemplate.removeFirstOccurrence(-12);
-        legalMovesTemplate.removeFirstOccurrence(-7);
-        legalMovesTemplate.removeFirstOccurrence(-5);
-        legalMovesTemplate.removeFirstOccurrence(5);
-        legalMovesTemplate.removeFirstOccurrence(7);
-        legalMovesTemplate.removeFirstOccurrence(8);
-        legalMovesTemplate.removeFirstOccurrence(12);
-    }
-
-    void setUpTempLegalMoves(int pitch) {
-        tempLegalMoves.clear();
-        for(Integer i : legalMovesTemplate) {
-            int tempPitch = (pitch + i);
-            if(isInRange(tempPitch)) {
-                if(isDiatonic(tempPitch)) {
-                    tempLegalMoves.add(i);
-                }
-            }
-        }
-    }
-
     boolean isInRange(int pitch) {
         return((pitch >= lowerBound) && (pitch <= upperBound));
-    }
-
-    //for debugging and testing!
-    void printLegalMovesTemplate() {
-        for(Integer i : legalMovesTemplate) {
-            System.out.println(i);
-        }
     }
 
     //for debugging and testing!
     void printAllLegalMoves() {
         for(Integer i : allLegalMoves) {
             System.out.println(allLegalMoves.get(i));
+        }
+    }
+
+    void printLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos) {
+        LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
+        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos);
+        int acc = 1;
+        for(LinkedList<Node> cantus : cantusFirmi) {
+            from.printMaxStyle(cantus, acc);
+            acc++;
+        }
+        int size = cantusFirmi.size();
+        switch(size) {
+            case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;
+            case 1: System.out.println(size + " cantus firmus generated!"); break;
+            default: System.out.println(size + " cantus firmi generated!");
         }
     }
 }
