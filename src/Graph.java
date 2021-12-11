@@ -260,8 +260,8 @@ public class Graph {
     }
 
     void climaxPosPicker() {
-        climaxEarlyBound = (int)((Math.round(length*.66)) - (Math.round(length*.33)) + 1);
-        climaxLateBound = ((climaxEarlyBound * 2) - 1);
+        climaxEarlyBound = (int)((Math.floor(length*.33)) + 1);
+        climaxLateBound = (int)(Math.round(length*.66));
     }
 
     void pickTestNode() {
