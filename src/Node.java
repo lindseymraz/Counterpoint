@@ -282,8 +282,10 @@ public class Node {
     void printLots(Node to, int earlyBound, int laterBound, int climax, int length) {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
         this.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, length);
+        int acc = 1;
         for(LinkedList<Node> cantus : cantusFirmi) {
-            printLinkedList(cantus);
+            printMaxStyle(cantus, acc);
+            acc++;
         }
         int size = cantusFirmi.size();
         switch(size) {
@@ -299,6 +301,15 @@ public class Node {
             System.out.print(a.get(i).pitch + ", ");
         }
         System.out.print(a.get(size).pitch + "\n");
+    }
+
+    void printMaxStyle(LinkedList<Node> a, int acc) {
+        int size = (a.size() - 1);
+        System.out.print(acc + ", ");
+        for(int i = 0; (i < size); i++) {
+            System.out.print(a.get(i).pitch + " ");
+        }
+        System.out.print(a.get(size).pitch + ";\n");
     }
 
 }
