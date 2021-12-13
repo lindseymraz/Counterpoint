@@ -1,4 +1,5 @@
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class Tests {
@@ -54,6 +55,28 @@ public class Tests {
         assertTrue(F4.startsBigLeapTo(C4)); //perfect fourth
         assertTrue(G4.startsBigLeapTo(C4)); //perfect fifth
         assertTrue(F5.startsBigLeapTo(C4)); //large
+    }
+
+    @Test
+    public void startsLeapLargerThanFourth() {
+        //upwards
+        assertFalse(C4.startsLeapLargerThanFourth(C4)); //unison
+        assertFalse(E4.startsLeapLargerThanFourth(F4)); //minor second
+        assertFalse(C4.startsLeapLargerThanFourth(D4)); //major second
+        assertFalse(D4.startsLeapLargerThanFourth(F4)); //minor third
+        assertFalse(C4.startsLeapLargerThanFourth(E4)); //major third
+        assertFalse(C4.startsLeapLargerThanFourth(F4)); //perfect fourth
+        assertTrue(C4.startsLeapLargerThanFourth(G4)); //perfect fifth
+        assertTrue(C4.startsLeapLargerThanFourth(F5)); //large
+        //downwards
+        assertFalse(C4.startsLeapLargerThanFourth(C4)); //unison
+        assertFalse(F4.startsLeapLargerThanFourth(E4)); //minor second
+        assertFalse(D4.startsLeapLargerThanFourth(C4)); //major second
+        assertFalse(F4.startsLeapLargerThanFourth(D4)); //minor third
+        assertFalse(E4.startsLeapLargerThanFourth(C4)); //major third
+        assertFalse(F4.startsLeapLargerThanFourth(C4)); //perfect fourth
+        assertTrue(G4.startsLeapLargerThanFourth(C4)); //perfect fifth
+        assertTrue(F5.startsLeapLargerThanFourth(C4)); //large
     }
 
     @Test

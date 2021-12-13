@@ -105,10 +105,15 @@ public class Node {
         return ((a > 2) || (a < -2));
     }
 
+    boolean startsLeapLargerThanFourth(Node next) {
+        int a = (this.pitch - next.pitch);
+        return ((a > 5) || (a < -5));
+    }
+
     boolean isLeapCountBad(Node curr, Node n, LinkedList<Node> currPath) {
         LinkedList<Integer> leapList = countLeaps(currPath);
         if (leapList.get(0) > 3) { return true; }
-        if (curr.startsBigLeapTo(n)) {
+        if (curr.startsLeapLargerThanFourth(n)) {
             if (leapList.get(1) > 1) { return true; }
         }
         return false;
@@ -117,17 +122,17 @@ public class Node {
     LinkedList<Integer> countLeaps(LinkedList<Node> list) {
         LinkedList<Integer> leapList = new LinkedList<Integer>();
         int allLeaps = 0;
-        int bigLeaps = 0;
+        int leapsOverFourth = 0;
         for(int i = 0; i < (list.size() - 1); i++) {
             if(list.get(i).startsLeapTo(list.get(i + 1))) {
                 allLeaps += 1;
-                if(list.get(i).startsBigLeapTo(list.get(i + 1))) {
-                    bigLeaps += 1;
+                if(list.get(i).startsLeapLargerThanFourth(list.get(i + 1))) {
+                    leapsOverFourth += 1;
                 }
             }
         }
         leapList.add(allLeaps);
-        leapList.add(bigLeaps);
+        leapList.add(leapsOverFourth);
         return leapList;
     }
 
