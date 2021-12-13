@@ -231,37 +231,52 @@ public class Graph {
     void makeGetsTo() {
         start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
         makeGetsToHelper(start, 0);
-        int sub = 2;
-        switch(mode) {
-            case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) { sub = 3; } break;
-            default: break;
-        }
-        for (int j = 1; j < (length - sub); j++) {
+        for (int j = 1; j < (length - 2); j++) {
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 makeGetsToHelper(columns.get(j).get(k), j);
             }
         }
-        if(sub == 3) {
-            int la = (tonic - 3);
-            for (int l = 0; l < columns.get(length - 3).size(); l++) {
-                if (columns.get(length - 3).get(l).pitch == la) {
-                    Node laNode = columns.get(length - 3).get(l);
-                    int mLim = columns.get(length - 2).size();
-                    for (int m = 0; m < mLim; m++) {
-                        if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
-                            laNode.addEdge(columns.get(length - 2).get(m));
+        switch(mode) {
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) {
+                int la = (tonic - 3);
+                for (int l = 0; l < columns.get(length - 3).size(); l++) {
+                    if (columns.get(length - 3).get(l).pitch == la) {
+                        Node laNode = columns.get(length - 3).get(l);
+                        int mLim = columns.get(length - 2).size();
+                        for (int m = 0; m < mLim; m++) {
+                            if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
+                                laNode.addEdge(columns.get(length - 2).get(m));
+                            }
                         }
-                    }
-                    int nLim = columns.get(length - 4).size();
-                    for(int n = 0; n < nLim; n++) {
-                        for(Integer i : allLegalMoves) {
-                            if((columns.get(length - 4).get(n).pitch + i) == la) {
-                                columns.get(length - 4).get(n).addEdge(laNode);
+                        int nLim = columns.get(length - 4).size();
+                        for(int n = 0; n < nLim; n++) {
+                            for(Integer i : allLegalMoves) {
+                                if((columns.get(length - 4).get(n).pitch + i) == la) {
+                                    columns.get(length - 4).get(n).addEdge(laNode);
+                                }
                             }
                         }
                     }
                 }
             }
+            case DORIAN, MIXOLYDIAN: if(isInRange(tonic - 1)) {
+                int tii = tonic - 1;
+                int pLim = columns.get(length - 3).size();
+                int qLim = columns.get(length - 2).size();
+                for (int q = 0; q < qLim; q++) {
+                    if(columns.get(length - 2).get(q).pitch == tii) {
+                        Node tiNode = columns.get(length - 2).get(q);
+                        for(int p = 0; p < pLim; p++) {
+                            for(Integer i : allLegalMoves) {
+                                if((columns.get(length - 3).get(p).pitch + i) == tii) {
+                                    columns.get(length - 3).get(p).addEdge(tiNode);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            default: break;
         }
         for(int o = 0; o < columns.get(length - 1).size(); o++) {
             if(columns.get(length - 1).get(o).pitch == tonic) {
