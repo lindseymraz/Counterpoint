@@ -249,13 +249,7 @@ public class Graph {
                             }
                         }
                         int nLim = columns.get(length - 4).size();
-                        for(int n = 0; n < nLim; n++) {
-                            for(Integer i : allLegalMoves) {
-                                if((columns.get(length - 4).get(n).pitch + i) == la) {
-                                    columns.get(length - 4).get(n).addEdge(laNode);
-                                }
-                            }
-                        }
+                        makeGetsToHelper2(nLim, 4, la, laNode);
                     }
                 }
             }
@@ -266,13 +260,7 @@ public class Graph {
                 for (int q = 0; q < qLim; q++) {
                     if(columns.get(length - 2).get(q).pitch == tii) {
                         Node tiNode = columns.get(length - 2).get(q);
-                        for(int p = 0; p < pLim; p++) {
-                            for(Integer i : allLegalMoves) {
-                                if((columns.get(length - 3).get(p).pitch + i) == tii) {
-                                    columns.get(length - 3).get(p).addEdge(tiNode);
-                                }
-                            }
-                        }
+                        makeGetsToHelper2(pLim, 3, tii, tiNode);
                     }
                 }
             }
@@ -297,6 +285,16 @@ public class Graph {
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
+            }
+        }
+    }
+
+    void makeGetsToHelper2(int lim, int sub, int note, Node addEdgeTo) {
+        for(int j = 0; j < lim; j++) {
+            for(Integer i : allLegalMoves) {
+                if((columns.get(length - sub).get(j).pitch + i) == note) {
+                    columns.get(length - sub).get(j).addEdge(addEdgeTo);
+                }
             }
         }
     }
