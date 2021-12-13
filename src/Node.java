@@ -236,7 +236,7 @@ public class Node {
 
     boolean intervalIsntDissonantMelodic(int pitch1, int pitch2) {
         switch(pitch1 - pitch2) {
-            case -14, -13, -11, -10, -6, 6, 10, 11, 13, 14: return false;
+            case -16, -15, -14, -13, -11, -10, -6, 6, 10, 11, 13, 14, 15, 16: return false;
             default: return true;
         }
     }
