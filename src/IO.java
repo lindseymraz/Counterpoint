@@ -45,4 +45,15 @@ public class IO {
         G.setLength(Integer.parseInt(keyboard.next()));
         System.out.println("Length is " + G.length);
     }
+
+    public void userInitSequence(Graph G, int mode, int key, int bound1, int bound2, int length) throws InvalidInputException {
+        G.setMode(mode);
+        G.setKey(key);
+        G.setDiatonicPitchClasses();
+        G.printDiatonicPitchClasses();
+        G.boundOK(bound1);
+        G.boundOK(bound2);
+        G.setBoundsTonicClimax(bound1, bound2);
+        G.setLength(length);
+    }
 }

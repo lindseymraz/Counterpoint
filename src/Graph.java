@@ -148,13 +148,13 @@ public class Graph {
         }
         if(a > b) {
             if(isClimaxInappropriate(a)) {
-                throw new InvalidInputException(Integer.toString(a), "is ti, climax must not be ti");
+                throw new InvalidInputException(Integer.toString(a), " is ti, climax must not be ti");
             } else {
                 climax = upper;
             }
         } else if(b > a) {
             if(isClimaxInappropriate(b)) {
-                throw new InvalidInputException(Integer.toString(b), "is ti, climax must not be ti");
+                throw new InvalidInputException(Integer.toString(b), " is ti, climax must not be ti");
             } else {
                 climax = lower;
             }
@@ -192,7 +192,7 @@ public class Graph {
     }
 
     boolean isClimaxInappropriate(int pitch) {
-        return((diatonicPitchClasses.get(6)) == (pitch%12));
+        return(((key + 12) - 1) == (pitch%12));
     }
 
     void setLength(int input) throws InvalidInputException {
@@ -221,20 +221,57 @@ public class Graph {
             }
             columns.add(a);
         }
+        switch(mode) {
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if (isInRange(tonic - 3)) { columns.get(length - 3).add(new Node(tonic - 3)); }
+            case DORIAN, MIXOLYDIAN: if (isInRange(tonic - 1)) { columns.get(length - 2).add(new Node(tonic - 1)); }
+            default: break;
+        }
     }
 
     void makeGetsTo() {
         start = columns.get(0).get(inRangeDiatonics.indexOf(tonic));
         makeGetsToHelper(start, 0);
-        for (int j = 1; j < (length - 2); j++) {
+        int sub = 2;
+        switch(mode) {
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) { sub = 3; } break;
+            default: break;
+        }
+        for (int j = 1; j < (length - sub); j++) {
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 makeGetsToHelper(columns.get(j).get(k), j);
             }
         }
-        end = columns.get(length - 1).get(inRangeDiatonics.indexOf(tonic));
+        if(sub == 3) {
+            int la = (tonic - 3);
+            for (int l = 0; l < columns.get(length - 3).size(); l++) {
+                if (columns.get(length - 3).get(l).pitch == la) {
+                    Node laNode = columns.get(length - 3).get(l);
+                    int mLim = columns.get(length - 2).size();
+                    for (int m = 0; m < mLim; m++) {
+                        if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
+                            laNode.addEdge(columns.get(length - 2).get(m));
+                        }
+                    }
+                    int nLim = columns.get(length - 4).size();
+                    for(int n = 0; n < nLim; n++) {
+                        for(Integer i : allLegalMoves) {
+                            if((columns.get(length - 4).get(n).pitch + i) == la) {
+                                columns.get(length - 4).get(n).addEdge(laNode);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for(int o = 0; o < columns.get(length - 1).size(); o++) {
+            if(columns.get(length - 1).get(o).pitch == tonic) {
+                end = columns.get(length - 1).get(o);
+            }
+        }
         int re = (tonic + mode.steps.get(0));
-        int ti = (tonic - mode.steps.get(6));
-        for (int l = 0; l < inRangeDiatonics.size(); l++) {
+        int ti = (tonic - 1);
+        int lLim = columns.get(length - 2).size();
+        for (int l = 0; l < lLim; l++) {
             if ((columns.get(length - 2).get(l).pitch == re) || (columns.get(length - 2).get(l).pitch == ti)) {
                 columns.get(length - 2).get(l).addEdge(end);
             }
