@@ -1,5 +1,4 @@
 GraphMaxVer.iml
 out/
-.DS_Store
-src/.DS_Store
+**/.DS_Store
 .idea/
