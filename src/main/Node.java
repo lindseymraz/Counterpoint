@@ -1,4 +1,7 @@
 import java.util.LinkedList;
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
+
 
 public class Node {
     int pitch;
@@ -25,7 +28,7 @@ public class Node {
         } return false;
     }
 
-    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
+    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir, boolean forceAtLeastTwoLeaps) {
         if (this.equals(to)) {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
@@ -33,8 +36,8 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if ((leapHelper(this, n, currPath, penultPos, allSixthsPrecedeFollowStepInOppDir)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) {
-                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir);
+                if ((leapHelper(this, n, currPath, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) {
+                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps);
                 }
             }
             currPath.remove(this);
@@ -60,9 +63,9 @@ public class Node {
         return true;
     }
 
-    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
+    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir, boolean forceAtLeastTwoLeaps) {
         if (curr.startsLeapTo(n)) {
-            if(isLeapCountBad(curr, n, currPath)) { return false; }
+            if(exceedsAllowedLeaps(curr, n, currPath)) { return false; }
             if(curr.startsBigLeapTo(n) && (currPath.size() == penultPos)) { return false; }
             if(currPath.size() >= 2) {
                 Node prevNode = currPath.get((currPath.indexOf(curr) - 1));
@@ -94,10 +97,15 @@ public class Node {
                     Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
                     if(twoSuccessiveLeapsNotFollowedWithStepInOppositeDir(prevPrevNode, prevNode, curr, n)) { return false; }
                     if(P4AndUpLeapsNotPrecededOrFollowedWithStepInOppositeDir(prevPrevNode, prevNode, curr, n)) { return false; }
+                    if(forceAtLeastTwoLeaps && notEnoughLeaps(currPath, penultPos)) { return false; }
                     }
                 }
             }
         return true;
+    }
+
+    boolean notEnoughLeaps(LinkedList<Node> currPath, int penultPos) {
+        return((currPath.size() == (penultPos - 1)) && (countLeaps(currPath).get(0) < 2));
     }
 
     boolean startsLeapTo(Node next) {
@@ -110,7 +118,7 @@ public class Node {
         return ((a > 5) || (a < -5));
     }
 
-    boolean isLeapCountBad(Node curr, Node n, LinkedList<Node> currPath) {
+    boolean exceedsAllowedLeaps(Node curr, Node n, LinkedList<Node> currPath) {
         LinkedList<Integer> leapList = countLeaps(currPath);
         if (leapList.get(0) > 3) { return true; }
         if (curr.startsLeapLargerThanFourth(n)) {
@@ -302,6 +310,15 @@ public class Node {
             System.out.print(a.get(i).pitch + " ");
         }
         System.out.print(a.get(size).pitch + ";\n");
+    }
+
+    String writeFile(LinkedList<Node> a, int acc) {
+        int size = (a.size() - 1);
+        String str = (acc + ", ");
+        for(int i = 0; (i < size); i++) {
+            str = str + (a.get(i).pitch + " ");
+        }
+        return(str + (a.get(size).pitch + ";\n"));
     }
 
 }

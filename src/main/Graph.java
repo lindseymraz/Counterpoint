@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.lang.Math;
+import java.io.FileWriter;   // Import the FileWriter class
+import java.io.IOException;  // Import the IOException class to handle errors
 
 public class Graph {
     Mode mode;
@@ -19,6 +21,7 @@ public class Graph {
     Node testnode;
     boolean allowAllSixths;
     boolean allSixthsPrecedeFollowStepInOppDir;
+    boolean forceAtLeastTwoLeaps;
     int climaxEarlyBound; //earliest climax can occur
     int climaxLateBound; //latest climax can occur
 
@@ -28,6 +31,10 @@ public class Graph {
 
     void setAllSixthsPrecedeFollowStepInOppDir(boolean option) {
         allSixthsPrecedeFollowStepInOppDir = option;
+    }
+
+    void setForceAtLeastTwoLeaps(boolean option) {
+        forceAtLeastTwoLeaps = option;
     }
 
     Graph(){}
@@ -331,14 +338,16 @@ public class Graph {
         }
     }
 
-    void printLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
+    void printLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir, boolean forceAtLeastTwoLeaps) throws IOException {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
-        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir);
+        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps);
         int acc = 1;
+        FileWriter myWriter = new FileWriter("filename.txt");
         for(LinkedList<Node> cantus : cantusFirmi) {
-            from.printMaxStyle(cantus, acc);
+            myWriter.write(from.writeFile(cantus, acc));
             acc++;
         }
+        myWriter.close();
         int size = cantusFirmi.size();
         switch(size) {
             case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;

@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -8,7 +9,7 @@ public class IO {
     public void input() throws InvalidInputException {
         try {
             Graph G = new Graph();
-            userInitSequence(G, 1, 0, 60, 72, 8);
+            userInitSequence(G, 1, 0, 60, 72, 15);
             //G.printLegalMovesTemplate();
             G.setInRangeDiatonics();
             G.setColumns();
@@ -19,16 +20,19 @@ public class IO {
             //System.out.println("getsTo is ");
             //G.testnode.printLinkedList(G.testnode.getsTo);
             System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
-            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2), G.allSixthsPrecedeFollowStepInOppDir);
+            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2), G.allSixthsPrecedeFollowStepInOppDir, G.forceAtLeastTwoLeaps);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             input();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
         }
     }
 
     public void userInitSequence(Graph G) throws InvalidInputException {
         G.setAllowAllSixths(false); //config
         G.setAllSixthsPrecedeFollowStepInOppDir(false); //config
+        G.setForceAtLeastTwoLeaps(false); //config
         G.setUpAllLegalMoves();
         System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
         G.setMode(Integer.parseInt(keyboard.next()));
@@ -50,8 +54,9 @@ public class IO {
     }
 
     public void userInitSequence(Graph G, int mode, int key, int bound1, int bound2, int length) throws InvalidInputException {
-        G.setAllowAllSixths(true); //config
-        G.setAllSixthsPrecedeFollowStepInOppDir(true); //config
+        G.setAllowAllSixths(false); //config
+        G.setAllSixthsPrecedeFollowStepInOppDir(false); //config
+        G.setForceAtLeastTwoLeaps(true); //config
         G.setUpAllLegalMoves();
         G.setMode(mode);
         G.setKey(key);
