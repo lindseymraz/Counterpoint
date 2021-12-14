@@ -18,7 +18,7 @@ public class Tests {
     Node F5 = new Node(77);
 
     @Test
-    public void startsLeapTo() {
+    public void testStartsLeapTo() {
         //upwards
         assertFalse(C4.startsLeapTo(C4)); //unison
         assertFalse(E4.startsLeapTo(F4)); //minor second
@@ -36,7 +36,7 @@ public class Tests {
     }
 
     @Test
-    public void startsBigLeapTo() {
+    public void testStartsBigLeapTo() {
         //upwards
         assertFalse(C4.startsBigLeapTo(C4)); //unison
         assertFalse(E4.startsBigLeapTo(F4)); //minor second
@@ -58,7 +58,7 @@ public class Tests {
     }
 
     @Test
-    public void startsLeapLargerThanFourth() {
+    public void testStartsLeapLargerThanFourth() {
         //upwards
         assertFalse(C4.startsLeapLargerThanFourth(C4)); //unison
         assertFalse(E4.startsLeapLargerThanFourth(F4)); //minor second
@@ -80,7 +80,7 @@ public class Tests {
     }
 
     @Test
-    public void startsUpwardMotionTo() {
+    public void testStartsUpwardMotionTo() {
         //upwards
         assertFalse(C4.startsUpwardMotionTo(C4)); //unison
         assertTrue(E4.startsUpwardMotionTo(F4)); //minor second
@@ -94,7 +94,7 @@ public class Tests {
     }
 
     @Test
-    public void startsDownwardMotionTo() {
+    public void testStartsDownwardMotionTo() {
         //upwards
         assertFalse(C4.startsDownwardMotionTo(C4)); //unison
         assertFalse(E4.startsDownwardMotionTo(F4)); //minor second
@@ -108,7 +108,7 @@ public class Tests {
     }
 
     @Test
-    public void intervalIsntDissonantMelodic() {
+    public void testIntervalIsntDissonantMelodic() {
         //upwards
         assertTrue(C4.intervalIsntDissonantMelodic(60, 60));
         assertTrue(C4.intervalIsntDissonantMelodic(60, 61));
@@ -148,7 +148,7 @@ public class Tests {
     }
 
     @Test
-    public void sameDirMotionBetweenThree() {
+    public void testSameDirMotionBetweenThree() {
         //pure upwards
         assertFalse(C4.sameDirMotionBetween(C4, C4, C4)); //unison unison
         assertFalse(C4.sameDirMotionBetween(C4, C4, D4)); //unison step
@@ -182,7 +182,7 @@ public class Tests {
     }
 
     @Test
-    public void sameDirMotionBetweenFour() {
+    public void testSameDirMotionBetweenFour() {
         //pure upwards
         assertFalse(C4.sameDirMotionBetween(C4, C4, C4, C4)); //unison unison unison
         assertFalse(C4.sameDirMotionBetween(C4, C4, C4, D4)); //unison unison step
@@ -322,7 +322,7 @@ public class Tests {
     }
 
     @Test
-    public void twoSequentialLeapsBetween() {
+    public void testSequentialLeapsBetween() {
         //not sequential leaps
         //pure upwards
         assertFalse(C4.twoSequentialLeapsBetween(C4, C4, C4)); //unison unison
@@ -387,7 +387,7 @@ public class Tests {
     }
 
     @Test
-    public void testDiatonicity(){ //the reason for the 3 different keys: C says yes to all white key pitch
+    public void testDiatonicity() { //the reason for the 3 different keys: C says yes to all white key pitch
         Graph C = new Graph(Mode.IONIAN, 0); //classes, B says no to all white keys BUT B and E,
         Graph D = new Graph(Mode.DORIAN, 2); //Db says no to B and E (though it says yes to F and C)
         Graph E = new Graph(Mode.PHRYGIAN, 4); //so between them all the white key pitch classes get said
