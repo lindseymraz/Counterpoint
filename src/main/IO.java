@@ -8,7 +8,7 @@ public class IO {
     public void input() throws InvalidInputException {
         try {
             Graph G = new Graph();
-            userInitSequence(G, 2, 2, 57, 69, 9);
+            userInitSequence(G, 1, 0, 60, 72, 8);
             //G.printLegalMovesTemplate();
             G.setInRangeDiatonics();
             G.setColumns();
