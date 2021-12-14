@@ -342,7 +342,24 @@ public class Graph {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
         from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps);
         int acc = 1;
-        FileWriter myWriter = new FileWriter("filename.txt");
+        for(LinkedList<Node> cantus : cantusFirmi) {
+            from.printMaxStyle(cantus, acc);
+            acc++;
+        }
+        int size = cantusFirmi.size();
+        switch(size) {
+            case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;
+            case 1: System.out.println(size + " cantus firmus generated!"); break;
+            default: System.out.println(size + " cantus firmi generated!");
+        }
+    }
+
+
+    void writeLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir, boolean forceAtLeastTwoLeaps) throws IOException {
+        LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
+        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps);
+        int acc = 1;
+        FileWriter myWriter = new FileWriter("cantusfirmi.txt");
         for(LinkedList<Node> cantus : cantusFirmi) {
             myWriter.write(from.writeFile(cantus, acc));
             acc++;

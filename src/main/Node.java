@@ -11,11 +11,6 @@ public class Node {
         this.pitch = pitch;
     }
 
-    Node(int pitch, LinkedList<Node> getsTo) {
-        this.pitch = pitch;
-        this.getsTo = getsTo;
-    }
-
     public void addEdge (Node toNode) {
         this.getsTo.add(toNode);
     }
@@ -36,12 +31,40 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if ((leapHelper(this, n, currPath, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) {
+                if (((leapHelper(this, n, currPath, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) && noMotifs(currPath, n)) {
                     n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir, forceAtLeastTwoLeaps);
                 }
             }
             currPath.remove(this);
         }
+    }
+
+    boolean noMotifs(LinkedList<Node> currPath, Node n) { //checks if there's an identical sequence of three notes in the current list, or if pitches A followed immediately by B are immediately followed by A followed immediately by B (since a Fux thing was ok with A followed by B, then A followed by B reoccurring later)
+        if(currPath.size() > 3) {
+            LinkedList<Node> potPath = new LinkedList<Node>(currPath);
+            potPath.add(n);
+            for(int i = 0; i < (potPath.size() - 3); i++) {
+                LinkedList<Integer> motif = new LinkedList<Integer>();
+                motif.add(potPath.get(i).pitch);
+                motif.add(potPath.get(i + 1).pitch);
+                if((motif.get(0) == potPath.get(i + 2).pitch) && (motif.get(1) == potPath.get(i + 3).pitch)) {
+                    return false;
+                }
+            }
+            if(currPath.size() > 5) {
+                for(int i = 0; i < (potPath.size() - 2); i++) {
+                    LinkedList<Integer> motif = new LinkedList<Integer>();
+                    motif.add(potPath.get(i).pitch);
+                    motif.add(potPath.get(i + 1).pitch);
+                    motif.add(potPath.get(i + 2).pitch);
+                    for(int j = (i + 3); j < potPath.size() - 2; j++) {
+                        if(((motif.get(0) == potPath.get(j).pitch) && (motif.get(1) == potPath.get(j + 1).pitch)) && (motif.get(2) == potPath.get(j + 2).pitch)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        } return true;
     }
 
     boolean giveRouteHelper(Node n, LinkedList<Node> currPath, int climax, int earlyBound, int lateBound) {

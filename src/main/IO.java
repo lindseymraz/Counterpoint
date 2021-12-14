@@ -9,7 +9,30 @@ public class IO {
     public void input() throws InvalidInputException {
         try {
             Graph G = new Graph();
-            userInitSequence(G, 1, 0, 60, 72, 15);
+            userInitSequence(G, 1, 0, 60, 64, 8);
+            //G.printLegalMovesTemplate();
+            G.setInRangeDiatonics();
+            G.setColumns();
+            G.makeGetsTo();
+            G.climaxPosPicker();
+            //G.pickTestNode();
+            //System.out.println("pitch is " + G.testnode.pitch);
+            //System.out.println("getsTo is ");
+            //G.testnode.printLinkedList(G.testnode.getsTo);
+            System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
+            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2), G.allSixthsPrecedeFollowStepInOppDir, G.forceAtLeastTwoLeaps);
+        } catch (InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
+            input();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+        }
+    }
+
+    public void input(int mode, int key, int bound1, int bound2, int length) throws InvalidInputException {
+        try {
+            Graph G = new Graph();
+            userInitSequence(G, mode, key, bound1, bound2, length);
             //G.printLegalMovesTemplate();
             G.setInRangeDiatonics();
             G.setColumns();
@@ -39,7 +62,7 @@ public class IO {
         System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
         G.setKey(Integer.parseInt(keyboard.next()));
         G.setDiatonicPitchClasses();
-        G.printDiatonicPitchClasses();
+        //G.printDiatonicPitchClasses();
         System.out.println("Enter bound 1, no higher than 127, no lower than 0");
         int bound1 = Integer.parseInt(keyboard.next());
         G.boundOK(bound1);
@@ -61,7 +84,7 @@ public class IO {
         G.setMode(mode);
         G.setKey(key);
         G.setDiatonicPitchClasses();
-        G.printDiatonicPitchClasses();
+        //G.printDiatonicPitchClasses();
         G.boundOK(bound1);
         G.boundOK(bound2);
         G.setBoundsTonicClimax(bound1, bound2);
