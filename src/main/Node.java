@@ -25,7 +25,7 @@ public class Node {
         } return false;
     }
 
-    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax, int penultPos) {
+    void giveRoute(Node to, LinkedList<Node> currPath, LinkedList<LinkedList<Node>> list, int earlyBound, int lateBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
         if (this.equals(to)) {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
@@ -33,8 +33,8 @@ public class Node {
         } else if (giveRouteHelper(this, currPath, climax, earlyBound, lateBound)){
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if ((leapHelper(this, n, currPath, penultPos)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) {
-                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, penultPos);
+                if ((leapHelper(this, n, currPath, penultPos, allSixthsPrecedeFollowStepInOppDir)) && doesntOutlineDissonantMelodic(this, n, currPath, penultPos)) {
+                    n.giveRoute(to, currPath, list, earlyBound, lateBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir);
                 }
             }
             currPath.remove(this);
@@ -60,19 +60,19 @@ public class Node {
         return true;
     }
 
-    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int penultPos) {
+    boolean leapHelper(Node curr, Node n, LinkedList<Node> currPath, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
         if (curr.startsLeapTo(n)) {
             if(isLeapCountBad(curr, n, currPath)) { return false; }
             if(curr.startsBigLeapTo(n) && (currPath.size() == penultPos)) { return false; }
             if(currPath.size() >= 2) {
                 Node prevNode = currPath.get((currPath.indexOf(curr) - 1));
                 int dist = n.pitch - curr.pitch;
-                if(octAndSixthNotPrecededWithStepInOppositeDir(prevNode, curr, dist)) { return false; }
+                if(octAndSixthNotPrecededWithStepInOppositeDir(prevNode, curr, dist, allSixthsPrecedeFollowStepInOppDir)) { return false; }
                 if(fifthOrBiggerDoesntChangeDir(prevNode, curr, dist)) { return false; }
                 if (currPath.size() >= 3) {
                     Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
                     if (twoSequentialLeapsBetween(prevPrevNode, prevNode, curr)) { return false; }
-                    if (octOrSixthAsSecondSequentialLeap(curr.pitch - prevNode.pitch)) { return false; }
+                    if (octOrSixthAsSecondSequentialLeap((curr.pitch - prevNode.pitch), allSixthsPrecedeFollowStepInOppDir)) { return false; }
                 }
                 if (prevNode.startsLeapTo(curr)) {
                     if(failsSameDirSuccessiveLeapIntervalRequirement(prevNode, curr, n)) { return false; }
@@ -89,7 +89,7 @@ public class Node {
         } else {
             if (currPath.size() >= 2) {
                 Node prevNode = currPath.get(currPath.indexOf(curr) - 1);
-                if(octAndSixthNotFollowedWithStepInOppositeDir(curr, n, (curr.pitch - prevNode.pitch))) { return false; }
+                if(octAndSixthNotFollowedWithStepInOppositeDir(curr, n, (curr.pitch - prevNode.pitch), allSixthsPrecedeFollowStepInOppDir)) { return false; }
                 if(currPath.size() >= 3) {
                     Node prevPrevNode = currPath.get((currPath.indexOf(curr) - 2));
                     if(twoSuccessiveLeapsNotFollowedWithStepInOppositeDir(prevPrevNode, prevNode, curr, n)) { return false; }
@@ -141,11 +141,19 @@ public class Node {
         return ((a >= 5) || (a <= -5));
     }
 
-    boolean octAndSixthNotPrecededWithStepInOppositeDir(Node prevNode, Node curr, int dist) {
-        switch(dist) {
-            case 12, 8: { if(prevNode.startsUpwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
-            case -12: { if(prevNode.startsDownwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
-            default: break;
+    boolean octAndSixthNotPrecededWithStepInOppositeDir(Node prevNode, Node curr, int dist, boolean allSixthsPrecedeFollowStepInOppDir) {
+        if(allSixthsPrecedeFollowStepInOppDir) {
+            switch(dist) {
+                case 12, 9, 8: { if(prevNode.startsUpwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
+                case -12, -9, -8: { if(prevNode.startsDownwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
+                default: break;
+            }
+        } else {
+            switch(dist) {
+                case 12, 8: { if(prevNode.startsUpwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
+                case -12: { if(prevNode.startsDownwardMotionTo(curr) || prevNode.startsLeapTo(curr)) { return true; } break;}
+                default: break;
+            }
         }
         return false;
     }
@@ -171,10 +179,17 @@ public class Node {
         return(one.startsLeapTo(two) && two.startsLeapTo(three));
     }
 
-    boolean octOrSixthAsSecondSequentialLeap(int dist) {
-        switch(dist) {
-            case 12, 8, -12: return true;
-            default: return false;
+    boolean octOrSixthAsSecondSequentialLeap(int dist, boolean allSixthsPrecedeFollowStepInOppDir) {
+        if(allSixthsPrecedeFollowStepInOppDir) {
+            switch(dist) {
+                case 12, 9, 8, -8, -9, -12: return true;
+                default: return false;
+            }
+        } else {
+            switch (dist) {
+                case 12, 8, -12: return true;
+                default: return false;
+            }
         }
     }
 
@@ -246,11 +261,19 @@ public class Node {
         }
     }
 
-    boolean octAndSixthNotFollowedWithStepInOppositeDir(Node curr, Node n, int dist) {
-        switch (dist) {
-            case 12, 8: return(curr.startsUpwardMotionTo(n));
-            case -12: return(curr.startsDownwardMotionTo(n));
-            default: return false;
+    boolean octAndSixthNotFollowedWithStepInOppositeDir(Node curr, Node n, int dist, boolean allSixthsPrecedeFollowStepInOppDir) {
+        if(allSixthsPrecedeFollowStepInOppDir) {
+            switch (dist) {
+                case 12, 9, 8: return(curr.startsUpwardMotionTo(n));
+                case -12, -9, -8: return(curr.startsDownwardMotionTo(n));
+                default: return false;
+            }
+        } else {
+            switch (dist) {
+                case 12, 8: return(curr.startsUpwardMotionTo(n));
+                case -12: return(curr.startsDownwardMotionTo(n));
+                default: return false;
+            }
         }
     }
 

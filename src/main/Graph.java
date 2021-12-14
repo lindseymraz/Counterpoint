@@ -17,15 +17,22 @@ public class Graph {
     Node start;
     Node end;
     Node testnode;
+    boolean allowAllSixths;
+    boolean allSixthsPrecedeFollowStepInOppDir;
     int climaxEarlyBound; //earliest climax can occur
     int climaxLateBound; //latest climax can occur
 
-    Graph() {
-        setUpAllLegalMoves();
+    void setAllowAllSixths(boolean option) {
+        allowAllSixths = option;
     }
 
+    void setAllSixthsPrecedeFollowStepInOppDir(boolean option) {
+        allSixthsPrecedeFollowStepInOppDir = option;
+    }
+
+    Graph(){}
+
     Graph(Mode mode, int key) {
-        setUpAllLegalMoves();
         this.mode = mode;
         this.key = key;
     }
@@ -46,6 +53,11 @@ public class Graph {
         allLegalMoves.add(7); //ascend P5
         allLegalMoves.add(8); //ascend minor sixth
         allLegalMoves.add(12); //ascend octave
+        if(allowAllSixths) {
+            allLegalMoves.add(-9); //descend major sixth
+            allLegalMoves.add(-8); //descend minor sixth
+            allLegalMoves.add(9); //ascend major sixth
+        }
     }
 
     void setMode(int input) throws InvalidInputException {
@@ -319,9 +331,9 @@ public class Graph {
         }
     }
 
-    void printLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos) {
+    void printLots(Node from, Node to, int earlyBound, int laterBound, int climax, int penultPos, boolean allSixthsPrecedeFollowStepInOppDir) {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
-        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos);
+        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi, earlyBound, laterBound, climax, penultPos, allSixthsPrecedeFollowStepInOppDir);
         int acc = 1;
         for(LinkedList<Node> cantus : cantusFirmi) {
             from.printMaxStyle(cantus, acc);

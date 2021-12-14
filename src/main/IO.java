@@ -19,7 +19,7 @@ public class IO {
             //System.out.println("getsTo is ");
             //G.testnode.printLinkedList(G.testnode.getsTo);
             System.out.println("Early bound is " + G.climaxEarlyBound + ", late bound is " + G.climaxLateBound);
-            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2));
+            G.printLots(G.start, G.end, G.climaxEarlyBound, G.climaxLateBound, G.climax, (G.length - 2), G.allSixthsPrecedeFollowStepInOppDir);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             input();
@@ -27,6 +27,9 @@ public class IO {
     }
 
     public void userInitSequence(Graph G) throws InvalidInputException {
+        G.setAllowAllSixths(false); //config
+        G.setAllSixthsPrecedeFollowStepInOppDir(false); //config
+        G.setUpAllLegalMoves();
         System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
         G.setMode(Integer.parseInt(keyboard.next()));
         System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
@@ -47,6 +50,9 @@ public class IO {
     }
 
     public void userInitSequence(Graph G, int mode, int key, int bound1, int bound2, int length) throws InvalidInputException {
+        G.setAllowAllSixths(true); //config
+        G.setAllSixthsPrecedeFollowStepInOppDir(true); //config
+        G.setUpAllLegalMoves();
         G.setMode(mode);
         G.setKey(key);
         G.setDiatonicPitchClasses();
