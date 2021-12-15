@@ -36,13 +36,16 @@ class IO {
         Node.allSixthsPrecedeFollowStepInOppDir = false;
         Node.forceAtLeastTwoLeaps = true;
         writeToFile = true;
-        debugMessagesOn = false;
+        debugMessagesOn = true;
     }
 
     void input() throws InvalidInputException {
         try {
             config();
             setUpAllLegalMoves();
+            if(debugMessagesOn) {
+                printAllLegalMoves();
+            }
             System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
             setMode(Integer.parseInt(keyboard.next()));
             System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
@@ -78,7 +81,7 @@ class IO {
             chooseReset();
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
-            clearInput();
+            clearInputException();
             input();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -142,9 +145,9 @@ class IO {
     private void printDiatonicPitchClasses() {//for debugging and testing
         String str = "";
         for(Integer i : diatonicPitchClasses) {
-            str = i + " ";
+            str = str + i + " ";
         }
-        System.out.print(str);
+        System.out.println(str);
     }
 
     private void boundOK(int input) throws InvalidInputException {
@@ -193,25 +196,30 @@ class IO {
         int tonicToUpperDist = (upper - tonics.get(0));
         int tonicToLowerDist = (tonics.get(0) - lower);
         int whichTonic = 0;
+        boolean upperTo1DistBigger = false;
+        boolean lowerTo1DistBigger = false;
         if(tonics.size() == 2) {
             if ((upper - tonics.get(1)) > tonicToUpperDist) {
                 tonicToUpperDist = (upper - tonics.get(1));
-                whichTonic = 1;
+                upperTo1DistBigger = true;
             }
             if ((tonics.get(1) - lower) > tonicToLowerDist) {
                 tonicToLowerDist = (tonics.get(1) - lower);
-                whichTonic = 1;
+                lowerTo1DistBigger = true;
             }
         }
         if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "Is bottom or top climax? It's equidistant, unclear"); }
         if(tonicToUpperDist > tonicToLowerDist) {
             isClimaxInappropriate(tonicToUpperDist);
             climax = upper;
+            tonic = tonics.get(0);
+            if(upperTo1DistBigger) { tonic = tonics.get(1); }
         } else {
             isClimaxInappropriate(tonicToLowerDist);
             climax = lower;
+            tonic = tonics.get(0);
+            if(lowerTo1DistBigger) { tonic = tonics.get(1); }
         }
-        tonic = tonics.get(whichTonic);
     }
 
     private LinkedList<Integer> findTonics(int upper, int lower) throws InvalidInputException {
@@ -300,40 +308,39 @@ class IO {
     }
 
     private void makeGetsTo() {
-        makeGetsToHelperNoClimax(start, 0);
+        oneColumnGetsToNoClimax(start, 0);
         for (int j = 1; j < (climaxEarlyBound - 2); j++) {
             for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
-                makeGetsToHelperNoClimax(columns.get(j).get(k), j);
+                oneColumnGetsToNoClimax(columns.get(j).get(k), j);
             }
         }
         for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
-                makeGetsToHelper(columns.get((climaxEarlyBound) - 2).get(k), ((climaxEarlyBound) - 2));
+            oneColumnGetsTo(columns.get((climaxEarlyBound) - 2).get(k), ((climaxEarlyBound) - 2));
         }
         for (int j = (climaxEarlyBound - 1); j < (climaxLateBound - 1); j++) {
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
-                makeGetsToHelper(columns.get(j).get(k), j);
+                oneColumnGetsTo(columns.get(j).get(k), j);
             }
         }
         for (int k = 0; k < inRangeDiatonics.size(); k++) {
-            makeGetsToHelperNoClimax(columns.get((climaxLateBound) - 1).get(k), ((climaxLateBound) - 1));
+            oneColumnGetsToNoClimax(columns.get((climaxLateBound) - 1).get(k), ((climaxLateBound) - 1));
         }
         for (int j = (climaxLateBound); j < (length - 2); j++) {
             for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
-                makeGetsToHelperNoClimax(columns.get(j).get(k), j);
+                oneColumnGetsToNoClimax(columns.get(j).get(k), j);
             }
         }
         switch(mode) {
             case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) {
-                int la = (tonic - 3);
                 for (int l = 0; l < columns.get(length - 3).size(); l++) {
-                    if (columns.get(length - 3).get(l).pitch == la) {
+                    if (columns.get(length - 3).get(l).pitch == (tonic - 3)) {
                         Node laNode = columns.get(length - 3).get(l);
                         for (int m = 0; m < columns.get(length - 2).size(); m++) {
                             if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
                                 laNode.addEdge(columns.get(length - 2).get(m));
                             }
                         }
-                        makeGetsToHelper2(columns.get(length - 4).size(), 4, la, laNode);
+                        oneColumnGetsToSpecificNote(columns.get(length - 4).size(), 4, (tonic - 3), laNode);
                     }
                 }
             }
@@ -341,7 +348,7 @@ class IO {
                 for (int q = 0; q < columns.get(length - 2).size(); q++) {
                     if(columns.get(length - 2).get(q).pitch == (tonic - 1)) {
                         Node tiNode = columns.get(length - 2).get(q);
-                        makeGetsToHelper2(columns.get(length - 3).size(), 3, (tonic - 1), tiNode);
+                        oneColumnGetsToSpecificNote(columns.get(length - 3).size(), 3, (tonic - 1), tiNode);
                     }
                 }
             }
@@ -354,7 +361,7 @@ class IO {
         }
     }
 
-    private void makeGetsToHelper(Node node, int currColumn) {
+    private void oneColumnGetsTo(Node node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
@@ -362,7 +369,7 @@ class IO {
         }
     }
 
-    private void makeGetsToHelperNoClimax(Node node, int currColumn) {
+    private void oneColumnGetsToNoClimax(Node node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) {
                 int sub = 0;
@@ -374,7 +381,7 @@ class IO {
         }
     }
 
-    private void makeGetsToHelper2(int lim, int sub, int note, Node addEdgeTo) {
+    private void oneColumnGetsToSpecificNote(int lim, int sub, int note, Node addEdgeTo) {
         for(int j = 0; j < lim; j++) {
             for(Integer i : allLegalMoves) {
                 if((columns.get(length - sub).get(j).pitch + i) == note) {
@@ -389,9 +396,11 @@ class IO {
     }
 
     private void printAllLegalMoves() { //for debugging and testing!
-        for(Integer i : allLegalMoves) {
-            System.out.println(allLegalMoves.get(i));
+        String str = "";
+        for(int i = 0; i < allLegalMoves.size(); i++) {
+            str = str + (allLegalMoves.get(i)) + " ";
         }
+        System.out.println(str);
     }
 
     private void output(Node from, Node to) throws IOException {
@@ -433,6 +442,12 @@ class IO {
         diatonicPitchClasses.clear();
         inRangeDiatonics.clear();
         columns.clear();
+    }
+
+    private void clearInputException() {
+        allLegalMoves.clear();
+        diatonicPitchClasses.clear();
+        inRangeDiatonics.clear();
     }
 
     private void chooseReset() throws InvalidInputException {
