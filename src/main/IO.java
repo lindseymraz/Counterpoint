@@ -33,7 +33,7 @@ class IO {
         allowAllSixths = false;
         Node.allSixthsPrecedeFollowStepInOppDir = false;
         Node.forceAtLeastTwoLeaps = true;
-        writeToFile = false;
+        writeToFile = true;
     }
 
     void input() throws InvalidInputException {
@@ -349,13 +349,13 @@ class IO {
         if(writeToFile) {
             FileWriter myWriter = new FileWriter("cantusFirmi.txt");
             for (LinkedList<Node> cantus : cantusFirmi) {
-                myWriter.write(writeFile(cantus, acc));
+                myWriter.write(writeCantus(cantus, acc));
                 acc++;
             }
             myWriter.close();
         } else {
             for(LinkedList<Node> cantus : cantusFirmi) {
-                printMaxStyle(cantus, acc);
+                System.out.print(writeCantus(cantus, acc));
                 acc++;
             }
         }
@@ -367,24 +367,7 @@ class IO {
         }
     }
 
-    private void printLinkedList(LinkedList<Node> cantus) {
-        int size = (cantus.size() - 1);
-        for(int i = 0; (i < size); i++) {
-            System.out.print(cantus.get(i).pitch + ", ");
-        }
-        System.out.print(cantus.get(size).pitch + "\n");
-    }
-
-    private void printMaxStyle(LinkedList<Node> cantus, int acc) {
-        int size = (cantus.size() - 1);
-        System.out.print(acc + ", ");
-        for(int i = 0; (i < size); i++) {
-            System.out.print(cantus.get(i).pitch + " ");
-        }
-        System.out.print(cantus.get(size).pitch + ";\n");
-    }
-
-    private String writeFile(LinkedList<Node> cantus, int acc) {
+    private String writeCantus(LinkedList<Node> cantus, int acc) {
         int size = (cantus.size() - 1);
         String str = (acc + ", ");
         for(int i = 0; (i < size); i++) {
