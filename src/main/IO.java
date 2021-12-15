@@ -9,13 +9,13 @@ class IO {
     ArrayList<ArrayList<Node>> columns;
     Node start;
     Node end;
-    Node testnode;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
 
     private static boolean allowAllSixths;
     private static boolean writeToFile;
+    private static boolean debugMessagesOn;
 
     private static Mode mode;
     private static int key; //0 is C, 11 is B
@@ -36,6 +36,7 @@ class IO {
         Node.allSixthsPrecedeFollowStepInOppDir = false;
         Node.forceAtLeastTwoLeaps = true;
         writeToFile = true;
+        debugMessagesOn = false;
     }
 
     void input() throws InvalidInputException {
@@ -47,7 +48,9 @@ class IO {
             System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
             setKey(Integer.parseInt(keyboard.next()));
             setDiatonicPitchClasses();
-            //printDiatonicPitchClasses();
+            if(debugMessagesOn) {
+                printDiatonicPitchClasses();
+            }
             System.out.println("Enter bound 1, no higher than 127, no lower than 0");
             int bound1 = Integer.parseInt(keyboard.next());
             boundOK(bound1);
@@ -55,21 +58,22 @@ class IO {
             int bound2 = Integer.parseInt(keyboard.next());
             boundOK(bound2);
             setBoundsTonicClimax(bound1, bound2);
-            System.out.println("Tonic is " + tonic + "\nClimax is " + climax);
+            if(debugMessagesOn) {
+                System.out.println("Tonic is " + tonic + "\nClimax is " + climax);
+            }
             System.out.println("Enter length. 8 min, 16 max");
             setLength(Integer.parseInt(keyboard.next()));
-            System.out.println("Length is " + length);
+            if(debugMessagesOn) {
+                System.out.println("Length is " + length);
+            }
             climaxPosPicker();
             setPenultPos();
-            System.out.println("Early bound is " + climaxEarlyBound + ", late bound is " + climaxLateBound);
-            //printLegalMovesTemplate();
+            if(debugMessagesOn) {
+                System.out.println("Early bound is " + climaxEarlyBound + ", late bound is " + climaxLateBound);
+            }
             setInRangeDiatonics();
             setColumns();
             makeGetsTo();
-            //pickTestNode();
-            //System.out.println("pitch is " + testnode.pitch);
-            //System.out.println("getsTo is ");
-            //testnode.printLinkedList(testnode.getsTo);
             output(start, end);
             chooseReset();
         } catch (InvalidInputException e) {
@@ -136,9 +140,11 @@ class IO {
     }
 
     private void printDiatonicPitchClasses() {//for debugging and testing
+        String str = "";
         for(Integer i : diatonicPitchClasses) {
-            System.out.println(i);
+            str = i + " ";
         }
+        System.out.print(str);
     }
 
     private void boundOK(int input) throws InvalidInputException {
