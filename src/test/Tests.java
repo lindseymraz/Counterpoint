@@ -17,7 +17,7 @@ public class Tests {
     Node E5 = new Node(76);
     Node F5 = new Node(77);
 
-    @Test
+    /* @Test
     public void testStartsLeapTo() {
         //upwards
         assertFalse(C4.startsLeapTo(C4)); //unison
@@ -150,175 +150,175 @@ public class Tests {
     @Test
     public void testSameDirMotionBetweenThree() {
         //pure upwards
-        assertFalse(C4.sameDirMotionBetween(C4, C4, C4)); //unison unison
-        assertFalse(C4.sameDirMotionBetween(C4, C4, D4)); //unison step
-        assertFalse(C4.sameDirMotionBetween(C4, D4, D4)); //step unison
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4)); //unison leap
-        assertFalse(C4.sameDirMotionBetween(C4, G4, G4)); //leap unison
-        assertTrue(C4.sameDirMotionBetween(C4, D4, E4)); //step step
-        assertTrue(C4.sameDirMotionBetween(C4, D4, F5)); //step leap
-        assertTrue(C4.sameDirMotionBetween(C4, C5, D5)); //leap step
-        assertTrue(C4.sameDirMotionBetween(C4, G4, C5)); //leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, C4)); //unison unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, D4)); //unison step
+        assertFalse(Node.sameDirMotionBetween(C4, D4, D4)); //step unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4)); //unison leap
+        assertFalse(Node.sameDirMotionBetween(C4, G4, G4)); //leap unison
+        assertTrue(Node.sameDirMotionBetween(C4, D4, E4)); //step step
+        assertTrue(Node.sameDirMotionBetween(C4, D4, F5)); //step leap
+        assertTrue(Node.sameDirMotionBetween(C4, C5, D5)); //leap step
+        assertTrue(Node.sameDirMotionBetween(C4, G4, C5)); //leap leap
         //up down
-        assertFalse(C4.sameDirMotionBetween(C4, D4, C4)); //step step
-        assertFalse(C4.sameDirMotionBetween(G4, A4, C4)); //step leap
-        assertFalse(C4.sameDirMotionBetween(C4, G4, F4)); //leap step
-        assertFalse(C4.sameDirMotionBetween(C4, A4, D4)); //leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, C4)); //step step
+        assertFalse(Node.sameDirMotionBetween(G4, A4, C4)); //step leap
+        assertFalse(Node.sameDirMotionBetween(C4, G4, F4)); //leap step
+        assertFalse(Node.sameDirMotionBetween(C4, A4, D4)); //leap leap
         //down up
-        assertFalse(C4.sameDirMotionBetween(C5, B4, C5)); //step step
-        assertFalse(C4.sameDirMotionBetween(C5, B4, E5)); //step leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, A4)); //leap step
-        assertFalse(C4.sameDirMotionBetween(C5, G4, E5)); //leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, B4, C5)); //step step
+        assertFalse(Node.sameDirMotionBetween(C5, B4, E5)); //step leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, A4)); //leap step
+        assertFalse(Node.sameDirMotionBetween(C5, G4, E5)); //leap leap
         //pure downwards
-        assertFalse(C4.sameDirMotionBetween(C5, C5, C5)); //unison unison
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4)); //unison step
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4)); //step unison
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4)); //unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4)); //leap unison
-        assertTrue(C4.sameDirMotionBetween(C5, B4, A4)); //step step
-        assertTrue(C4.sameDirMotionBetween(C5, B4, F4)); //step leap
-        assertTrue(C4.sameDirMotionBetween(C5, G4, F4)); //leap step
-        assertTrue(C4.sameDirMotionBetween(C5, G4, C4)); //leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, C5, C5)); //unison unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4)); //unison step
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4)); //step unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4)); //unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4)); //leap unison
+        assertTrue(Node.sameDirMotionBetween(C5, B4, A4)); //step step
+        assertTrue(Node.sameDirMotionBetween(C5, B4, F4)); //step leap
+        assertTrue(Node.sameDirMotionBetween(C5, G4, F4)); //leap step
+        assertTrue(Node.sameDirMotionBetween(C5, G4, C4)); //leap leap
     }
 
     @Test
     public void testSameDirMotionBetweenFour() {
         //pure upwards
-        assertFalse(C4.sameDirMotionBetween(C4, C4, C4, C4)); //unison unison unison
-        assertFalse(C4.sameDirMotionBetween(C4, C4, C4, D4)); //unison unison step
-        assertFalse(C4.sameDirMotionBetween(C4, C4, C4, G4)); //unison unison leap
-        assertFalse(C4.sameDirMotionBetween(C4, C4, D4, D4)); //unison step unison
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4, G4)); //unison leap unison
-        assertFalse(C4.sameDirMotionBetween(C4, D4, D4, D4)); //step unison unison
-        assertFalse(C4.sameDirMotionBetween(C4, G4, G4, G4)); //leap unison unison
-        assertFalse(C4.sameDirMotionBetween(C4, C4, D4, E4)); //unison step step
-        assertFalse(C4.sameDirMotionBetween(C4, C4, D4, G4)); //unison step leap
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4, A4)); //unison leap step
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4, C5)); //unison leap leap
-        assertFalse(C4.sameDirMotionBetween(C4, D4, D4, E4)); //step unison step
-        assertFalse(C4.sameDirMotionBetween(C4, D4, D4, C5)); //step unison leap
-        assertFalse(C4.sameDirMotionBetween(C4, C5, C5, D5)); //leap unison step
-        assertFalse(C4.sameDirMotionBetween(C4, C5, C5, E5)); //leap unison leap
-        assertFalse(C4.sameDirMotionBetween(C4, D4, E4, E4)); //step step unison
-        assertFalse(C4.sameDirMotionBetween(C4, D4, C5, C5)); //step leap unison
-        assertFalse(C4.sameDirMotionBetween(C4, G4, A4, A4)); //leap step unison
-        assertFalse(C4.sameDirMotionBetween(C4, G4, C5, C5)); //leap leap unison
-        assertTrue(C4.sameDirMotionBetween(C4, D4, E4, F4)); //step step step
-        assertTrue(C4.sameDirMotionBetween(C4, D4, E4, C5)); //step step leap
-        assertTrue(C4.sameDirMotionBetween(C4, D4, C5, D5)); //step leap step
-        assertTrue(C4.sameDirMotionBetween(C4, C5, D5, E5)); //leap step step
-        assertTrue(C4.sameDirMotionBetween(C4, D4, A4, E5)); //step leap leap
-        assertTrue(C4.sameDirMotionBetween(C4, A4, B4, E5)); //leap step leap
-        assertTrue(C4.sameDirMotionBetween(C4, G4, C5, D5)); //leap leap step
-        assertTrue(C4.sameDirMotionBetween(C4, E4, G4, D5)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, C4, C4)); //unison unison unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, C4, D4)); //unison unison step
+        assertFalse(Node.sameDirMotionBetween(C4, C4, C4, G4)); //unison unison leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, D4, D4)); //unison step unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4, G4)); //unison leap unison
+        assertFalse(Node.sameDirMotionBetween(C4, D4, D4, D4)); //step unison unison
+        assertFalse(Node.sameDirMotionBetween(C4, G4, G4, G4)); //leap unison unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, D4, E4)); //unison step step
+        assertFalse(Node.sameDirMotionBetween(C4, C4, D4, G4)); //unison step leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4, A4)); //unison leap step
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4, C5)); //unison leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, D4, E4)); //step unison step
+        assertFalse(Node.sameDirMotionBetween(C4, D4, D4, C5)); //step unison leap
+        assertFalse(Node.sameDirMotionBetween(C4, C5, C5, D5)); //leap unison step
+        assertFalse(Node.sameDirMotionBetween(C4, C5, C5, E5)); //leap unison leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, E4, E4)); //step step unison
+        assertFalse(Node.sameDirMotionBetween(C4, D4, C5, C5)); //step leap unison
+        assertFalse(Node.sameDirMotionBetween(C4, G4, A4, A4)); //leap step unison
+        assertFalse(Node.sameDirMotionBetween(C4, G4, C5, C5)); //leap leap unison
+        assertTrue(Node.sameDirMotionBetween(C4, D4, E4, F4)); //step step step
+        assertTrue(Node.sameDirMotionBetween(C4, D4, E4, C5)); //step step leap
+        assertTrue(Node.sameDirMotionBetween(C4, D4, C5, D5)); //step leap step
+        assertTrue(Node.sameDirMotionBetween(C4, C5, D5, E5)); //leap step step
+        assertTrue(Node.sameDirMotionBetween(C4, D4, A4, E5)); //step leap leap
+        assertTrue(Node.sameDirMotionBetween(C4, A4, B4, E5)); //leap step leap
+        assertTrue(Node.sameDirMotionBetween(C4, G4, C5, D5)); //leap leap step
+        assertTrue(Node.sameDirMotionBetween(C4, E4, G4, D5)); //leap leap leap
         //up down
-        assertFalse(C4.sameDirMotionBetween(C4, C4, D4, C4)); //unison step step
-        assertFalse(C4.sameDirMotionBetween(G4, G4, A4, E4)); //unison step leap
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4, F4)); //unison leap step
-        assertFalse(C4.sameDirMotionBetween(C4, C4, G4, E4)); //unison leap leap
-        assertFalse(C4.sameDirMotionBetween(C4, D4, D4, C4)); //step unison step
-        assertFalse(C4.sameDirMotionBetween(C5, D5, D5, E4)); //step unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, E5, E5, D5)); //leap unison step
-        assertFalse(C4.sameDirMotionBetween(G4, C5, C5, C4)); //leap unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, D5, C5, C5)); //step step unison
-        assertFalse(C4.sameDirMotionBetween(C5, D5, E4, E4)); //step leap unison
-        assertFalse(C4.sameDirMotionBetween(C4, G4, F4, F4)); //leap step unison
-        assertFalse(C4.sameDirMotionBetween(C4, B4, E4, E4)); //leap leap unison
+        assertFalse(Node.sameDirMotionBetween(C4, C4, D4, C4)); //unison step step
+        assertFalse(Node.sameDirMotionBetween(G4, G4, A4, E4)); //unison step leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4, F4)); //unison leap step
+        assertFalse(Node.sameDirMotionBetween(C4, C4, G4, E4)); //unison leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, D4, C4)); //step unison step
+        assertFalse(Node.sameDirMotionBetween(C5, D5, D5, E4)); //step unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, E5, E5, D5)); //leap unison step
+        assertFalse(Node.sameDirMotionBetween(G4, C5, C5, C4)); //leap unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, D5, C5, C5)); //step step unison
+        assertFalse(Node.sameDirMotionBetween(C5, D5, E4, E4)); //step leap unison
+        assertFalse(Node.sameDirMotionBetween(C4, G4, F4, F4)); //leap step unison
+        assertFalse(Node.sameDirMotionBetween(C4, B4, E4, E4)); //leap leap unison
         //up up down
-        assertFalse(C4.sameDirMotionBetween(C4, D4, E4, D4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(C4, D4, E4, C4)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(C4, D4, C5, B4)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(C4, C5, D5, C5)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(C4, D4, A4, C4)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(C4, A4, B4, C4)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C4, G4, C5, B4)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(C4, E4, G4, C4)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, E4, D4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(C4, D4, E4, C4)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, C5, B4)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(C4, C5, D5, C5)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(C4, D4, A4, C4)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, A4, B4, C4)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C4, G4, C5, B4)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(C4, E4, G4, C4)); //leap leap leap
         //up down up
-        assertFalse(C4.sameDirMotionBetween(C4, D4, C4, D4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(C4, D4, C4, C5)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(E4, F4, C4, D4)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(C4, C5, B4, C5)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(E4, F4, C4, C5)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(C4, C5, B4, E5)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C4, G4, C4, D4)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(C4, E4, C4, D5)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, D4, C4, D4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(C4, D4, C4, C5)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(E4, F4, C4, D4)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(C4, C5, B4, C5)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(E4, F4, C4, C5)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, C5, B4, E5)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C4, G4, C4, D4)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(C4, E4, C4, D5)); //leap leap leap
         //up down down
-        assertFalse(C4.sameDirMotionBetween(E4, F4, E4, D4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(E4, F4, E4, C4)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(C5, D5, G4, F4)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(C4, C5, B4, A4)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(C5, D5, G4, C4)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(C4, C5, B4, C4)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C5, E5, C5, B4)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(C5, E5, G4, C4)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(E4, F4, E4, D4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(E4, F4, E4, C4)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(C5, D5, G4, F4)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(C4, C5, B4, A4)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(C5, D5, G4, C4)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, C5, B4, C4)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C5, E5, C5, B4)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(C5, E5, G4, C4)); //leap leap leap
         //down up up
-        assertFalse(C4.sameDirMotionBetween(D4, C4, D4, E4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(D4, C4, D4, C5)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(D4, C4, C5, D5)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(C5, C4, D4, E4)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(D4, C4, A4, E5)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(C5, A4, B4, E5)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, C5, D5)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(C5, E4, G4, D5)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(D4, C4, D4, E4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(D4, C4, D4, C5)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(D4, C4, C5, D5)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(C5, C4, D4, E4)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(D4, C4, A4, E5)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, A4, B4, E5)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, C5, D5)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(C5, E4, G4, D5)); //leap leap leap
         //down up down
-        assertFalse(C4.sameDirMotionBetween(E4, D4, E4, D4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(E4, D4, E4, C4)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(E4, D4, C5, B4)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(C5, E4, F4, E4)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(E4, D4, A4, C4)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(C5, A4, B4, C4)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, C5, B4)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(C5, E4, G4, C4)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(E4, D4, E4, D4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(E4, D4, E4, C4)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(E4, D4, C5, B4)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(C5, E4, F4, E4)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(E4, D4, A4, C4)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, A4, B4, C4)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, C5, B4)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(C5, E4, G4, C4)); //leap leap leap
         //down down up
-        assertFalse(C4.sameDirMotionBetween(E4, D4, C4, D4)); //step step step
-        assertFalse(C4.sameDirMotionBetween(E4, D4, C4, C5)); //step step leap
-        assertFalse(C4.sameDirMotionBetween(A4, G4, C4, D4)); //step leap step
-        assertFalse(C4.sameDirMotionBetween(A4, D4, C4, D4)); //leap step step
-        assertFalse(C4.sameDirMotionBetween(A4, G4, C4, E5)); //step leap leap
-        assertFalse(C4.sameDirMotionBetween(A4, F4, E4, E5)); //leap step leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, C4, D4)); //leap leap step
-        assertFalse(C4.sameDirMotionBetween(E5, C5, G4, D5)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(E4, D4, C4, D4)); //step step step
+        assertFalse(Node.sameDirMotionBetween(E4, D4, C4, C5)); //step step leap
+        assertFalse(Node.sameDirMotionBetween(A4, G4, C4, D4)); //step leap step
+        assertFalse(Node.sameDirMotionBetween(A4, D4, C4, D4)); //leap step step
+        assertFalse(Node.sameDirMotionBetween(A4, G4, C4, E5)); //step leap leap
+        assertFalse(Node.sameDirMotionBetween(A4, F4, E4, E5)); //leap step leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, C4, D4)); //leap leap step
+        assertFalse(Node.sameDirMotionBetween(E5, C5, G4, D5)); //leap leap leap
         //down up
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4, C5)); //unison step step
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4, E5)); //unison step leap
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4, A4)); //unison leap step
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4, C5)); //unison leap leap
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4, C5)); //step unison step
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4, E5)); //step unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4, A4)); //leap unison step
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4, C5)); //leap unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, B4, C5, C5)); //step step unison
-        assertFalse(C4.sameDirMotionBetween(C5, B4, E5, E5)); //step leap unison
-        assertFalse(C4.sameDirMotionBetween(C5, G4, A4, A4)); //leap step unison
-        assertFalse(C4.sameDirMotionBetween(C5, G4, E5, E5)); //leap leap unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4, C5)); //unison step step
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4, E5)); //unison step leap
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4, A4)); //unison leap step
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4, C5)); //unison leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4, C5)); //step unison step
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4, E5)); //step unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4, A4)); //leap unison step
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4, C5)); //leap unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, B4, C5, C5)); //step step unison
+        assertFalse(Node.sameDirMotionBetween(C5, B4, E5, E5)); //step leap unison
+        assertFalse(Node.sameDirMotionBetween(C5, G4, A4, A4)); //leap step unison
+        assertFalse(Node.sameDirMotionBetween(C5, G4, E5, E5)); //leap leap unison
         //pure downwards
-        assertFalse(C4.sameDirMotionBetween(C4, C4, C4, C4)); //unison unison unison
-        assertFalse(C4.sameDirMotionBetween(C5, C5, C5, B4)); //unison unison step
-        assertFalse(C4.sameDirMotionBetween(C5, C5, C5, G4)); //unison unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4, B4)); //unison step unison
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4, G4)); //unison leap unison
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4, B4)); //step unison unison
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4, G4)); //leap unison unison
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4, A4)); //unison step step
-        assertFalse(C4.sameDirMotionBetween(C5, C5, B4, G4)); //unison step leap
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4, F4)); //unison leap step
-        assertFalse(C4.sameDirMotionBetween(C5, C5, G4, C4)); //unison leap leap
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4, A4)); //step unison step
-        assertFalse(C4.sameDirMotionBetween(C5, B4, B4, C4)); //step unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4, F4)); //leap unison step
-        assertFalse(C4.sameDirMotionBetween(C5, G4, G4, C4)); //leap unison leap
-        assertFalse(C4.sameDirMotionBetween(C5, B4, A4, A4)); //step step unison
-        assertFalse(C4.sameDirMotionBetween(C5, B4, C4, C4)); //step leap unison
-        assertFalse(C4.sameDirMotionBetween(C5, G4, F4, F4)); //leap step unison
-        assertFalse(C4.sameDirMotionBetween(C5, G4, C4, C4)); //leap leap unison
-        assertTrue(C4.sameDirMotionBetween(C5, B4, A4, G4)); //step step step
-        assertTrue(C4.sameDirMotionBetween(C5, B4, A4, C4)); //step step leap
-        assertTrue(C4.sameDirMotionBetween(C5, B4, D4, C4)); //step leap step
-        assertTrue(C4.sameDirMotionBetween(C5, A4, G4, F4)); //leap step step
-        assertTrue(C4.sameDirMotionBetween(C5, B4, E4, C4)); //step leap leap
-        assertTrue(C4.sameDirMotionBetween(C5, A4, G4, C4)); //leap step leap
-        assertTrue(C4.sameDirMotionBetween(C5, G4, E4, D4)); //leap leap step
-        assertTrue(C4.sameDirMotionBetween(E5, C5, G4, C4)); //leap leap leap
+        assertFalse(Node.sameDirMotionBetween(C4, C4, C4, C4)); //unison unison unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, C5, B4)); //unison unison step
+        assertFalse(Node.sameDirMotionBetween(C5, C5, C5, G4)); //unison unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4, B4)); //unison step unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4, G4)); //unison leap unison
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4, B4)); //step unison unison
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4, G4)); //leap unison unison
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4, A4)); //unison step step
+        assertFalse(Node.sameDirMotionBetween(C5, C5, B4, G4)); //unison step leap
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4, F4)); //unison leap step
+        assertFalse(Node.sameDirMotionBetween(C5, C5, G4, C4)); //unison leap leap
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4, A4)); //step unison step
+        assertFalse(Node.sameDirMotionBetween(C5, B4, B4, C4)); //step unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4, F4)); //leap unison step
+        assertFalse(Node.sameDirMotionBetween(C5, G4, G4, C4)); //leap unison leap
+        assertFalse(Node.sameDirMotionBetween(C5, B4, A4, A4)); //step step unison
+        assertFalse(Node.sameDirMotionBetween(C5, B4, C4, C4)); //step leap unison
+        assertFalse(Node.sameDirMotionBetween(C5, G4, F4, F4)); //leap step unison
+        assertFalse(Node.sameDirMotionBetween(C5, G4, C4, C4)); //leap leap unison
+        assertTrue(Node.sameDirMotionBetween(C5, B4, A4, G4)); //step step step
+        assertTrue(Node.sameDirMotionBetween(C5, B4, A4, C4)); //step step leap
+        assertTrue(Node.sameDirMotionBetween(C5, B4, D4, C4)); //step leap step
+        assertTrue(Node.sameDirMotionBetween(C5, A4, G4, F4)); //leap step step
+        assertTrue(Node.sameDirMotionBetween(C5, B4, E4, C4)); //step leap leap
+        assertTrue(Node.sameDirMotionBetween(C5, A4, G4, C4)); //leap step leap
+        assertTrue(Node.sameDirMotionBetween(C5, G4, E4, D4)); //leap leap step
+        assertTrue(Node.sameDirMotionBetween(E5, C5, G4, C4)); //leap leap leap
     }
 
     @Test
@@ -384,9 +384,9 @@ public class Tests {
         assertTrue(C4.twoSequentialLeapsBetween(G4, E4, C5)); //third big
         assertTrue(C4.twoSequentialLeapsBetween(E5, A4, F4)); //big third
         assertTrue(C4.twoSequentialLeapsBetween(E5, A4, C4)); //big big
-    }
+    } */
 
-    @Test
+    /* @Test
     public void testDiatonicity() { //the reason for the 3 different keys: C says yes to all white key pitch
         Graph C = new Graph(Mode.IONIAN, 0); //classes, B says no to all white keys BUT B and E,
         Graph D = new Graph(Mode.DORIAN, 2); //Db says no to B and E (though it says yes to F and C)
@@ -556,5 +556,5 @@ public class Tests {
         assertTrue(Graph.isDiatonic(125));
         assertTrue(Graph.isDiatonic(126));
         assertFalse(Graph.isDiatonic(127));
-    }
+    } */
 }
