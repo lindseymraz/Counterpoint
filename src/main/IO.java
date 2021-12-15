@@ -23,6 +23,11 @@ class IO {
     private static int upperBound; //the upper bound is allowed, nothing above it
     private static int lowerBound; //the lower bound is allowed, nothing below it
     private static int tonic; //the actual pitch value, stuff like 60, not just pitch class
+    static int climax; //actual pitch value, not just pitch class
+    static int climaxEarlyBound; //earliest climax can occur
+    static int climaxLateBound; //latest climax can occur
+
+
 
     private static ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
@@ -53,13 +58,13 @@ class IO {
             int bound2 = Integer.parseInt(keyboard.next());
             boundOK(bound2);
             setBoundsTonicClimax(bound1, bound2);
-            System.out.println("Tonic is " + tonic + "\nClimax is " + Node.climax);
+            System.out.println("Tonic is " + tonic + "\nClimax is " + climax);
             System.out.println("Enter length. 8 min, 16 max");
             setLength(Integer.parseInt(keyboard.next()));
             System.out.println("Length is " + length);
             climaxPosPicker();
             setPenultPos();
-            System.out.println("Early bound is " + Node.climaxEarlyBound + ", late bound is " + Node.climaxLateBound);
+            System.out.println("Early bound is " + climaxEarlyBound + ", late bound is " + climaxLateBound);
             //printLegalMovesTemplate();
             setInRangeDiatonics();
             setColumns();
@@ -196,10 +201,10 @@ class IO {
         if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "is bottom or top climax? It's equidistant, unclear"); }
         if(tonicToUpperDist > tonicToLowerDist) {
             isClimaxInappropriate(tonicToUpperDist);
-            Node.climax = upper;
+            climax = upper;
         } else {
             isClimaxInappropriate(tonicToLowerDist);
-            Node.climax = lower;
+            climax = lower;
         }
         tonic = tonics.get(whichTonic);
     }
@@ -235,8 +240,8 @@ class IO {
     }
 
     private void climaxPosPicker() {
-        Node.climaxEarlyBound = (int)((Math.floor(length*.33)) + 1);
-        Node.climaxLateBound = (int)(Math.round(length*.66));
+        climaxEarlyBound = (int)((Math.floor(length*.33)) + 1);
+        climaxLateBound = (int)(Math.round(length*.66));
     }
 
     private void setPenultPos() {
@@ -257,12 +262,26 @@ class IO {
         start = new Node(tonic);
         firstColumn.add(start);
         columns.add(firstColumn);
-        for(int i = 1; i < (length - 1); i++) {
+        for(int i = 1; i < (climaxEarlyBound - 1); i++) {
             ArrayList<Node> a = new ArrayList<Node>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                a.add(new Node(inRangeDiatonics.get(j)));
+                if(inRangeDiatonics.get(j) != climax) { a.add(new Node(inRangeDiatonics.get(j))); }
             }
             columns.add(a);
+        }
+        for(int i = (climaxEarlyBound - 1); i < (climaxLateBound); i++) {
+            ArrayList<Node> b = new ArrayList<Node>(inRangeDiatonics.size());
+            for(int j = 0; j < inRangeDiatonics.size(); j++) {
+                b.add(new Node(inRangeDiatonics.get(j)));
+            }
+            columns.add(b);
+        }
+        for(int i = climaxLateBound; i < (length - 1); i++) {
+            ArrayList<Node> c = new ArrayList<Node>(inRangeDiatonics.size());
+            for(int j = 0; j < inRangeDiatonics.size(); j++) {
+                if(inRangeDiatonics.get(j) != climax) { c.add(new Node(inRangeDiatonics.get(j))); }
+            }
+            columns.add(c);
         }
         ArrayList<Node> lastColumn = new ArrayList<Node>();
         end = new Node(tonic);
@@ -276,10 +295,26 @@ class IO {
     }
 
     private void makeGetsTo() {
-        makeGetsToHelper(start, 0);
-        for (int j = 1; j < (length - 2); j++) {
+        makeGetsToHelperNoClimax(start, 0);
+        for (int j = 1; j < (climaxEarlyBound - 2); j++) {
+            for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
+                makeGetsToHelperNoClimax(columns.get(j).get(k), j);
+            }
+        }
+        for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
+                makeGetsToHelper(columns.get((climaxEarlyBound) - 2).get(k), ((climaxEarlyBound) - 2));
+        }
+        for (int j = (climaxEarlyBound - 1); j < (climaxLateBound - 1); j++) {
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 makeGetsToHelper(columns.get(j).get(k), j);
+            }
+        }
+        for (int k = 0; k < inRangeDiatonics.size(); k++) {
+            makeGetsToHelperNoClimax(columns.get((climaxLateBound) - 1).get(k), ((climaxLateBound) - 1));
+        }
+        for (int j = (climaxLateBound); j < (length - 2); j++) {
+            for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
+                makeGetsToHelperNoClimax(columns.get(j).get(k), j);
             }
         }
         switch(mode) {
@@ -318,6 +353,18 @@ class IO {
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
+            }
+        }
+    }
+
+    private void makeGetsToHelperNoClimax(Node node, int currColumn) {
+        for(Integer i : allLegalMoves) {
+            if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) {
+                int sub = 0;
+                if (inRangeDiatonics.indexOf(node.pitch + i) > inRangeDiatonics.indexOf(climax)) {
+                        sub = 1;
+                    }
+                node.addEdge(columns.get(currColumn + 1).get((inRangeDiatonics.indexOf(node.pitch + i)) - sub));
             }
         }
     }

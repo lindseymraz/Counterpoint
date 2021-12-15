@@ -9,9 +9,6 @@ class Node {
     static boolean allSixthsPrecedeFollowStepInOppDir;
     static boolean forceAtLeastTwoLeaps;
 
-    static int climax; //actual pitch value, not just pitch class
-    static int climaxEarlyBound; //earliest climax can occur
-    static int climaxLateBound; //latest climax can occur
     static int penultPos;
 
     Node(int pitch) {
@@ -24,7 +21,7 @@ class Node {
 
     private boolean hasClimax(LinkedList<Node> list) {
         for(Node n : list) {
-            if(n.pitch == climax) {
+            if(n.pitch == IO.climax) {
                 return true;
             }
         } return false;
@@ -35,10 +32,10 @@ class Node {
             currPath.add(this);
             list.add(new LinkedList<Node>(currPath));
             currPath.remove(this);
-        } else if (giveRouteHelper(this, currPath)) {
+        } else {
             currPath.add(this);
             for (Node n : this.getsTo) {
-                if (((leapHelper(n, currPath)) && doesntOutlineDissonantMelodic(n, currPath)) && noMotifs(currPath, n)) {
+                if (passesTests(n, currPath)) {
                     n.giveRoute(to, currPath, list);
                 }
             }
@@ -46,7 +43,12 @@ class Node {
         }
     }
 
-    private boolean noMotifs(LinkedList<Node> currPath, Node n) { //checks if there's an identical sequence of three notes in the current list, or if pitches A followed immediately by B are immediately followed by A followed immediately by B (since a Fux thing was ok with A followed by B, then A followed by B reoccurring later)
+    private boolean passesTests(Node n, LinkedList<Node> currPath) {
+        return((leapHelper(n, currPath) && doesntOutlineDissonantMelodic(n, currPath)) &&
+                (noMotifs(n, currPath) && giveRouteHelper(n, currPath)));
+    }
+
+    private boolean noMotifs(Node n, LinkedList<Node> currPath) { //checks if there's an identical sequence of three notes in the current list, or if pitches A followed immediately by B are immediately followed by A followed immediately by B (since a Fux thing was ok with A followed by B, then A followed by B reoccurring later)
         if(currPath.size() > 3) {
             LinkedList<Node> potPath = new LinkedList<Node>(currPath);
             potPath.add(n);
@@ -75,21 +77,9 @@ class Node {
     }
 
     private boolean giveRouteHelper(Node n, LinkedList<Node> currPath) {
-        if(!(n.getsTo.size() > 0)) {return false;}
-        if(n.pitch == climax) {
-            if((currPath.size() + 1) < climaxEarlyBound) {
-                return false;
-            } else if((currPath.size()) >= climaxLateBound) {
-                return false;
-            } else if(hasClimax(currPath)) {
-                return false;
-            }
-        }
-        if(currPath.size() >= climaxLateBound) {
-            if(!hasClimax(currPath)) {
-                return false;
-            }
-        }
+        if(!(this.getsTo.size() > 0)) { return false; }
+        if((n.pitch == IO.climax) && hasClimax(currPath)) { return false; }
+        if((currPath.size() >= IO.climaxLateBound) && (!hasClimax(currPath))) { return false; }
         return true;
     }
 
