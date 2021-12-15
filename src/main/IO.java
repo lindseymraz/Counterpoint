@@ -27,12 +27,9 @@ class IO {
     static int climaxEarlyBound; //earliest climax can occur
     static int climaxLateBound; //latest climax can occur
 
-
-
     private static ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     private static ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
-
 
     private void config() {
         allowAllSixths = false;
@@ -74,8 +71,10 @@ class IO {
             //System.out.println("getsTo is ");
             //testnode.printLinkedList(testnode.getsTo);
             output(start, end);
+            chooseReset();
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
+            clearInput();
             input();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -121,7 +120,7 @@ class IO {
     private void setKey(int input) throws InvalidInputException {
         switch(input) {
             case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = input; break;
-            default: throw new InvalidInputException(Integer.toString(input), "is not an integer between 0 and 11");
+            default: throw new InvalidInputException(Integer.toString(input), " is not an integer between 0 and 11");
         }
     }
 
@@ -144,11 +143,11 @@ class IO {
 
     private void boundOK(int input) throws InvalidInputException {
         if(input < 0) {
-            throw new InvalidInputException(Integer.toString(input), "is less than 0");
+            throw new InvalidInputException(Integer.toString(input), " is less than 0");
         } if(input > 127) {
-            throw new InvalidInputException(Integer.toString(input), "is greater than 127");
+            throw new InvalidInputException(Integer.toString(input), " is greater than 127");
         } if(!isDiatonic(input)) {
-            throw new InvalidInputException(Integer.toString(input), "is not diatonic");
+            throw new InvalidInputException(Integer.toString(input), " is not diatonic");
         }
     }
 
@@ -198,7 +197,7 @@ class IO {
                 whichTonic = 1;
             }
         }
-        if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "is bottom or top climax? It's equidistant, unclear"); }
+        if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "Is bottom or top climax? It's equidistant, unclear"); }
         if(tonicToUpperDist > tonicToLowerDist) {
             isClimaxInappropriate(tonicToUpperDist);
             climax = upper;
@@ -223,7 +222,7 @@ class IO {
             hop+=mode.steps.get(counter);
             counter+=1;
             if(counter == 7) { counter = 0; }
-        } if(tonics.size() == 0) { throw new InvalidInputException("", "did not find a tonic"); } return tonics;
+        } if(tonics.size() == 0) { throw new InvalidInputException("", "Did not find a tonic"); } return tonics;
     }
 
     private void isClimaxInappropriate(int pitch) throws InvalidInputException {
@@ -421,6 +420,23 @@ class IO {
             str = str + (cantus.get(i).pitch + " ");
         }
         return(str + (cantus.get(size).pitch + ";\n"));
+    }
+
+    private void clearInput() {
+        allLegalMoves.clear();
+        diatonicPitchClasses.clear();
+        inRangeDiatonics.clear();
+        columns.clear();
+    }
+
+    private void chooseReset() throws InvalidInputException {
+        System.out.print("Enter 1 to start again with new parameters, enter 0 to quit.\nNote if you have write to file on, this will overwrite your previous cantusfirmi.txt.\n");
+        int choose = Integer.parseInt(keyboard.next());
+        switch(choose){
+            case 0: break;
+            case 1: clearInput(); input(); break;
+            default: throw new InvalidInputException(Integer.toString(choose), " is not 0 or 1");
+        }
     }
 
 }
