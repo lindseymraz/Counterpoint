@@ -36,25 +36,25 @@ public class Tests {
     }
 
     @Test
-    public void testStartsBigLeapTo() {
+    public void teststartsLeapLargerThanMajThird() {
         //upwards
-        assertFalse(C4.startsBigLeapTo(C4)); //unison
-        assertFalse(E4.startsBigLeapTo(F4)); //minor second
-        assertFalse(C4.startsBigLeapTo(D4)); //major second
-        assertFalse(D4.startsBigLeapTo(F4)); //minor third
-        assertFalse(C4.startsBigLeapTo(E4)); //major third
-        assertTrue(C4.startsBigLeapTo(F4)); //perfect fourth
-        assertTrue(C4.startsBigLeapTo(G4)); //perfect fifth
-        assertTrue(C4.startsBigLeapTo(F5)); //large
+        assertFalse(C4.startsLeapLargerThanMajThird(C4)); //unison
+        assertFalse(E4.startsLeapLargerThanMajThird(F4)); //minor second
+        assertFalse(C4.startsLeapLargerThanMajThird(D4)); //major second
+        assertFalse(D4.startsLeapLargerThanMajThird(F4)); //minor third
+        assertFalse(C4.startsLeapLargerThanMajThird(E4)); //major third
+        assertTrue(C4.startsLeapLargerThanMajThird(F4)); //perfect fourth
+        assertTrue(C4.startsLeapLargerThanMajThird(G4)); //perfect fifth
+        assertTrue(C4.startsLeapLargerThanMajThird(F5)); //large
         //downwards
-        assertFalse(C4.startsBigLeapTo(C4)); //unison
-        assertFalse(F4.startsBigLeapTo(E4)); //minor second
-        assertFalse(D4.startsBigLeapTo(C4)); //major second
-        assertFalse(F4.startsBigLeapTo(D4)); //minor third
-        assertFalse(E4.startsBigLeapTo(C4)); //major third
-        assertTrue(F4.startsBigLeapTo(C4)); //perfect fourth
-        assertTrue(G4.startsBigLeapTo(C4)); //perfect fifth
-        assertTrue(F5.startsBigLeapTo(C4)); //large
+        assertFalse(C4.startsLeapLargerThanMajThird(C4)); //unison
+        assertFalse(F4.startsLeapLargerThanMajThird(E4)); //minor second
+        assertFalse(D4.startsLeapLargerThanMajThird(C4)); //major second
+        assertFalse(F4.startsLeapLargerThanMajThird(D4)); //minor third
+        assertFalse(E4.startsLeapLargerThanMajThird(C4)); //major third
+        assertTrue(F4.startsLeapLargerThanMajThird(C4)); //perfect fourth
+        assertTrue(G4.startsLeapLargerThanMajThird(C4)); //perfect fifth
+        assertTrue(F5.startsLeapLargerThanMajThird(C4)); //large
     }
 
     @Test
@@ -108,43 +108,43 @@ public class Tests {
     }
 
     @Test
-    public void testIntervalIsntDissonantMelodic() {
+    public void testintervalIsDissonantMelodic() {
         //upwards
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 60));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 61));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 62));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 63));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 64));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 65));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 66));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 67));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 68));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 69));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 70));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 71));
-        assertTrue(C4.intervalIsntDissonantMelodic(60, 72));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 73));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 74));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 75));
-        assertFalse(C4.intervalIsntDissonantMelodic(60, 76));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 60));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 61));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 62));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 63));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 64));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 65));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 66));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 67));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 68));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 69));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 70));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 71));
+        assertFalse(C4.intervalIsDissonantMelodic(60, 72));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 73));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 74));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 75));
+        assertTrue(C4.intervalIsDissonantMelodic(60, 76));
         //downwards
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 76));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 75));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 74));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 73));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 72));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 71));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 70));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 69));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 68));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 67));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 66));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 65));
-        assertTrue(C4.intervalIsntDissonantMelodic(76, 64));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 63));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 62));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 61));
-        assertFalse(C4.intervalIsntDissonantMelodic(76, 60));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 76));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 75));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 74));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 73));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 72));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 71));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 70));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 69));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 68));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 67));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 66));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 65));
+        assertFalse(C4.intervalIsDissonantMelodic(76, 64));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 63));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 62));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 61));
+        assertTrue(C4.intervalIsDissonantMelodic(76, 60));
     }
 
     @Test
