@@ -1,3 +1,5 @@
+package com.counterpoint;
+
 import java.util.ArrayList;
 
 public enum Mode {
