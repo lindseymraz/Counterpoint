@@ -38,7 +38,7 @@ class Node {
                 ((one.startsDownwardMotionTo(two) && two.startsDownwardMotionTo(three)) && three.startsDownwardMotionTo(four));
     }
 
-    private boolean intervalIsDissonantMelodic(int pitch1, int pitch2) {
+    private static boolean intervalIsDissonantMelodic(int pitch1, int pitch2) {
         switch(pitch1 - pitch2) {
             case -16, -15, -14, -13, -11, -10, -6, 6, 10, 11, 13, 14, 15, 16: return true;
             default: return false;
@@ -60,11 +60,11 @@ class Node {
         return ((a > 5) || (a < -5));
     }
 
-    private boolean twoSequentialLeapsBetween(Node one, Node two, Node three) {
+    private static boolean twoSequentialLeapsBetween(Node one, Node two, Node three) {
         return(one.startsLeapTo(two) && two.startsLeapTo(three));
     }
 
-    private boolean threeSequentialLeapsBetween(Node one, Node two, Node three, Node four) {
+    private static boolean threeSequentialLeapsBetween(Node one, Node two, Node three, Node four) {
         return((one.startsLeapTo(two) && two.startsLeapTo(three)) && three.startsLeapTo(four));
     }
 
@@ -87,7 +87,7 @@ class Node {
     private boolean passesTests(Node n, LinkedList<Node> currPath) {
         if(nonLastNodeIsDeadEnd()) { return false; }
         if(alreadyHasClimax(n, currPath)) { return false; }
-        if(shouldHaveClimaxAndDoesnt(n, currPath)) { return false; }
+        if(shouldHaveClimaxAndDoesnt(currPath)) { return false; }
         if(currPath.size() >= 2) {
             Node prevNode = currPath.get((currPath.indexOf(this) - 1));
             int dist = n.pitch - this.pitch;
@@ -115,11 +115,11 @@ class Node {
         return(this.getsTo.size() < 1);
     }
 
-    private boolean alreadyHasClimax(Node n, LinkedList<Node> currPath) {
+    private static boolean alreadyHasClimax(Node n, LinkedList<Node> currPath) {
         return((n.pitch == IO.climax) && hasClimax(currPath));
     }
 
-    private boolean hasClimax(LinkedList<Node> list) {
+    private static boolean hasClimax(LinkedList<Node> list) {
         for(Node n : list) {
             if(n.pitch == IO.climax) {
                 return true;
@@ -127,11 +127,11 @@ class Node {
         } return false;
     }
 
-    private boolean shouldHaveClimaxAndDoesnt(Node n, LinkedList<Node> currPath) {
+    private static boolean shouldHaveClimaxAndDoesnt(LinkedList<Node> currPath) {
         return((currPath.size() >= IO.climaxLateBound) && (!hasClimax(currPath)));
     }
 
-    private boolean hasMotifs(Node n, LinkedList<Node> currPath) { //checks if there's an identical sequence of three notes in the current list, or if pitches A followed immediately by B are immediately followed by A followed immediately by B (since a Fux thing was ok with A followed by B, then A followed by B reoccurring later)
+    private static boolean hasMotifs(Node n, LinkedList<Node> currPath) { //checks if there's an identical sequence of three notes in the current list, or if pitches A followed immediately by B are immediately followed by A followed immediately by B (since a Fux thing was ok with A followed by B, then A followed by B reoccurring later)
         if(currPath.size() > 3) {
             LinkedList<Node> potentialPath = new LinkedList<Node>(currPath);
             potentialPath.add(n);
@@ -163,7 +163,7 @@ class Node {
         return(this.startsLeapLargerThanMajThird(n) && (currPath.size() == penultPos));
     }
 
-    private boolean notEnoughLeaps(LinkedList<Node> currPath) {
+    private static boolean notEnoughLeaps(LinkedList<Node> currPath) {
         return(forceAtLeastTwoLeaps && ((currPath.size() == (penultPos)) && (countLeaps(currPath).get(0) < 2)));
     }
 
@@ -177,7 +177,7 @@ class Node {
         } return false;
     }
 
-    private LinkedList<Integer> countLeaps(LinkedList<Node> list) {
+    private static LinkedList<Integer> countLeaps(LinkedList<Node> list) {
         LinkedList<Integer> leapList = new LinkedList<Integer>();
         int allLeaps = 0;
         int leapsOverFourth = 0;
@@ -275,7 +275,7 @@ class Node {
         return(octAndSixthNotPrecFollowStepInOppositeDirHelper(this, n, dist));
     }
 
-    private boolean octAndSixthNotPrecFollowStepInOppositeDirHelper(Node one, Node two, int dist) { //for octAndSixthPrecedeFollow functions, get a better name for this.
+    private static boolean octAndSixthNotPrecFollowStepInOppositeDirHelper(Node one, Node two, int dist) { //for octAndSixthPrecedeFollow functions, get a better name for this.
         if(allSixthsPrecedeFollowStepInOppDir) { //consider merging with fifth or bigger, aside from the prevNode.startsLeapTo
             switch(dist) { //has very similar logic
                 case 12, 9, 8: return(one.startsUpwardMotionTo(two) || one.startsLeapTo(two));
@@ -291,14 +291,14 @@ class Node {
         } return false;
     }
 
-    private boolean twoSuccessiveLeapsNotFollowedWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
+    private static boolean twoSuccessiveLeapsNotFollowedWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
         return(twoSequentialLeapsBetween(one, two, three) && (sameDirMotionBetween(two, three, four)));
     }
 
-    private boolean twoSuccessiveLeapsNotPrecededWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
+    private static boolean twoSuccessiveLeapsNotPrecededWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
         return((twoSequentialLeapsBetween(two, three, four)) && sameDirMotionBetween(one, two, three));
     }
 
-    private boolean P4AndUpLeapsNotPrecededOrFollowedWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
+    private static boolean P4AndUpLeapsNotPrecededOrFollowedWithStepInOppositeDir(Node one, Node two, Node three, Node four) {
         return(((!one.startsLeapTo(two)) && two.startsLeapLargerThanMajThird(three)) && sameDirMotionBetween(one, two, three, four)); }
 }

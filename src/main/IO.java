@@ -6,9 +6,9 @@ import java.util.Scanner;
 
 class IO {
 
-    ArrayList<ArrayList<Node>> columns;
-    Node start;
-    Node end;
+    private static ArrayList<ArrayList<Node>> columns;
+    private static Node start;
+    private static Node end;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
@@ -31,7 +31,7 @@ class IO {
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     private static ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
 
-    private void config() {
+    private static void config() {
         allowAllSixths = false;
         Node.allSixthsPrecedeFollowStepInOppDir = false;
         Node.forceAtLeastTwoLeaps = true;
@@ -39,7 +39,7 @@ class IO {
         debugMessagesOn = true;
     }
 
-    void input() throws InvalidInputException {
+    static void input() throws InvalidInputException {
         try {
             config();
             setUpAllLegalMoves();
@@ -88,7 +88,7 @@ class IO {
         }
     }
 
-    private void setUpAllLegalMoves() {
+    private static void setUpAllLegalMoves() {
         allLegalMoves.add(-12); //descend octave
         allLegalMoves.add(-7); //descend P5
         allLegalMoves.add(-5); //descend P4
@@ -111,7 +111,7 @@ class IO {
         }
     }
 
-    private void setMode(int input) throws InvalidInputException {
+    private static void setMode(int input) throws InvalidInputException {
         switch(input) {
             case 1: mode = Mode.IONIAN; break;
             case 2: mode = Mode.DORIAN; break;
@@ -124,7 +124,7 @@ class IO {
         }
     }
 
-    private void setKey(int input) throws InvalidInputException {
+    private static void setKey(int input) throws InvalidInputException {
         switch(input) {
             case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = input; break;
             default: throw new InvalidInputException(Integer.toString(input), " is not an integer between 0 and 11");
@@ -133,7 +133,7 @@ class IO {
 
     //starting with the tonic, add steps (from mode.steps) needed to jump to the next diatonic note.
     //the % 12 ensures the values are 0-11
-    private void setDiatonicPitchClasses() {
+    private static void setDiatonicPitchClasses() {
         diatonicPitchClasses.add(key); //adds tonic
         int hop = key;
         for(int i = 0; i < 6; i++) { //not using element-based for because you need to avoid the last
@@ -142,7 +142,7 @@ class IO {
         }
     }
 
-    private void printDiatonicPitchClasses() {//for debugging and testing
+    private static void printDiatonicPitchClasses() {//for debugging and testing
         String str = "";
         for(Integer i : diatonicPitchClasses) {
             str = str + i + " ";
@@ -150,7 +150,7 @@ class IO {
         System.out.println(str);
     }
 
-    private void boundOK(int input) throws InvalidInputException {
+    private static void boundOK(int input) throws InvalidInputException {
         if(input < 0) {
             throw new InvalidInputException(Integer.toString(input), " is less than 0");
         } if(input > 127) {
@@ -160,11 +160,11 @@ class IO {
         }
     }
 
-    private boolean isDiatonic(int pitch) {
+    private static boolean isDiatonic(int pitch) {
         return diatonicPitchClasses.contains(pitch%12);
     }
 
-    private void setBoundsTonicClimax(int input1, int input2) throws InvalidInputException {
+    private static void setBoundsTonicClimax(int input1, int input2) throws InvalidInputException {
         int distance = input1 - input2;
         int upper = input1;
         int lower = input2;
@@ -182,7 +182,7 @@ class IO {
         lowerBound = lower;
     }
 
-    private void intervalSizeOK(int distance, int smallest, int greatest, String quality) throws InvalidInputException {
+    private static void intervalSizeOK(int distance, int smallest, int greatest, String quality) throws InvalidInputException {
         if(distance < smallest) {
             throw new InvalidInputException(Integer.toString(distance), " is distance between bounds, interval must span at least a " + quality + " third");
         }
@@ -191,7 +191,7 @@ class IO {
         }
     }
 
-    private void setTonic(int upper, int lower) throws InvalidInputException {
+    private static void setTonic(int upper, int lower) throws InvalidInputException {
         LinkedList<Integer> tonics = findTonics(upper, lower);
         int tonicToUpperDist = (upper - tonics.get(0));
         int tonicToLowerDist = (tonics.get(0) - lower);
@@ -222,7 +222,7 @@ class IO {
         }
     }
 
-    private LinkedList<Integer> findTonics(int upper, int lower) throws InvalidInputException {
+    private static LinkedList<Integer> findTonics(int upper, int lower) throws InvalidInputException {
         int hop = lower;
         boolean alreadyFoundATonic = false;
         LinkedList<Integer> tonics = new LinkedList<Integer>();
@@ -239,11 +239,11 @@ class IO {
         } if(tonics.size() == 0) { throw new InvalidInputException("", "Did not find a tonic"); } return tonics;
     }
 
-    private void isClimaxInappropriate(int pitch) throws InvalidInputException {
+    private static void isClimaxInappropriate(int pitch) throws InvalidInputException {
         if(((key + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
     }
 
-    private void setLength(int input) throws InvalidInputException {
+    private static void setLength(int input) throws InvalidInputException {
         if(input < 8) {
             throw new InvalidInputException(Integer.toString(input), " is less than 8");
         }
@@ -252,16 +252,16 @@ class IO {
         } length = input;
     }
 
-    private void climaxPosPicker() {
+    private static void climaxPosPicker() {
         climaxEarlyBound = (int)((Math.floor(length*.33)) + 1);
         climaxLateBound = (int)(Math.round(length*.66));
     }
 
-    private void setPenultPos() {
+    private static void setPenultPos() {
         Node.penultPos = (length - 2);
     }
 
-    private void setInRangeDiatonics() {
+    private static void setInRangeDiatonics() {
         for(int i = lowerBound; i <= upperBound; i++) {
             if (isDiatonic(i)) {
                 inRangeDiatonics.add(i);
@@ -269,7 +269,7 @@ class IO {
         }
     }
 
-    private void setColumns() {
+    private static void setColumns() {
         columns = new ArrayList<ArrayList<Node>>(length);
         ArrayList<Node> firstColumn = new ArrayList<Node>();
         start = new Node(tonic);
@@ -307,7 +307,7 @@ class IO {
         }
     }
 
-    private void makeGetsTo() {
+    private static void makeGetsTo() {
         oneColumnGetsToNoClimax(start, 0);
         for (int j = 1; j < (climaxEarlyBound - 2); j++) {
             for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
@@ -361,7 +361,7 @@ class IO {
         }
     }
 
-    private void oneColumnGetsTo(Node node, int currColumn) {
+    private static void oneColumnGetsTo(Node node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
@@ -369,7 +369,7 @@ class IO {
         }
     }
 
-    private void oneColumnGetsToNoClimax(Node node, int currColumn) {
+    private static void oneColumnGetsToNoClimax(Node node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) {
                 int sub = 0;
@@ -381,7 +381,7 @@ class IO {
         }
     }
 
-    private void oneColumnGetsToSpecificNote(int lim, int sub, int note, Node addEdgeTo) {
+    private static void oneColumnGetsToSpecificNote(int lim, int sub, int note, Node addEdgeTo) {
         for(int j = 0; j < lim; j++) {
             for(Integer i : allLegalMoves) {
                 if((columns.get(length - sub).get(j).pitch + i) == note) {
@@ -391,11 +391,11 @@ class IO {
         }
     }
 
-    private boolean isInRange(int pitch) {
+    private static boolean isInRange(int pitch) {
         return((pitch >= lowerBound) && (pitch <= upperBound));
     }
 
-    private void printAllLegalMoves() { //for debugging and testing!
+    private static void printAllLegalMoves() { //for debugging and testing!
         String str = "";
         for(int i = 0; i < allLegalMoves.size(); i++) {
             str = str + (allLegalMoves.get(i)) + " ";
@@ -403,7 +403,7 @@ class IO {
         System.out.println(str);
     }
 
-    private void output(Node from, Node to) throws IOException {
+    private static void output(Node from, Node to) throws IOException {
         LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
         from.giveRoute(to, new LinkedList<Node>(), cantusFirmi);
         int acc = 1;
@@ -428,7 +428,7 @@ class IO {
         }
     }
 
-    private String writeCantus(LinkedList<Node> cantus, int acc) {
+    private static String writeCantus(LinkedList<Node> cantus, int acc) {
         int size = (cantus.size() - 1);
         String str = (acc + ", ");
         for(int i = 0; (i < size); i++) {
@@ -437,20 +437,20 @@ class IO {
         return(str + (cantus.get(size).pitch + ";\n"));
     }
 
-    private void clearInput() {
+    private static void clearInput() {
         allLegalMoves.clear();
         diatonicPitchClasses.clear();
         inRangeDiatonics.clear();
         columns.clear();
     }
 
-    private void clearInputException() {
+    private static void clearInputException() {
         allLegalMoves.clear();
         diatonicPitchClasses.clear();
         inRangeDiatonics.clear();
     }
 
-    private void chooseReset() throws InvalidInputException {
+    private static void chooseReset() throws InvalidInputException {
         System.out.print("Enter 1 to start again with new parameters, enter 0 to quit.\nNote if you have write to file on, this will overwrite your previous cantusfirmi.txt.\n");
         int choose = Integer.parseInt(keyboard.next());
         switch(choose){
