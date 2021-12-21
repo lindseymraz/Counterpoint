@@ -8,12 +8,18 @@ import java.util.Scanner;
 
 class IO {
 
-    private static ArrayList<ArrayList<Node>> columns;
-    private static Node start;
-    private static Node end;
+    private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
+    private static ArrayList<ArrayList<CantusFirmusNode>> columns;
+    private static CantusFirmusNode start;
+    private static CantusFirmusNode end;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
+
+    IO(Mode mode, int key){
+        this.mode = mode;
+        this.key = key;
+    }
 
     private static boolean allowAllSixths;
     private static boolean writeToFile;
@@ -35,27 +41,19 @@ class IO {
 
     private static void config() {
         allowAllSixths = false;
-        Node.allSixthsPrecedeFollowStepInOppDir = false;
-        Node.forceAtLeastTwoLeaps = true;
+        CantusFirmusNode.allSixthsPrecedeFollowStepInOppDir = false;
+        CantusFirmusNode.forceAtLeastTwoLeaps = true;
         writeToFile = true;
         debugMessagesOn = true;
     }
 
-    static void input() throws InvalidInputException {
+    static void cantusFirmusInput() throws InvalidInputException {
         try {
             config();
             setUpAllLegalMoves();
-            if(debugMessagesOn) {
-                printAllLegalMoves();
-            }
-            System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
-            setMode(Integer.parseInt(keyboard.next()));
-            System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
-            setKey(Integer.parseInt(keyboard.next()));
+            setMode();
+            setKey();
             setDiatonicPitchClasses();
-            if(debugMessagesOn) {
-                printDiatonicPitchClasses();
-            }
             System.out.println("Enter bound 1, no higher than 127, no lower than 0");
             int bound1 = Integer.parseInt(keyboard.next());
             boundOK(bound1);
@@ -63,30 +61,29 @@ class IO {
             int bound2 = Integer.parseInt(keyboard.next());
             boundOK(bound2);
             setBoundsTonicClimax(bound1, bound2);
-            if(debugMessagesOn) {
-                System.out.println("Tonic is " + tonic + "\nClimax is " + climax);
-            }
-            System.out.println("Enter length. 8 min, 16 max");
-            setLength(Integer.parseInt(keyboard.next()));
-            if(debugMessagesOn) {
-                System.out.println("Length is " + length);
-            }
+            setLength();
             climaxPosPicker();
             setPenultPos();
-            if(debugMessagesOn) {
-                System.out.println("Early bound is " + climaxEarlyBound + ", late bound is " + climaxLateBound);
-            }
             setInRangeDiatonics();
             setColumns();
             makeGetsTo();
-            output(start, end);
-            chooseReset();
+            int size = output(start, end);
+            chooseReset(size);
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
-            clearInputException();
-            input();
+            clearCantusFirmusInputException();
+            cantusFirmusInput();
         } catch (IOException e) {
             System.out.println("An error occurred.");
+        }
+    }
+
+    static void firstSpeciesInput() throws InvalidInputException {
+        try {
+            selectCounterpointAboveOrBelow();
+        } catch(InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
+            firstSpeciesInput();
         }
     }
 
@@ -111,10 +108,15 @@ class IO {
             allLegalMoves.add(-8); //descend minor sixth
             allLegalMoves.add(9); //ascend major sixth
         }
+        if(debugMessagesOn) {
+            printAllLegalMoves();
+        }
     }
 
-    private static void setMode(int input) throws InvalidInputException {
-        switch(input) {
+    private static void setMode() throws InvalidInputException {
+        System.out.println("Enter mode.\n1 for Ionian\n2 for Dorian\n3 for Phrygian\n4 for Lydian\n5 for Mixolydian\n6 for Aeolian\n7 for Locrian");
+        String input = (keyboard.next());
+        switch(Integer.parseInt(input)) {
             case 1: mode = Mode.IONIAN; break;
             case 2: mode = Mode.DORIAN; break;
             case 3: mode = Mode.PHRYGIAN; break;
@@ -122,25 +124,30 @@ class IO {
             case 5: mode = Mode.MIXOLYDIAN; break;
             case 6: mode = Mode.AEOLIAN; break;
             case 7: mode = Mode.LOCRIAN; break;
-            default: throw new InvalidInputException(Integer.toString(input), " is not an integer between 1 and 7");
+            default: throw new InvalidInputException(input, " is not an integer between 1 and 7");
         }
     }
 
-    private static void setKey(int input) throws InvalidInputException {
-        switch(input) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = input; break;
-            default: throw new InvalidInputException(Integer.toString(input), " is not an integer between 0 and 11");
+    private static void setKey() throws InvalidInputException {
+        System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
+        String input = (keyboard.next());
+        switch(Integer.parseInt(input)) {
+            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = Integer.parseInt(input); break;
+            default: throw new InvalidInputException((input), " is not an integer between 0 and 11");
         }
     }
 
     //starting with the tonic, add steps (from mode.steps) needed to jump to the next diatonic note.
     //the % 12 ensures the values are 0-11
-    private static void setDiatonicPitchClasses() {
+    static void setDiatonicPitchClasses() {
         diatonicPitchClasses.add(key); //adds tonic
         int hop = key;
         for(int i = 0; i < 6; i++) { //not using element-based for because you need to avoid the last
             hop = (hop + mode.steps.get(i)) % 12; //item in mode.steps, which is ti2Do.
             diatonicPitchClasses.add(hop);
+        }
+        if(debugMessagesOn) {
+            printDiatonicPitchClasses();
         }
     }
 
@@ -162,7 +169,7 @@ class IO {
         }
     }
 
-    private static boolean isDiatonic(int pitch) {
+    static boolean isDiatonic(int pitch) {
         return diatonicPitchClasses.contains(pitch%12);
     }
 
@@ -182,6 +189,9 @@ class IO {
         setTonic(upper, lower);
         upperBound = upper;
         lowerBound = lower;
+        if(debugMessagesOn) {
+            System.out.println("Tonic is " + tonic + "\nClimax is " + climax);
+        }
     }
 
     private static void intervalSizeOK(int distance, int smallest, int greatest, String quality) throws InvalidInputException {
@@ -245,18 +255,26 @@ class IO {
         if(((key + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
     }
 
-    private static void setLength(int input) throws InvalidInputException {
+    private static void setLength() throws InvalidInputException {
+        System.out.println("Enter length. 8 min, 16 max");
+        int input = Integer.parseInt(keyboard.next());
         if(input < 8) {
             throw new InvalidInputException(Integer.toString(input), " is less than 8");
         }
         if(input > 16) {
             throw new InvalidInputException(Integer.toString(input), " is greater than 16");
         } length = input;
+        if(debugMessagesOn) {
+            System.out.println("Length is " + length);
+        }
     }
 
     private static void climaxPosPicker() {
         climaxEarlyBound = (int)((Math.floor(length*.33)) + 1);
         climaxLateBound = (int)(Math.round(length*.66));
+        if(debugMessagesOn) {
+            System.out.println("Early bound is " + climaxEarlyBound + ", late bound is " + climaxLateBound);
+        }
     }
 
     private static void setPenultPos() {
@@ -272,39 +290,39 @@ class IO {
     }
 
     private static void setColumns() {
-        columns = new ArrayList<ArrayList<Node>>(length);
-        ArrayList<Node> firstColumn = new ArrayList<Node>();
-        start = new Node(tonic);
+        columns = new ArrayList<ArrayList<CantusFirmusNode>>(length);
+        ArrayList<CantusFirmusNode> firstColumn = new ArrayList<CantusFirmusNode>();
+        start = new CantusFirmusNode(tonic);
         firstColumn.add(start);
         columns.add(firstColumn);
         for(int i = 1; i < (climaxEarlyBound - 1); i++) {
-            ArrayList<Node> a = new ArrayList<Node>(inRangeDiatonics.size());
+            ArrayList<CantusFirmusNode> a = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                if(inRangeDiatonics.get(j) != climax) { a.add(new Node(inRangeDiatonics.get(j))); }
+                if(inRangeDiatonics.get(j) != climax) { a.add(new CantusFirmusNode(inRangeDiatonics.get(j))); }
             }
             columns.add(a);
         }
         for(int i = (climaxEarlyBound - 1); i < (climaxLateBound); i++) {
-            ArrayList<Node> b = new ArrayList<Node>(inRangeDiatonics.size());
+            ArrayList<CantusFirmusNode> b = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                b.add(new Node(inRangeDiatonics.get(j)));
+                b.add(new CantusFirmusNode(inRangeDiatonics.get(j)));
             }
             columns.add(b);
         }
         for(int i = climaxLateBound; i < (length - 1); i++) {
-            ArrayList<Node> c = new ArrayList<Node>(inRangeDiatonics.size());
+            ArrayList<CantusFirmusNode> c = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                if(inRangeDiatonics.get(j) != climax) { c.add(new Node(inRangeDiatonics.get(j))); }
+                if(inRangeDiatonics.get(j) != climax) { c.add(new CantusFirmusNode(inRangeDiatonics.get(j))); }
             }
             columns.add(c);
         }
-        ArrayList<Node> lastColumn = new ArrayList<Node>();
-        end = new Node(tonic);
+        ArrayList<CantusFirmusNode> lastColumn = new ArrayList<CantusFirmusNode>();
+        end = new CantusFirmusNode(tonic);
         lastColumn.add(end);
         columns.add(lastColumn);
         switch(mode) {
-            case PHRYGIAN, AEOLIAN, LOCRIAN: if (isInRange(tonic - 3)) { columns.get(length - 3).add(new Node(tonic - 3)); }
-            case DORIAN, MIXOLYDIAN: if (isInRange(tonic - 1)) { columns.get(length - 2).add(new Node(tonic - 1)); }
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if (isInRange(tonic - 3)) { columns.get(length - 3).add(new CantusFirmusNode(tonic - 3)); }
+            case DORIAN, MIXOLYDIAN: if (isInRange(tonic - 1)) { columns.get(length - 2).add(new CantusFirmusNode(tonic - 1)); }
             default: break;
         }
     }
@@ -336,7 +354,7 @@ class IO {
             case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) {
                 for (int l = 0; l < columns.get(length - 3).size(); l++) {
                     if (columns.get(length - 3).get(l).pitch == (tonic - 3)) {
-                        Node laNode = columns.get(length - 3).get(l);
+                        CantusFirmusNode laNode = columns.get(length - 3).get(l);
                         for (int m = 0; m < columns.get(length - 2).size(); m++) {
                             if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
                                 laNode.addEdge(columns.get(length - 2).get(m));
@@ -349,7 +367,7 @@ class IO {
             case DORIAN, MIXOLYDIAN: if(isInRange(tonic - 1)) {
                 for (int q = 0; q < columns.get(length - 2).size(); q++) {
                     if(columns.get(length - 2).get(q).pitch == (tonic - 1)) {
-                        Node tiNode = columns.get(length - 2).get(q);
+                        CantusFirmusNode tiNode = columns.get(length - 2).get(q);
                         oneColumnGetsToSpecificNote(columns.get(length - 3).size(), 3, (tonic - 1), tiNode);
                     }
                 }
@@ -363,7 +381,7 @@ class IO {
         }
     }
 
-    private static void oneColumnGetsTo(Node node, int currColumn) {
+    private static void oneColumnGetsTo(CantusFirmusNode node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
@@ -371,7 +389,7 @@ class IO {
         }
     }
 
-    private static void oneColumnGetsToNoClimax(Node node, int currColumn) {
+    private static void oneColumnGetsToNoClimax(CantusFirmusNode node, int currColumn) {
         for(Integer i : allLegalMoves) {
             if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) {
                 int sub = 0;
@@ -383,7 +401,7 @@ class IO {
         }
     }
 
-    private static void oneColumnGetsToSpecificNote(int lim, int sub, int note, Node addEdgeTo) {
+    private static void oneColumnGetsToSpecificNote(int lim, int sub, int note, CantusFirmusNode addEdgeTo) {
         for(int j = 0; j < lim; j++) {
             for(Integer i : allLegalMoves) {
                 if((columns.get(length - sub).get(j).pitch + i) == note) {
@@ -405,19 +423,19 @@ class IO {
         System.out.println(str);
     }
 
-    private static void output(Node from, Node to) throws IOException {
-        LinkedList<LinkedList<Node>> cantusFirmi = new LinkedList<LinkedList<Node>>();
-        from.giveRoute(to, new LinkedList<Node>(), cantusFirmi);
+    private static int output(CantusFirmusNode from, CantusFirmusNode to) throws IOException {
+        cantusFirmi = new LinkedList<LinkedList<CantusFirmusNode>>();
+        from.giveRoute(to, new LinkedList<CantusFirmusNode>(), cantusFirmi);
         int acc = 1;
         if(writeToFile) {
             FileWriter myWriter = new FileWriter("cantusFirmi.txt");
-            for (LinkedList<Node> cantus : cantusFirmi) {
+            for (LinkedList<CantusFirmusNode> cantus : cantusFirmi) {
                 myWriter.write(writeCantus(cantus, acc));
                 acc++;
             }
             myWriter.close();
         } else {
-            for(LinkedList<Node> cantus : cantusFirmi) {
+            for(LinkedList<CantusFirmusNode> cantus : cantusFirmi) {
                 System.out.print(writeCantus(cantus, acc));
                 acc++;
             }
@@ -428,9 +446,10 @@ class IO {
             case 1: System.out.println(size + " cantus firmus generated!"); break;
             default: System.out.println(size + " cantus firmi generated!");
         }
+        return size;
     }
 
-    private static String writeCantus(LinkedList<Node> cantus, int acc) {
+    private static String writeCantus(LinkedList<CantusFirmusNode> cantus, int acc) {
         int size = (cantus.size() - 1);
         String str = (acc + ", ");
         for(int i = 0; (i < size); i++) {
@@ -439,26 +458,86 @@ class IO {
         return(str + (cantus.get(size).pitch + ";\n"));
     }
 
-    private static void clearInput() {
+    private static void clearCantusFirmusInput() {
         allLegalMoves.clear();
         diatonicPitchClasses.clear();
         inRangeDiatonics.clear();
         columns.clear();
     }
 
-    private static void clearInputException() {
+    private static void clearCantusFirmusInputException() {
         allLegalMoves.clear();
         diatonicPitchClasses.clear();
         inRangeDiatonics.clear();
     }
 
-    private static void chooseReset() throws InvalidInputException {
-        System.out.print("Enter 1 to start again with new parameters, enter 0 to quit.\nNote if you have write to file on, this will overwrite your previous cantusfirmi.txt.\n");
+    private static void chooseReset(int size) throws InvalidInputException {
+        System.out.print("Enter 0 to quit, 1 to start again with new parameters");
+        if(size > 0) {
+            System.out.println(", or 2 to proceed to first species.");
+        } else {
+            System.out.println(".");
+        }
+        System.out.println("Note if you have write to file on, this will overwrite your previous cantusfirmi.txt.");
         int choose = Integer.parseInt(keyboard.next());
-        switch(choose){
-            case 0: break;
-            case 1: clearInput(); input(); break;
-            default: throw new InvalidInputException(Integer.toString(choose), " is not 0 or 1");
+        if(size > 0) {
+            switch(choose){
+                case 0: break;
+                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
+                case 2: selectACantusFirmus(size); break;
+                default: throw new InvalidInputException(Integer.toString(choose), " is not 0, 1, or 2");
+            }
+        } else {
+            switch(choose){
+                case 0: break;
+                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
+                default: throw new InvalidInputException(Integer.toString(choose), " is not 0 or 1");
+            }
+        }
+    }
+
+    private static void selectACantusFirmus(int size) throws InvalidInputException {
+        try {
+            LinkedList<CantusFirmusNode> selectedCF = cantusFirmi.get(0);
+            int input = 1;
+            if(size > 1) {
+                System.out.println("Select a generated cantus firmus. Options are from 1 to " + size + ".");
+                input = Integer.parseInt(keyboard.next());
+                if(input < 1) {
+                    throw new InvalidInputException(Integer.toString(input), " is below 1");
+                } if(input > size) {
+                    throw new InvalidInputException(Integer.toString(input), " is above " + size);
+                } else {
+                    selectedCF = cantusFirmi.get(input - 1);
+                }
+            } System.out.println("The cantus firmus that will be used is " + input + ", whose notes are:");
+            String str = "";
+            for(int i = 0; (i < selectedCF.size()); i++) {
+                str = str + (selectedCF.get(i).pitch + " ");
+            }
+            System.out.println(str);
+            if(size > 1) {
+                System.out.println("Is this acceptable? Enter 1 for yes, 0 to select a different cantus firmus.");
+                int acceptable = Integer.parseInt(keyboard.next());
+                switch(acceptable) {
+                    case 0: selectACantusFirmus(size); break;
+                    case 1: break;
+                    default: throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
+                }
+            } firstSpeciesInput();
+        } catch (InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
+            selectACantusFirmus(size);
+        }
+    }
+
+    private static void selectCounterpointAboveOrBelow() throws InvalidInputException {
+        System.out.println("Enter 0 to put the counterpoint above the cantus firmus; 1 to put the counterpoint below the cantus firmus.");
+        int input = Integer.parseInt(keyboard.next());
+        switch(input) {
+            case 0: break; //above
+            case 1: break; //below
+            default: throw new InvalidInputException(Integer.toString(input), " is not 1 or 0");
         }
     }
 
