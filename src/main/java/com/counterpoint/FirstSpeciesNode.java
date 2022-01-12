@@ -18,5 +18,20 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
         return false;
     }
 
+    boolean makesConsonance(CantusFirmusNode cantusNote) {
+        int diff = (this.pitch - cantusNote.pitch);
+        switch(diff) {
+            case -19, -16, -15, -12, -9, -8, -7, -4, -3, 0, 3, 4, 7, 8, 9, 12, 15, 16, 19: return true;
+            default: return false;
+        }
+    }
+
+    boolean makesPerfectConsonance(CantusFirmusNode cantusNote) {
+        int diff = (this.pitch - cantusNote.pitch);
+        switch(diff) {
+            case -19, -12, -7, 0, 7, 12, 19: return true;
+            default: return false;
+        }
+    }
 
 }

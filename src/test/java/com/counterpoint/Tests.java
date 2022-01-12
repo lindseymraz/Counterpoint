@@ -18,6 +18,22 @@ public class Tests {
     CantusFirmusNode D5 = new CantusFirmusNode(74);
     CantusFirmusNode E5 = new CantusFirmusNode(76);
     CantusFirmusNode F5 = new CantusFirmusNode(77);
+    CantusFirmusNode Fs5 = new CantusFirmusNode(78);
+    CantusFirmusNode G5 = new CantusFirmusNode(79);
+
+    FirstSpeciesNode C4f = new FirstSpeciesNode(60);
+    FirstSpeciesNode D4f = new FirstSpeciesNode(62);
+    FirstSpeciesNode E4f = new FirstSpeciesNode(64);
+    FirstSpeciesNode F4f = new FirstSpeciesNode(65);
+    FirstSpeciesNode G4f = new FirstSpeciesNode(67);
+    FirstSpeciesNode A4f = new FirstSpeciesNode(69);
+    FirstSpeciesNode B4f = new FirstSpeciesNode(71);
+    FirstSpeciesNode C5f = new FirstSpeciesNode(72);
+    FirstSpeciesNode D5f = new FirstSpeciesNode(74);
+    FirstSpeciesNode E5f = new FirstSpeciesNode(76);
+    FirstSpeciesNode F5f = new FirstSpeciesNode(77);
+    FirstSpeciesNode Fs5f = new FirstSpeciesNode(78);
+    FirstSpeciesNode G5f = new FirstSpeciesNode(79);
 
     @Test
     public void testStartsLeapTo() {
@@ -559,4 +575,98 @@ public class Tests {
         assertTrue(Graph.isDiatonic(126));
         assertFalse(Graph.isDiatonic(127));
     } */
+
+    @Test
+    public void testMakesConsonance() {
+        assertTrue(C4f.makesConsonance(C4)); //unison
+
+        //up
+        assertFalse(E4f.makesConsonance(F4)); //m2
+        assertFalse(C4f.makesConsonance(D4)); //M2
+        assertTrue(E4f.makesConsonance(G4)); //m3
+        assertTrue(C4f.makesConsonance(E4)); //M3
+        assertFalse(C4f.makesConsonance(F4)); //P4
+        assertFalse(F4f.makesConsonance(B4)); //TT
+        assertTrue(C4f.makesConsonance(G4)); //P5
+        assertTrue(E4f.makesConsonance(C5)); //m6
+        assertTrue(C4f.makesConsonance(A4)); //M6
+        assertFalse(D4f.makesConsonance(C5)); //m7
+        assertFalse(C4f.makesConsonance(B4)); //M7
+        assertTrue(C4f.makesConsonance(C5)); //P8
+        assertFalse(E4f.makesConsonance(F5)); //m9
+        assertFalse(C4f.makesConsonance(D5)); //M9
+        assertTrue(D4f.makesConsonance(F5)); //m10
+        assertTrue(C4f.makesConsonance(E5)); //M10
+        assertFalse(C4f.makesConsonance(F5)); //P11
+        assertFalse(C4f.makesConsonance(Fs5)); //TT
+        assertTrue(C4f.makesConsonance(G5)); //P12
+
+        //down
+        assertFalse(F4f.makesConsonance(E4)); //m2
+        assertFalse(D4f.makesConsonance(C4)); //M2
+        assertTrue(G4f.makesConsonance(E4)); //m3
+        assertTrue(E4f.makesConsonance(C4)); //M3
+        assertFalse(F4f.makesConsonance(C4)); //P4
+        assertFalse(B4f.makesConsonance(F4)); //TT
+        assertTrue(G4f.makesConsonance(C4)); //P5
+        assertTrue(C5f.makesConsonance(E4)); //m6
+        assertTrue(A4f.makesConsonance(C4)); //M6
+        assertFalse(C5f.makesConsonance(D4)); //m7
+        assertFalse(B4f.makesConsonance(C4)); //M7
+        assertTrue(C5f.makesConsonance(C4)); //P8
+        assertFalse(F5f.makesConsonance(E4)); //m9
+        assertFalse(D5f.makesConsonance(C4)); //M9
+        assertTrue(F5f.makesConsonance(D4)); //m10
+        assertTrue(E5f.makesConsonance(C4)); //M10
+        assertFalse(F5f.makesConsonance(C4)); //P11
+        assertFalse(Fs5f.makesConsonance(C4)); //TT
+        assertTrue(G5f.makesConsonance(C4)); //P12
+    }
+
+    @Test
+    public void testMakesPerfectConsonance() {
+        assertTrue(C4f.makesPerfectConsonance(C4)); //unison
+
+        //up
+        assertFalse(E4f.makesPerfectConsonance(F4)); //m2
+        assertFalse(C4f.makesPerfectConsonance(D4)); //M2
+        assertFalse(E4f.makesPerfectConsonance(G4)); //m3
+        assertFalse(C4f.makesPerfectConsonance(E4)); //M3
+        assertFalse(C4f.makesPerfectConsonance(F4)); //P4
+        assertFalse(F4f.makesPerfectConsonance(B4)); //TT
+        assertTrue(C4f.makesPerfectConsonance(G4)); //P5
+        assertFalse(E4f.makesPerfectConsonance(C5)); //m6
+        assertFalse(C4f.makesPerfectConsonance(A4)); //M6
+        assertFalse(D4f.makesPerfectConsonance(C5)); //m7
+        assertFalse(C4f.makesPerfectConsonance(B4)); //M7
+        assertTrue(C4f.makesPerfectConsonance(C5)); //P8
+        assertFalse(E4f.makesPerfectConsonance(F5)); //m9
+        assertFalse(C4f.makesPerfectConsonance(D5)); //M9
+        assertFalse(D4f.makesPerfectConsonance(F5)); //m10
+        assertFalse(C4f.makesPerfectConsonance(E5)); //M10
+        assertFalse(C4f.makesConsonance(F5)); //P11
+        assertFalse(C4f.makesConsonance(Fs5)); //TT
+        assertTrue(C4f.makesConsonance(G5)); //P12
+
+        //down
+        assertFalse(F4f.makesPerfectConsonance(E4)); //m2
+        assertFalse(D4f.makesPerfectConsonance(C4)); //M2
+        assertFalse(G4f.makesPerfectConsonance(E4)); //m3
+        assertFalse(E4f.makesPerfectConsonance(C4)); //M3
+        assertFalse(F4f.makesPerfectConsonance(C4)); //P4
+        assertFalse(B4f.makesPerfectConsonance(F4)); //TT
+        assertTrue(G4f.makesPerfectConsonance(C4)); //P5
+        assertFalse(C5f.makesPerfectConsonance(E4)); //m6
+        assertFalse(A4f.makesPerfectConsonance(C4)); //M6
+        assertFalse(C5f.makesPerfectConsonance(D4)); //m7
+        assertFalse(B4f.makesPerfectConsonance(C4)); //M7
+        assertTrue(C5f.makesPerfectConsonance(C4)); //P8
+        assertFalse(F5f.makesPerfectConsonance(E4)); //m9
+        assertFalse(D5f.makesPerfectConsonance(C4)); //M9
+        assertFalse(F5f.makesPerfectConsonance(D4)); //m10
+        assertFalse(E5f.makesPerfectConsonance(C4)); //M10
+        assertFalse(F5f.makesConsonance(C4)); //P11
+        assertFalse(Fs5f.makesConsonance(C4)); //TT
+        assertTrue(G5f.makesConsonance(C4)); //P12
+    }
 }
