@@ -6,6 +6,7 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
 
     static boolean allSixthsPrecedeFollowStepInOppDir;
     static boolean forceAtLeastTwoLeaps;
+    static boolean naturalSeventhAvoidsRaisedSeventh; //specifically, the 4 tones before the raised leading tone won't be the natural leading tone
 
     CantusFirmusNode(int pitch) {
         super(pitch);
@@ -49,7 +50,10 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
                 if(twoSuccessiveLeapsNotFollowedWithStepInOppositeDir(prevPrevNode, prevNode, this, n)) { return false; }
                 if(P4AndUpLeapsNotPrecededOrFollowedWithStepInOppositeDir(prevPrevNode, prevNode, this, n)) { return false; }
                 if(distToPenultExceedsMajThird(n, currPath)) { return false; }
-                if(notEnoughLeaps(currPath)) { return false; }
+                if(currPath.size() == (penultPos + 1)) {
+                    if(diatonicSeventhsAreInFourNotesBeforeLeadingRaisedSeventh(currPath)) { return false; }
+                    if(notEnoughLeaps(currPath)) { return false; }
+                }
             }
         } return true;
     }
@@ -107,7 +111,7 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
     }
 
     private static boolean notEnoughLeaps(LinkedList<CantusFirmusNode> currPath) {
-        return(forceAtLeastTwoLeaps && ((currPath.size() == (penultPos)) && (countLeaps(currPath).get(0) < 2)));
+        return(forceAtLeastTwoLeaps && (countLeaps(currPath).get(0) < 2));
     }
 
     private boolean willExceedAllowedLeaps(CantusFirmusNode n, LinkedList<CantusFirmusNode> currPath) {
@@ -244,4 +248,21 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
 
     private boolean P4AndUpLeapsNotPrecededOrFollowedWithStepInOppositeDir(CantusFirmusNode one, CantusFirmusNode two, CantusFirmusNode three, CantusFirmusNode four) {
         return(((!one.startsLeapTo(two)) && two.startsLeapLargerThanMajThird(three)) && sameDirMotionBetween(one, two, three, four)); }
+
+    private boolean diatonicSeventhsAreInFourNotesBeforeLeadingRaisedSeventh(LinkedList<CantusFirmusNode> currPath) {
+        if(naturalSeventhAvoidsRaisedSeventh) {
+            switch(IO.mode) {
+                case DORIAN, MIXOLYDIAN, PHRYGIAN, AEOLIAN, LOCRIAN: //the raised seventh is not diatonic so go ahead and check
+                    if(this.pitch == (IO.tonic - 1)) { //we do have the raised seventh as penultimate tone
+                        for(int i = 4; i < 0; i--) {
+                            if(((currPath.get(penultPos - i).pitch) % 12) == ((IO.tonic - IO.mode.steps.get(6)) % 12)) {
+                                return true;
+                            }
+                        }
+                    } return false;
+                case IONIAN, LYDIAN: return false; //the seventh is already "raised" and that's diatonic, so it's not an issue
+                default: break;
+            }
+        } return false;
+    }
 }

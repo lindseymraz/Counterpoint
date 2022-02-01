@@ -12,6 +12,7 @@ class IO {
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
+    static LinkedList<CantusFirmusNode> cantusFirmus;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
@@ -25,15 +26,15 @@ class IO {
     private static boolean writeToFile;
     private static boolean debugMessagesOn;
 
-    private static Mode mode;
+    static Mode mode;
     private static int key; //0 is C, 11 is B
     private static int length; //8 to 16
     private static int upperBound; //the upper bound is allowed, nothing above it
     private static int lowerBound; //the lower bound is allowed, nothing below it
-    private static int tonic; //the actual pitch value, stuff like 60, not just pitch class
+    static int tonic; //the actual pitch value, stuff like 60, not just pitch class
     static int climax; //actual pitch value, not just pitch class
-    static int climaxEarlyBound; //earliest climax can occur
-    static int climaxLateBound; //latest climax can occur
+    static int climaxEarlyBound; //earliest climax can occur. ex: if 3, climax can be 3rd note at earliest (this means 2nd column in array though)
+    static int climaxLateBound; //latest climax can occur. ex: if 6, climax can be 6th note at latest (this means 5th column in array though)
 
     private static ArrayList<Integer> allLegalMoves = new ArrayList<Integer>();
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
@@ -45,6 +46,7 @@ class IO {
         CantusFirmusNode.forceAtLeastTwoLeaps = true;
         writeToFile = true;
         debugMessagesOn = true;
+        CantusFirmusNode.naturalSeventhAvoidsRaisedSeventh = false;
     }
 
     static void cantusFirmusInput() throws InvalidInputException {
@@ -279,7 +281,7 @@ class IO {
 
     private static void setPenultPos() {
         Node.penultPos = (length - 2);
-    }
+    } //equal to which column has the penultimate note
 
     private static void setInRangeDiatonics() {
         for(int i = lowerBound; i <= upperBound; i++) {
@@ -295,21 +297,21 @@ class IO {
         start = new CantusFirmusNode(tonic);
         firstColumn.add(start);
         columns.add(firstColumn);
-        for(int i = 1; i < (climaxEarlyBound - 1); i++) {
+        for(int i = 1; i < (climaxEarlyBound - 1); i++) { //you already added column 0 at the beginning, start at column 1. earliest climax may appear is the cEBrd note, that counts starting at 1 so adjust for earliest column, stop before you hit it
             ArrayList<CantusFirmusNode> a = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
-                if(inRangeDiatonics.get(j) != climax) { a.add(new CantusFirmusNode(inRangeDiatonics.get(j))); }
+                if(inRangeDiatonics.get(j) != climax) { a.add(new CantusFirmusNode(inRangeDiatonics.get(j))); } //add everything but the climax because it can't appear yet
             }
             columns.add(a);
         }
-        for(int i = (climaxEarlyBound - 1); i < (climaxLateBound); i++) {
+        for(int i = (climaxEarlyBound - 1); i < (climaxLateBound); i++) { //you're at the cEBrd note, so you can add the climax, stop before you hit the first thing after cLB's column, which is cLB - 1
             ArrayList<CantusFirmusNode> b = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
                 b.add(new CantusFirmusNode(inRangeDiatonics.get(j)));
             }
             columns.add(b);
         }
-        for(int i = climaxLateBound; i < (length - 1); i++) {
+        for(int i = climaxLateBound; i < (length - 1); i++) { //you're past the cLBth note (which was in column cLB - 1 and right now you're in column cLB), go back to not adding climax. stop before you hit last column
             ArrayList<CantusFirmusNode> c = new ArrayList<CantusFirmusNode>(inRangeDiatonics.size());
             for(int j = 0; j < inRangeDiatonics.size(); j++) {
                 if(inRangeDiatonics.get(j) != climax) { c.add(new CantusFirmusNode(inRangeDiatonics.get(j))); }
@@ -320,68 +322,68 @@ class IO {
         end = new CantusFirmusNode(tonic);
         lastColumn.add(end);
         columns.add(lastColumn);
-        switch(mode) {
-            case PHRYGIAN, AEOLIAN, LOCRIAN: if (isInRange(tonic - 3)) { columns.get(length - 3).add(new CantusFirmusNode(tonic - 3)); }
-            case DORIAN, MIXOLYDIAN: if (isInRange(tonic - 1)) { columns.get(length - 2).add(new CantusFirmusNode(tonic - 1)); }
+        switch(mode) { //if 678 doesn't look major with your diatonic notes, add in nodes required to make it look major.
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if (isInRange(tonic - 3)) { columns.get(length - 3).add(new CantusFirmusNode(tonic - 3)); } //intentionally doesn't break because these modes also need to do the step listed in the next case. this one raises the 6
+            case DORIAN, MIXOLYDIAN: if (isInRange(tonic - 1)) { columns.get(length - 2).add(new CantusFirmusNode(tonic - 1)); } //raises the 7
             default: break;
         }
     }
 
     private static void makeGetsTo() {
         oneColumnGetsToNoClimax(start, 0);
-        for (int j = 1; j < (climaxEarlyBound - 2); j++) {
-            for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
+        for (int j = 1; j < (climaxEarlyBound - 2); j++) { //already did first column. column cEB - 1 is first with climax nodes, so stop before you do cEB - 2, else you'd omit possible connections
+            for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) { //to climax nodes
                 oneColumnGetsToNoClimax(columns.get(j).get(k), j);
             }
         }
-        for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
+        for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) { //just one column, because it's column-minus-climax mapping onto column-with-climax, with climax has one more node than your start
             oneColumnGetsTo(columns.get((climaxEarlyBound) - 2).get(k), ((climaxEarlyBound) - 2));
         }
-        for (int j = (climaxEarlyBound - 1); j < (climaxLateBound - 1); j++) {
+        for (int j = (climaxEarlyBound - 1); j < (climaxLateBound - 1); j++) { //columns with climax connect to other columns with climax
             for (int k = 0; k < inRangeDiatonics.size(); k++) {
                 oneColumnGetsTo(columns.get(j).get(k), j);
             }
         }
-        for (int k = 0; k < inRangeDiatonics.size(); k++) {
+        for (int k = 0; k < inRangeDiatonics.size(); k++) { //just one column: column with climax connects to column without climax (has one less node than column with climax)
             oneColumnGetsToNoClimax(columns.get((climaxLateBound) - 1).get(k), ((climaxLateBound) - 1));
         }
-        for (int j = (climaxLateBound); j < (length - 2); j++) {
+        for (int j = (climaxLateBound); j < (length - 2); j++) { //columns without climaxes connect to same size things
             for (int k = 0; k < (inRangeDiatonics.size() - 1); k++) {
-                oneColumnGetsToNoClimax(columns.get(j).get(k), j);
-            }
+                oneColumnGetsToNoClimax(columns.get(j).get(k), j); //this can include prepenult and connections to penult, which may have one more note (their raised 6 or 7) than the other nonclimax nodes, how do we know these are getting all their
+            }//diatonics connected and not accidentally touching the nondiatonics? columns.get(j).get(k), k will only go as high as the inrangediatonics indices (all the extra notes have their index higher than the last diatonic)
         }
-        switch(mode) {
-            case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) {
-                for (int l = 0; l < columns.get(length - 3).size(); l++) {
+        switch(mode) { //this all dealt with inRangeDiatonics.size, not connecting any nondiatonics. only nondiatonics are raised 7 and 6 at the end, let's make sure they connect
+            case PHRYGIAN, AEOLIAN, LOCRIAN: if(isInRange(tonic - 3)) { //if raised 6 in range we put it down so it's ok to look for it
+                for (int l = 0; l < columns.get(length - 3).size(); l++) { //find the raised 6 node
                     if (columns.get(length - 3).get(l).pitch == (tonic - 3)) {
-                        CantusFirmusNode laNode = columns.get(length - 3).get(l);
+                        CantusFirmusNode laNode = columns.get(length - 3).get(l); //found the raised 6, set laNode to it
                         for (int m = 0; m < columns.get(length - 2).size(); m++) {
                             if(columns.get(length - 2).get(m).pitch == (tonic - 1)) {
-                                laNode.addEdge(columns.get(length - 2).get(m));
+                                laNode.addEdge(columns.get(length - 2).get(m)); //raised 6th always will go to raised 7th
                             }
                         }
-                        oneColumnGetsToSpecificNote(columns.get(length - 4).size(), 4, (tonic - 3), laNode);
+                        oneColumnGetsToSpecificNote(columns.get(length - 4).size(), 4, (tonic - 3), laNode); //connect the stuff preceding raised 6's column to raised 6
                     }
                 }
             }
-            case DORIAN, MIXOLYDIAN: if(isInRange(tonic - 1)) {
-                for (int q = 0; q < columns.get(length - 2).size(); q++) {
+            case DORIAN, MIXOLYDIAN: if(isInRange(tonic - 1)) { //if raised 7 in range we put it down so it's ok to look for it
+                for (int q = 0; q < columns.get(length - 2).size(); q++) { //find raised 7
                     if(columns.get(length - 2).get(q).pitch == (tonic - 1)) {
-                        CantusFirmusNode tiNode = columns.get(length - 2).get(q);
-                        oneColumnGetsToSpecificNote(columns.get(length - 3).size(), 3, (tonic - 1), tiNode);
+                        CantusFirmusNode tiNode = columns.get(length - 2).get(q); //found raised 7, set it to tiNode
+                        oneColumnGetsToSpecificNote(columns.get(length - 3).size(), 3, (tonic - 1), tiNode); //connect stuff preceding raised 7's column to raised 7
                     }
                 }
             }
             default: break;
         }
-        for (int l = 0; l < columns.get(length - 2).size(); l++) {
-            if ((columns.get(length - 2).get(l).pitch == (tonic + mode.steps.get(0))) || (columns.get(length - 2).get(l).pitch == (tonic - 1))) {
-                columns.get(length - 2).get(l).addEdge(end);
+        for (int l = 0; l < columns.get(length - 2).size(); l++) { //penultimate column (column without climax) connects to tonic-only column, works for any size penultimate column
+            if ((columns.get(length - 2).get(l).pitch == (tonic + mode.steps.get(0))) || (columns.get(length - 2).get(l).pitch == (tonic - 1))) { //if it's re or ti
+                columns.get(length - 2).get(l).addEdge(end); //connect it to the end
             }
         }
     }
 
-    private static void oneColumnGetsTo(CantusFirmusNode node, int currColumn) {
+    private static void oneColumnGetsTo(CantusFirmusNode node, int currColumn) { //there's this and getsToNoClimax to accommodate for the column sizes differing. use this if the climax node is actually in that column
         for(Integer i : allLegalMoves) {
             if (inRangeDiatonics.contains(node.pitch + i)) {
                 node.addEdge(columns.get(currColumn + 1).get(inRangeDiatonics.indexOf(node.pitch + i)));
@@ -389,9 +391,9 @@ class IO {
         }
     }
 
-    private static void oneColumnGetsToNoClimax(CantusFirmusNode node, int currColumn) {
-        for(Integer i : allLegalMoves) {
-            if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) {
+    private static void oneColumnGetsToNoClimax(CantusFirmusNode node, int currColumn) { //use if the climax node isn't in the column. notes are added to columns in the order of inRangeDiatonics, so usually the index of the note in inRangeDiatonics
+        for(Integer i : allLegalMoves) { //matches it in the columns, but here the climax isn't in the columns but still is in inRangeDiatonics so depending on where the climax is, some notes may have shifted indices from where they originally were, ruining
+            if (((node.pitch + i) != climax) && (inRangeDiatonics.contains(node.pitch + i))) { //anything working on this assumption, so adjust how you grab indices.
                 int sub = 0;
                 if (inRangeDiatonics.indexOf(node.pitch + i) > inRangeDiatonics.indexOf(climax)) {
                         sub = 1;
@@ -496,6 +498,10 @@ class IO {
         }
     }
 
+    static void setCF(LinkedList<CantusFirmusNode> cantus) {
+        cantusFirmus = cantus;
+    }
+
     private static void selectACantusFirmus(int size) throws InvalidInputException {
         try {
             LinkedList<CantusFirmusNode> selectedCF = cantusFirmi.get(0);
@@ -521,7 +527,7 @@ class IO {
                 int acceptable = Integer.parseInt(keyboard.next());
                 switch(acceptable) {
                     case 0: selectACantusFirmus(size); break;
-                    case 1: break;
+                    case 1: setCF(selectedCF); break;
                     default: throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
                 }
             } firstSpeciesInput();
