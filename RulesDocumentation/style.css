@@ -1,0 +1,25 @@
+body {
+    font-size: 100%;
+}
+h1 {
+    font-size: 150%;
+}
+h2 {
+    font-size: 120%;
+}
+.dropdown > * {
+    margin-left: 2.5em
+}
+.footnote {
+    color: dodgerblue;
+}
+.footnote:hover {
+    color: deepskyblue;
+    text-decoration-line: underline;
+}
+#references > *:not(h1) {
+    font-size: 80%;
+}
+#references :target{
+    background-color: #D6E8FC;
+}
