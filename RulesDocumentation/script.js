@@ -26,5 +26,4 @@ function dropdownFn(e) {
 //TODO: Text spacing
 //TODO: Make dropdowns prettier, perhaps with Notion or Obsidian-like arrows. Also, colors when mousing over need to be nicer. Probably copy Wikipedia.
 //TODO: Make highlighting not span the whole page, or at least how Wikipedia formats their references. Probably needs reading the way CSS works.
-//TODO: Better fonts, this looks so boring and also intimidating.
 //TODO: Make accessible, because "none" display doesn't read out to screen readers!

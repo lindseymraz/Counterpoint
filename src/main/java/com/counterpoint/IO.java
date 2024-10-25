@@ -40,6 +40,11 @@ class IO {
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     private static ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
 
+    /**
+     * Currently, all config values are set by setting the values in this function before running the script.
+     * The end user will not have access to the source code to do this; this function should eventually be modified to
+     * allow end user input.
+     */
     private static void config() {
         allowAllSixths = false;
         CantusFirmusNode.allSixthsPrecedeFollowStepInOppDir = false;
@@ -56,10 +61,10 @@ class IO {
             setMode();
             setKey();
             setDiatonicPitchClasses();
-            System.out.println("Enter bound 1, no higher than 127, no lower than 0");
+            System.out.println("Enter first bound as a MIDI note number, no higher than 127, no lower than 0.\nYou will be asked for a second bound after this. Feel free to input either an upper or lower bound.");
             int bound1 = Integer.parseInt(keyboard.next());
             boundOK(bound1);
-            System.out.println("Enter bound 2, no higher than 127, no lower than 0");
+            System.out.println("Enter second bound as a MIDI note number, no higher than 127, no lower than 0");
             int bound2 = Integer.parseInt(keyboard.next());
             boundOK(bound2);
             setBoundsTonicClimax(bound1, bound2);
@@ -209,7 +214,6 @@ class IO {
         LinkedList<Integer> tonics = findTonics(upper, lower);
         int tonicToUpperDist = (upper - tonics.get(0));
         int tonicToLowerDist = (tonics.get(0) - lower);
-        int whichTonic = 0;
         boolean upperTo1DistBigger = false;
         boolean lowerTo1DistBigger = false;
         if(tonics.size() == 2) {
@@ -222,7 +226,23 @@ class IO {
                 lowerTo1DistBigger = true;
             }
         }
-        if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "Is bottom or top climax? It's equidistant, unclear"); }
+        if(tonicToUpperDist == tonicToLowerDist) {
+            isClimaxInappropriate(tonicToUpperDist); //the error message this throws isn't too helpful if you get here
+            System.out.println("The program picks the climax to be the note furthest from the tonic." + "\nBoth the top and bottom note are the same distance from the tonic." + "\nPlease select whether you would like the lower or upper bound to be your tonic. Enter 0 for lower, 1 for upper.");
+            String input = (keyboard.next());
+            switch (Integer.parseInt(input)) {
+                case 0:
+                    climax = lower;
+                    tonic = tonics.get(0);
+                    break;
+                case 1:
+                    climax = upper;
+                    tonic = tonics.get(0);
+                    break;
+                default:
+                    throw new InvalidInputException((input), " is not 0 or 1");
+            }
+        }
         if(tonicToUpperDist > tonicToLowerDist) {
             isClimaxInappropriate(tonicToUpperDist);
             climax = upper;
@@ -258,7 +278,7 @@ class IO {
     }
 
     private static void setLength() throws InvalidInputException {
-        System.out.println("Enter length. 8 min, 16 max");
+        System.out.println("Enter length in notes. 8 minimum, 16 maximum");
         int input = Integer.parseInt(keyboard.next());
         if(input < 8) {
             throw new InvalidInputException(Integer.toString(input), " is less than 8");
@@ -267,7 +287,7 @@ class IO {
             throw new InvalidInputException(Integer.toString(input), " is greater than 16");
         } length = input;
         if(debugMessagesOn) {
-            System.out.println("Length is " + length);
+            System.out.println("Length is " + length + " notes");
         }
     }
 
@@ -425,6 +445,24 @@ class IO {
         System.out.println(str);
     }
 
+    protected static String writeCantus(LinkedList<CantusFirmusNode> line, int acc) {
+        int size = (line.size() - 1);
+        String str = (acc + ", ");
+        for(int i = 0; (i < size); i++) {
+            str = str + (line.get(i).pitch + " ");
+        }
+        return(str + (line.get(size).pitch + ";\n"));
+    }
+
+    protected static String writeFirstSpecies(LinkedList<FirstSpeciesNode> line, int acc) {
+        int size = (line.size() - 1);
+        String str = (acc + ", ");
+        for(int i = 0; (i < size); i++) {
+            str = str + (line.get(i).pitch + " ");
+        }
+        return(str + (line.get(size).pitch + ";\n"));
+    }
+
     private static int output(CantusFirmusNode from, CantusFirmusNode to) throws IOException {
         cantusFirmi = new LinkedList<LinkedList<CantusFirmusNode>>();
         from.giveRoute(to, new LinkedList<CantusFirmusNode>(), cantusFirmi);
@@ -449,15 +487,6 @@ class IO {
             default: System.out.println(size + " cantus firmi generated!");
         }
         return size;
-    }
-
-    private static String writeCantus(LinkedList<CantusFirmusNode> cantus, int acc) {
-        int size = (cantus.size() - 1);
-        String str = (acc + ", ");
-        for(int i = 0; (i < size); i++) {
-            str = str + (cantus.get(i).pitch + " ");
-        }
-        return(str + (cantus.get(size).pitch + ";\n"));
     }
 
     private static void clearCantusFirmusInput() {
@@ -541,9 +570,52 @@ class IO {
         System.out.println("Enter 0 to put the counterpoint above the cantus firmus; 1 to put the counterpoint below the cantus firmus.");
         int input = Integer.parseInt(keyboard.next());
         switch(input) {
-            case 0: break; //above
-            case 1: break; //below
+            case 0:
+                output(0);
+                break;
+            case 1: output(1);
+            break;
             default: throw new InvalidInputException(Integer.toString(input), " is not 1 or 0");
+        }
+    }
+
+    private static int outputHelper(FirstSpeciesNode from, FirstSpeciesNode to) throws IOException {
+        LinkedList<LinkedList<FirstSpeciesNode>> firstSpeciesLines = new LinkedList<LinkedList<FirstSpeciesNode>>();
+        from.giveRoute(to, new LinkedList<FirstSpeciesNode>(), firstSpeciesLines);
+        int acc = 1;
+        if(writeToFile) {
+            FileWriter myWriter = new FileWriter("firstSpeciesLines.txt");
+            for (LinkedList<FirstSpeciesNode> firstSpeciesLine : firstSpeciesLines) {
+                myWriter.write(writeFirstSpecies(firstSpeciesLine, acc));
+                acc++;
+            }
+            myWriter.close();
+        } else {
+            for(LinkedList<FirstSpeciesNode> firstSpeciesLine : firstSpeciesLines) {
+                System.out.print(writeFirstSpecies(firstSpeciesLine, acc));
+                acc++;
+            }
+        }
+        int size = firstSpeciesLines.size();
+        return size;
+    }
+
+    /**
+     *
+     * @param aboveOrBelow 0 is above, 1 is below
+     * @return
+     */
+    private static void output(int aboveOrBelow) {
+        int size = 0;
+        if(aboveOrBelow==1) {
+            //add combos of P1, P5, P8 above cantus tonic + P1 or P8 above cantus end, may be messy, cite
+        } else {
+            //add combos of P1, P8 below cantus tonic + P1 or P8 below cantus end, may be messy, cite me
+        }
+        switch(size) {
+            case 0: System.out.println("Could not generate any first species lines with the given parameters :("); break;
+            case 1: System.out.println(size + " first species line generated!"); break;
+            default: System.out.println(size + " first species lines generated!");
         }
     }
 

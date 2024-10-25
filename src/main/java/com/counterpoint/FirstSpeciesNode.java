@@ -12,6 +12,19 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     }
 
     void giveRoute(FirstSpeciesNode to, LinkedList<FirstSpeciesNode> currPath, LinkedList<LinkedList<FirstSpeciesNode>> list) {
+        if (this.equals(to)) {
+            currPath.add(this);
+            list.add(new LinkedList<FirstSpeciesNode>(currPath));
+            currPath.remove(this);
+        } else {
+            currPath.add(this);
+            for (FirstSpeciesNode n : this.getsTo) {
+                if (passesTests(n, currPath)) {
+                    n.giveRoute(to, currPath, list);
+                }
+            }
+            currPath.remove(this);
+        }
     }
 
     boolean passesTests(FirstSpeciesNode n, LinkedList<FirstSpeciesNode> currPath) {

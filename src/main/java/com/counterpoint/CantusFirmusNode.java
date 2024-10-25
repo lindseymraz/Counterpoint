@@ -12,8 +12,14 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
         super(pitch);
     }
 
+    /**
+     *
+     * @param to The node you're looking for a route to; in practice this is the last note of the cantus firmus.
+     * @param currPath The current path we have found while searching for a route to the destination node
+     * @param list A list of paths from the single beginning node (start note) to the single final node (start node).
+     */
     void giveRoute(CantusFirmusNode to, LinkedList<CantusFirmusNode> currPath, LinkedList<LinkedList<CantusFirmusNode>> list) {
-        if (this.equals(to)) {
+        if (this.equals(to)) { //if current node is the same as the final one (not just same pitch!)
             currPath.add(this);
             list.add(new LinkedList<CantusFirmusNode>(currPath));
             currPath.remove(this);
