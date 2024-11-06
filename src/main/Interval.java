@@ -1,7 +1,4 @@
-package com.counterpoint;
-
 public enum Interval {
-
     unison(0),
     minorSecond(1),
     majorSecond(2),

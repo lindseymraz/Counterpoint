@@ -24,12 +24,12 @@ h2 {
 #references :target{
     background-color: #D6E8FC;
 }
-p.citation{
+.citation{
     border: 2px solid mediumpurple;
     background: lavender;
     padding: 0.5em;
 }
-p.explanation{
+.explanation{
     border: 2px solid lightpink;
     background: lavenderblush;
     padding: 0.5em;

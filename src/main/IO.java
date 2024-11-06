@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +8,8 @@ class IO {
 
     private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
+    private static ArrayList<ArrayList<FirstSpeciesNode>> columnsFirstSpecies;
+
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
     static LinkedList<CantusFirmusNode> cantusFirmus;
@@ -91,6 +91,8 @@ class IO {
         } catch(InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             firstSpeciesInput();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -566,7 +568,7 @@ class IO {
         }
     }
 
-    private static void selectCounterpointAboveOrBelow() throws InvalidInputException {
+    private static void selectCounterpointAboveOrBelow() throws InvalidInputException, IOException {
         System.out.println("Enter 0 to put the counterpoint above the cantus firmus; 1 to put the counterpoint below the cantus firmus.");
         int input = Integer.parseInt(keyboard.next());
         switch(input) {
@@ -600,16 +602,96 @@ class IO {
         return size;
     }
 
+    private static void setColumnsFirstSpecies(boolean CTPAbove) {
+        columnsFirstSpecies = new ArrayList<ArrayList<FirstSpeciesNode>>(length);
+        ArrayList<FirstSpeciesNode> firstColumn = new ArrayList<FirstSpeciesNode>();
+        if(CTPAbove) {
+            firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
+            firstColumn.add(new FirstSpeciesNode(start.pitch + 7)); //P5
+            firstColumn.add(new FirstSpeciesNode(start.pitch + 12)); //P8
+        } else {
+            firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
+            firstColumn.add(new FirstSpeciesNode(start.pitch - 12)); //P8
+        }
+        columnsFirstSpecies.add(firstColumn);
+        for(int i = 1; i < length - 2; i++) {
+            ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>(); //assumes max range tenth
+            int currCantusFirmusPitch = cantusFirmus.get(i).pitch;
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 3)); //minor third
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 3)); //minor third
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 4)); //major third
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 4)); //major third
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 7)); //perfect fifth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 7)); //perfect fifth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 8)); //minor sixth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 8)); //minor sixth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 9)); //major sixth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 9)); //major sixth
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 12)); //octave
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 12)); //octave
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 15)); //octave + m3
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 15)); //octave + m3
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + 16)); //octave + M3
+            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - 16)); //octave + M3
+            columnsFirstSpecies.add(aColumn);
+        }
+        ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
+        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch)); //to go with U ending
+        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch + 12)); //to go with octave + ending
+        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch - 12)); //to go with octave - ending
+        columnsFirstSpecies.add(penultimateColumn);
+        ArrayList<FirstSpeciesNode> finalColumn = new ArrayList<FirstSpeciesNode>();
+        finalColumn.add(new FirstSpeciesNode(end.pitch)); //U
+        finalColumn.add(new FirstSpeciesNode(end.pitch + 12)); //octave
+        finalColumn.add(new FirstSpeciesNode(end.pitch - 12)); //octave
+        columnsFirstSpecies.add(finalColumn);
+    }
+
+    private static void makeGetsToFirstSpecies() { //this is very very rough
+        for(int i = 0; i < length - 2; i++) {
+            for(FirstSpeciesNode node : columnsFirstSpecies.get(i)) {
+                for(FirstSpeciesNode nextColumnNode : columnsFirstSpecies.get(i + 1)) {
+                    node.getsTo.add(nextColumnNode);
+                }
+            }
+        }
+        for(int i = 0; i < 3; i++) { //funnily enough, item x of penultimate column goes with item x of ultimate column
+            columnsFirstSpecies.get(length - 2).get(i).getsTo.add((columnsFirstSpecies.get(length-1).get(i)));
+        }
+    }
+
+
+
+
     /**
      *
      * @param aboveOrBelow 0 is above, 1 is below
      * @return
      */
-    private static void output(int aboveOrBelow) {
+    private static void output(int aboveOrBelow) throws IOException {
         int size = 0;
-        if(aboveOrBelow==1) {
+        if(aboveOrBelow==0) {
+            setColumnsFirstSpecies(true);
+            makeGetsToFirstSpecies();
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(2));
             //add combos of P1, P5, P8 above cantus tonic + P1 or P8 above cantus end, may be messy, cite
         } else {
+            setColumnsFirstSpecies(false);
+            makeGetsToFirstSpecies();
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
             //add combos of P1, P8 below cantus tonic + P1 or P8 below cantus end, may be messy, cite me
         }
         switch(size) {

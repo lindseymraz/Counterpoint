@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 import java.util.LinkedList;
 
 public class CantusFirmusNode extends Node<CantusFirmusNode> {

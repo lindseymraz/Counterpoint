@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 import java.util.LinkedList;
 
 public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
@@ -28,7 +26,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     }
 
     boolean passesTests(FirstSpeciesNode n, LinkedList<FirstSpeciesNode> currPath) {
-        return false;
+        return true;
     }
 
     boolean makesConsonance(CantusFirmusNode cantusNote) {

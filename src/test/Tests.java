@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 import org.junit.Test;
 
 import static org.junit.Assert.*;
