@@ -2,9 +2,6 @@ import java.util.LinkedList;
 
 public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
 
-    //column setup can probably mimic cantus firmus column setup, keep the same logic but stick something
-    //that changes start and end combos at the beginning and end?
-
     FirstSpeciesNode(int pitch) {
         super(pitch);
     }
@@ -28,6 +25,8 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     boolean passesTests(FirstSpeciesNode n, LinkedList<FirstSpeciesNode> currPath) {
         return true;
     }
+
+
 
     boolean makesConsonance(CantusFirmusNode cantusNote) {
         int diff = (this.pitch - cantusNote.pitch);

@@ -12,4 +12,5 @@ public class SecondSpeciesNode extends Node<SecondSpeciesNode> {
     boolean passesTests(SecondSpeciesNode n, LinkedList<SecondSpeciesNode> currPath) {
         return false;
     }
+
 }

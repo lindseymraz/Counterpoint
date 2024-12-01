@@ -4,6 +4,8 @@ out/
 .idea/
 cantusFirmi.txt
 firstSpeciesLines.txt
+htmlReport/
+test.musicxml
 # Ignore Gradle project-specific cache directory
 .gradle
 

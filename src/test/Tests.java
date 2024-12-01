@@ -1,5 +1,7 @@
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.*;
 
 public class Tests {
@@ -33,6 +35,51 @@ public class Tests {
     FirstSpeciesNode Fs5f = new FirstSpeciesNode(78);
     FirstSpeciesNode G5f = new FirstSpeciesNode(79);
 
+    @Test
+    public void testIsMotion() {
+        //move by step
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 60, 60, 61)); //V1 static, V2 asc
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 60, 60, 59)); //V1 static, V2 desc
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 61, 60, 60)); //V1 asc, V2 static
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 59, 60, 60)); //V1 desc, V2 static
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 61, 60, 59)); //V1 asc, V2 desc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(59, 60, 61, 60)); //V1 asc, V2 desc, move towards each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 59, 60, 61)); //V1 desc, V2 asc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(61, 60, 59, 60)); //V1 desc, V2 asc, move towards each other
+        assertEquals(Motion.PARALLEL, Motion.isMotion(60, 61, 60, 61)); //both asc
+        assertEquals(Motion.PARALLEL, Motion.isMotion(60, 59, 60, 59)); //both desc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 61, 60, 62)); //both asc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 58, 60, 59)); //both desc
+
+        //move by skip
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 60, 60, 64)); //V1 static, V2 asc
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 60, 60, 54)); //V1 static, V2 desc
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 69, 60, 60)); //V1 asc, V2 static
+        assertEquals(Motion.OBLIQUE, Motion.isMotion(60, 40, 60, 60)); //V1 desc, V2 static
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 69, 60, 50)); //V1 asc, V2 desc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(59, 69, 61, 40)); //V1 asc, V2 desc, move towards each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 40, 60, 69)); //V1 desc, V2 asc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(68, 60, 50, 60)); //V1 desc, V2 asc, move towards each other
+        assertEquals(Motion.PARALLEL, Motion.isMotion(60, 64, 60, 64)); //both asc
+        assertEquals(Motion.PARALLEL, Motion.isMotion(60, 55, 60, 55)); //both desc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 63, 60, 66)); //both asc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 55, 60, 53)); //both desc
+
+        //move by step and skip
+        //for each of these tests the first copy with the same description has V1 skipping and V2 stepping; second copy has V1 stepping and V2 skipping
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 65, 60, 59)); //V1 asc, V2 desc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 61, 60, 50)); //V1 asc, V2 desc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(59, 69, 61, 60)); //V1 asc, V2 desc, move towards each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(59, 60, 61, 40)); //V1 asc, V2 desc, move towards each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 50, 60, 61)); //V1 desc, V2 asc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(60, 59, 60, 69)); //V1 desc, V2 asc, move away from each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(68, 60, 50, 51)); //V1 desc, V2 asc, move towards each other
+        assertEquals(Motion.CONTRARY, Motion.isMotion(68, 67, 50, 60)); //V1 desc, V2 asc, move towards each other
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 64, 60, 61)); //both asc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 61, 60, 66)); //both asc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 55, 60, 59)); //both desc
+        assertEquals(Motion.SIMILAR, Motion.isMotion(60, 59, 60, 53)); //both desc
+    }
     @Test
     public void testStartsLeapTo() {
         //upwards
@@ -666,5 +713,109 @@ public class Tests {
         assertFalse(F5f.makesConsonance(C4)); //P11
         assertFalse(Fs5f.makesConsonance(C4)); //TT
         assertTrue(G5f.makesConsonance(C4)); //P12
+    }
+
+    @Test
+    public void testCalculateFifths() {
+        helperTestCalculateFifths(Mode.IONIAN, Key.C, 0);
+        helperTestCalculateFifths(Mode.DORIAN, Key.D, 0);
+        helperTestCalculateFifths(Mode.PHRYGIAN, Key.E, 0);
+        helperTestCalculateFifths(Mode.LYDIAN, Key.F, 0);
+        helperTestCalculateFifths(Mode.MIXOLYDIAN, Key.G, 0);
+        helperTestCalculateFifths(Mode.AEOLIAN, Key.A, 0);
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.B, 0);
+        helperTestCalculateFifths(Mode.IONIAN, Key.Csharp, 7);
+        helperTestCalculateFifths(Mode.DORIAN, Key.Dsharp, 7);
+        helperTestCalculateFifths(Mode.PHRYGIAN, Key.Esharp, 7);
+        helperTestCalculateFifths(Mode.LYDIAN, Key.Fsharp, 7);
+        helperTestCalculateFifths(Mode.MIXOLYDIAN, Key.Gsharp, 7);
+        helperTestCalculateFifths(Mode.AEOLIAN, Key.Asharp, 7);
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.Bsharp, 7);
+        helperTestCalculateFifths(Mode.IONIAN, Key.Cflat, -7);
+        helperTestCalculateFifths(Mode.DORIAN, Key.Dflat, -7);
+        helperTestCalculateFifths(Mode.PHRYGIAN, Key.Eflat, -7);
+        helperTestCalculateFifths(Mode.LYDIAN, Key.Fflat, -7);
+        helperTestCalculateFifths(Mode.MIXOLYDIAN, Key.Gflat, -7);
+        helperTestCalculateFifths(Mode.AEOLIAN, Key.Aflat, -7);
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.Bflat, -7);
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.Fflat, -13); //most flats possible
+        helperTestCalculateFifths(Mode.LYDIAN, Key.Bsharp, 13); //most sharps possible
+        helperTestCalculateFifths(Mode.LYDIAN, Key.Fflat, -7); //go from more than 7 flats to 7 or less
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.Bsharp, 7); //go from more than 7 sharps to 7 or less
+        helperTestCalculateFifths(Mode.LOCRIAN, Key.G, -4); //go from sharp to flat
+    }
+
+    public void helperTestCalculateFifths(Mode mode, Key key, int expectedValue){
+        IO.mode = mode;
+        IO.key = key;
+        assertEquals(expectedValue, OutputMusicXML.calculateFifths());
+    }
+
+    //TODO: add tests for actual cantus firmi, when they should have a sharp or flat added
+    @Test
+    public void testMIDItoSPN() {
+        helperTestMIDItoSPN(Mode.IONIAN, Key.C);
+        helperTestMIDItoSPN(Mode.DORIAN, Key.D);
+        helperTestMIDItoSPN(Mode.PHRYGIAN, Key.E);
+        helperTestMIDItoSPN(Mode.LYDIAN, Key.F);
+        helperTestMIDItoSPN(Mode.MIXOLYDIAN, Key.G);
+        helperTestMIDItoSPN(Mode.AEOLIAN, Key.A);
+        helperTestMIDItoSPN(Mode.LOCRIAN, Key.B);
+        helperTestMIDItoSPNSharp(Mode.IONIAN, Key.Csharp);
+        helperTestMIDItoSPNSharp(Mode.DORIAN, Key.Dsharp);
+        helperTestMIDItoSPNSharp(Mode.PHRYGIAN, Key.Esharp);
+        helperTestMIDItoSPNSharp(Mode.LYDIAN, Key.Fsharp);
+        helperTestMIDItoSPNSharp(Mode.MIXOLYDIAN, Key.Gsharp);
+        helperTestMIDItoSPNSharp(Mode.AEOLIAN, Key.Asharp);
+        helperTestMIDItoSPNSharp(Mode.LOCRIAN, Key.Bsharp);
+        helperTestMIDItoSPNFlat(Mode.IONIAN, Key.Cflat);
+        helperTestMIDItoSPNFlat(Mode.DORIAN, Key.Dflat);
+        helperTestMIDItoSPNFlat(Mode.PHRYGIAN, Key.Eflat);
+        helperTestMIDItoSPNFlat(Mode.LYDIAN, Key.Fflat);
+        helperTestMIDItoSPNFlat(Mode.MIXOLYDIAN, Key.Gflat);
+        helperTestMIDItoSPNFlat(Mode.AEOLIAN, Key.Aflat);
+        helperTestMIDItoSPNFlat(Mode.LOCRIAN, Key.Bflat);
+    }
+
+    public void helperTestMIDItoSPN(Mode mode, Key key) {
+        IO.mode = mode;
+        IO.key = key;
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(50), new String[]{"D", "", "3"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(60), new String[]{"C", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(62), new String[]{"D", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(64), new String[]{"E", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(65), new String[]{"F", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(67), new String[]{"G", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(69), new String[]{"A", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(71), new String[]{"B", "", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(72), new String[]{"C", "", "5"}));
+    }
+
+    public void helperTestMIDItoSPNSharp(Mode mode, Key key) {
+        IO.mode = mode;
+        IO.key = key;
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(51), new String[]{"D", "#", "3"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(61), new String[]{"C", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(63), new String[]{"D", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(65), new String[]{"E", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(66), new String[]{"F", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(68), new String[]{"G", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(70), new String[]{"A", "#", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(72), new String[]{"B", "#", "4"})); //this is actually correct
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(73), new String[]{"C", "#", "5"}));
+    }
+
+    public void helperTestMIDItoSPNFlat(Mode mode, Key key) {
+        IO.mode = mode;
+        IO.key = key;
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(49), new String[]{"D", "b", "3"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(59), new String[]{"C", "b", "4"})); //this is actually correct
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(61), new String[]{"D", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(63), new String[]{"E", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(64), new String[]{"F", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(66), new String[]{"G", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(68), new String[]{"A", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(70), new String[]{"B", "b", "4"}));
+        assertTrue(Arrays.equals(OutputMusicXML.MIDItoSPN(71), new String[]{"C", "b", "5"})); //this is actually correct
     }
 }

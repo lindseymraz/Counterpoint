@@ -17,7 +17,7 @@ class IO {
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
 
-    IO(Mode mode, int key){
+    IO(Mode mode, Key key){
         this.mode = mode;
         this.key = key;
     }
@@ -27,12 +27,12 @@ class IO {
     private static boolean debugMessagesOn;
 
     static Mode mode;
-    private static int key; //0 is C, 11 is B
-    private static int length; //8 to 16
+    static Key key;
+    static int length; //8 to 16
     private static int upperBound; //the upper bound is allowed, nothing above it
     private static int lowerBound; //the lower bound is allowed, nothing below it
-    static int tonic; //the actual pitch value, stuff like 60, not just pitch class
-    static int climax; //actual pitch value, not just pitch class
+    static int tonic; //MIDI pitch value, not just pitch class
+    static int climax; //MIDI pitch value, not just pitch class
     static int climaxEarlyBound; //earliest climax can occur. ex: if 3, climax can be 3rd note at earliest (this means 2nd column in array though)
     static int climaxLateBound; //latest climax can occur. ex: if 6, climax can be 6th note at latest (this means 5th column in array though)
 
@@ -50,7 +50,7 @@ class IO {
         CantusFirmusNode.allSixthsPrecedeFollowStepInOppDir = false;
         CantusFirmusNode.forceAtLeastTwoLeaps = true;
         writeToFile = true;
-        debugMessagesOn = true;
+        debugMessagesOn = false;
         CantusFirmusNode.naturalSeventhAvoidsRaisedSeventh = false;
     }
 
@@ -138,19 +138,20 @@ class IO {
     }
 
     private static void setKey() throws InvalidInputException {
-        System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
+        System.out.println("Enter key.\ne.g. C, D#, Eb");
         String input = (keyboard.next());
-        switch(Integer.parseInt(input)) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = Integer.parseInt(input); break;
-            default: throw new InvalidInputException((input), " is not an integer between 0 and 11");
+        if(input.matches("^[A-G]{1}[b#]?$")) {
+            key = Key.getKeyFromString(input);
+        } else {
+            throw new InvalidInputException((input), " is not a valid input.");
         }
     }
 
     //starting with the tonic, add steps (from mode.steps) needed to jump to the next diatonic note.
     //the % 12 ensures the values are 0-11
     static void setDiatonicPitchClasses() {
-        diatonicPitchClasses.add(key); //adds tonic
-        int hop = key;
+        diatonicPitchClasses.add(key.offset); //adds tonic
+        int hop = key.offset;
         for(int i = 0; i < 6; i++) { //not using element-based for because you need to avoid the last
             hop = (hop + mode.steps.get(i)) % 12; //item in mode.steps, which is ti2Do.
             diatonicPitchClasses.add(hop);
@@ -264,7 +265,7 @@ class IO {
         LinkedList<Integer> tonics = new LinkedList<Integer>();
         int counter = diatonicPitchClasses.indexOf(hop%12);
         while(hop <= upper) {
-            if((hop%12) == key) {
+            if((hop%12) == key.offset) {
                 tonics.add(hop);
                 if(alreadyFoundATonic) { return tonics; }
                 alreadyFoundATonic = true;
@@ -276,7 +277,7 @@ class IO {
     }
 
     private static void isClimaxInappropriate(int pitch) throws InvalidInputException {
-        if(((key + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
+        if(((key.offset + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
     }
 
     private static void setLength() throws InvalidInputException {
@@ -546,6 +547,8 @@ class IO {
                     throw new InvalidInputException(Integer.toString(input), " is above " + size);
                 } else {
                     selectedCF = cantusFirmi.get(input - 1);
+                    OutputMusicXML.setComposition(new Composition(selectedCF, null, null, null, null));
+                    new OutputMusicXML().outputFile("test");
                 }
             } System.out.println("The cantus firmus that will be used is " + input + ", whose notes are:");
             String str = "";
@@ -565,6 +568,8 @@ class IO {
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             selectACantusFirmus(size);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -636,6 +641,7 @@ class IO {
             columnsFirstSpecies.add(aColumn);
         }
         ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
+        //refactor to actually fit rule in case cantus firmus ends any way different than 2 1
         penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch)); //to go with U ending
         penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch + 12)); //to go with octave + ending
         penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch - 12)); //to go with octave - ending
@@ -659,9 +665,6 @@ class IO {
             columnsFirstSpecies.get(length - 2).get(i).getsTo.add((columnsFirstSpecies.get(length-1).get(i)));
         }
     }
-
-
-
 
     /**
      *
@@ -700,5 +703,4 @@ class IO {
             default: System.out.println(size + " first species lines generated!");
         }
     }
-
 }

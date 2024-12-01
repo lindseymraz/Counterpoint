@@ -65,5 +65,4 @@ abstract public class Node<TDATA extends Node<TDATA>> {
     abstract void giveRoute(TDATA to, LinkedList<TDATA> currPath, LinkedList<LinkedList<TDATA>> list);
 
     abstract boolean passesTests(TDATA n, LinkedList<TDATA> currPath);
-
 }
