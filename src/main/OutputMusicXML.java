@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class OutputMusicXML implements IFileExport {
 
-    private String fifthsValue = "0";
+    private static int fifthsValue;
     static Composition composition;
     private final String fileStart = ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
             "<!DOCTYPE score-partwise PUBLIC\n" +
@@ -29,6 +29,7 @@ public class OutputMusicXML implements IFileExport {
             "\t\t\t</note>\n";
 
     public void outputFile(String fileName) throws IOException {
+        composition = IO.composition;
         FileWriter myWriter = new FileWriter(fileName + ".musicxml");
         String toWrite = fileStart;
         toWrite += partList();
@@ -37,11 +38,6 @@ public class OutputMusicXML implements IFileExport {
         myWriter.write(toWrite);
         myWriter.close();
     }
-
-    public static void setComposition(Composition passedComposition) {
-        composition = passedComposition;
-    }
-
     /**
      *
      * @return String with XML needed to represent a <part-list>
@@ -109,7 +105,8 @@ public class OutputMusicXML implements IFileExport {
      */
     private String partElement(LinkedList<? extends Node> nodes, String ID) {
         String toReturn = "\t<part id=\"" + ID + "\">\n";
-        toReturn += measures(nodes, calculateFifths());
+        fifthsValue = calculateFifths();
+        toReturn += measures(nodes);
         toReturn += partEnd;
         return toReturn;
     }
@@ -119,26 +116,101 @@ public class OutputMusicXML implements IFileExport {
     /**
      *
      * @param nodes a list of nodes making up the melodic line for the given part
-     * @param calculateFifthsValue output of {@link #calculateFifths()}}, meant for use within {@link #partElement(LinkedList, String)} only
      * @return all measure XML for a part: from <measure number="1"> to the final </measure> closing the last measure
      */
-    private String measures(LinkedList<? extends Node> nodes, int calculateFifthsValue) {
+    private String measures(LinkedList<? extends Node> nodes) {
         String toReturn = "\t\t<measure number=\"1\">\n" +
                 "\t\t\t<attributes>\n" +
                 "\t\t\t\t<divisions>1</divisions>\n" +
-                "\t\t\t\t<key>\n" +
-                "\t\t\t\t\t<fifths>" + calculateFifthsValue + "</fifths>\n" +
-                "\t\t\t\t\t<mode>" + IO.mode.toString().toLowerCase() + "</mode>\n" +
-                "\t\t\t\t</key>" +
-                "\t\t\t\t<time>\n" +
-                "\t\t\t\t\t<beats>4</beats>\n" +
-                "\t\t\t\t\t<beat-type>4</beat-type>\n" +
-                "\t\t\t\t</time>" +
-                "\t\t\t\t<clef>\n" +
-                "\t\t\t\t\t<sign>G</sign>\n" +
-                "\t\t\t\t\t<line>2</line>\n" +
-                "\t\t\t\t</clef>" +
-                "\t\t\t</attributes>\n";
+                "\t\t\t\t<key>\n";
+        if(fifthsValue >= 7 || fifthsValue <= -7) {
+            /*
+            LinkedList<String> listOfAccidentalsOnLines = new LinkedList<String>();
+            switch(fifthsValue) {
+                case 13: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>E</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                case 12: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>A</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                case 11: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>D</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                case 10: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>G</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                case 9: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>C</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                case 8: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>F</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>2</key-alter>\n");
+                break;
+                case -13: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>C</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                case -12:  listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>G</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                case -11: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>D</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                case -10: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>A</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                case -9: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>E</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                case -8: listOfAccidentalsOnLines.addFirst("\t\t\t\t\t<key-step>B</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-2</key-alter>\n");
+                break;
+            }
+            switch(fifthsValue) {
+                case 8: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>C</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                case 9: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>G</key-step>\n" +
+                            "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                case 10: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>D</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                case 11: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>A</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                case 12: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>E</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                case 13: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>B</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>1</key-alter>\n");
+                break;
+                case -8: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>E</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n");
+                case -9: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>A</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n");
+                case -10: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>D</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n");
+                case -11: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>G</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n");
+                case -12: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>C</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n");
+                case -13: listOfAccidentalsOnLines.add("\t\t\t\t\t<key-step>F</key-step>\n" +
+                        "\t\t\t\t\t<key-alter>-1</key-alter>\n" +
+                        "\t\t\t\t\t<key-octave number=\"7\">4</key-octave>\n");
+                    break;
+            }
+            for(String accidentalOnLine : listOfAccidentalsOnLines) {
+                toReturn += accidentalOnLine;
+            } */
+            IO.mode = Mode.IONIAN;
+            switch(fifthsValue) {
+                case 8: fifthsValue = -4; IO.key = Key.Aflat; break;
+                case 9: fifthsValue = -3; IO.key = Key.Eflat; break;
+                case 10: fifthsValue = -2; IO.key = Key.Bflat; break;
+                case 11, -13: fifthsValue = -1; IO.key = Key.F; break;
+                case 12, -12: fifthsValue = 0; IO.key = Key.C; break;
+                case 13, -11: fifthsValue = 1; IO.key = Key.G; break;
+                case -10: fifthsValue = 2; IO.key = Key.D; break;
+                case -9: fifthsValue = 3; IO.key = Key.A; break;
+                case -8: fifthsValue = 4; IO.key = Key.E; break;
+            }
+        }
+        toReturn += "\t\t\t\t\t<fifths>" + fifthsValue + "</fifths>\n" +
+                    "\t\t\t\t\t<mode>" + IO.mode.toString().toLowerCase() + "</mode>\n" +
+                    "\t\t\t\t</key>\n" +
+                    "\t\t\t\t<time>\n" +
+                    "\t\t\t\t\t<beats>4</beats>\n" +
+                    "\t\t\t\t\t<beat-type>4</beat-type>\n" +
+                    "\t\t\t\t</time>\n" +
+                    "\t\t\t\t<clef>\n" +
+                    "\t\t\t\t\t<sign>G</sign>\n" +
+                    "\t\t\t\t\t<line>2</line>\n" +
+                    "\t\t\t\t</clef>\n" +
+                    "\t\t\t</attributes>\n";
         toReturn += noteStart;
         String[] MIDItoSPNResult = MIDItoSPN(nodes.get(0).pitch);
         toReturn += "\t\t\t\t\t<step>" + MIDItoSPNResult[0] + "</step>\n";
@@ -214,11 +286,9 @@ public class OutputMusicXML implements IFileExport {
         return toReturn;
     }
 
-    //TODO: Wait for how this output should be output.
     /**
      * Converts a MIDI pitch value to Scientific Pitch Notation.
      * @param pitch MIDI pitch value
-     * @param calculateFifthsValue output of {@link #calculateFifths()}, intended to be passed down starting from {@link #partElement(LinkedList, String)}
      * @return A string array of 3 items.
      * The 0th item is the note name without the accidental.
      * The 1st item is the accidental in simple ASCII: ##, #, b, or bb; an empty string if there is no accidental.
@@ -231,44 +301,89 @@ public class OutputMusicXML implements IFileExport {
         switch(pitch % 12) {
             case 0:
                 toReturn[0] = "C";
+                if(fifthsValue == 7) {
+                    toReturn[0] = "B";
+                    toReturn[1] = "#";
+                }
                 break;
             case 1:
-                toReturn[0] = "C";
-                toReturn[1] = "#";
+                if(fifthsValue <= -4) {
+                    toReturn[0] = "D";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "C";
+                    toReturn[1] = "#";
+                }
                 break;
             case 2:
                 toReturn[0] = "D";
                 break;
             case 3:
-                toReturn[0] = "D";
-                toReturn[1] = "#";
+                if(fifthsValue <= -2) {
+                    toReturn[0] = "E";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "D";
+                    toReturn[1] = "#";
+                }
                 break;
             case 4:
-                toReturn[0] = "E";
+                if(fifthsValue == -7) {
+                    toReturn[0] = "F";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "E";
+                }
                 break;
             case 5:
-                toReturn[0] = "F";
+                if(fifthsValue >= 6) {
+                    toReturn[0] = "E";
+                    toReturn[1] = "#";
+                } else {
+                    toReturn[0] = "F";
+                }
                 break;
             case 6:
-                toReturn[0] = "F";
-                toReturn[1] = "#";
+                if(fifthsValue <= -5) {
+                    toReturn[0] = "G";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "F";
+                    toReturn[1] = "#";
+                }
                 break;
             case 7:
                 toReturn[0] = "G";
                 break;
             case 8:
-                toReturn[0] = "G";
-                toReturn[1] = "#";
+                if(fifthsValue <= -3) {
+                    toReturn[0] = "A";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "G";
+                    toReturn[1] = "#";
+                }
                 break;
             case 9:
                 toReturn[0] = "A";
                 break;
             case 10:
-                toReturn[0] = "A";
-                toReturn[1] = "#";
+                if(fifthsValue <= -1) {
+                    toReturn[0] = "B";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "A";
+                    toReturn[1] = "#";
+                }
                 break;
             case 11:
-                toReturn[0] = "B";
+                if(fifthsValue <= -6) {
+                    toReturn[0] = "C";
+                    toReturn[1] = "b";
+                } else {
+                    toReturn[0] = "B";
+                }
+                break;
         }
         int secondArrayItem = ((pitch / 12) - 1);
         //readjust for edge case: a Cb equivalent to B4 is Cb5, a B# equivalent to C5 is B#4;

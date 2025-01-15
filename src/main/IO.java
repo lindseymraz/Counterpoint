@@ -9,7 +9,7 @@ class IO {
     private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
     private static ArrayList<ArrayList<FirstSpeciesNode>> columnsFirstSpecies;
-
+    static Composition composition;
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
     static LinkedList<CantusFirmusNode> cantusFirmus;
@@ -97,25 +97,25 @@ class IO {
     }
 
     private static void setUpAllLegalMoves() {
-        allLegalMoves.add(-12); //descend octave
-        allLegalMoves.add(-7); //descend P5
-        allLegalMoves.add(-5); //descend P4
-        allLegalMoves.add(-4); //descend major third
-        allLegalMoves.add(-3); //descend minor third
-        allLegalMoves.add(-2); //descend major second
-        allLegalMoves.add(-1); //descend minor second
-        allLegalMoves.add(1); //ascend minor second
-        allLegalMoves.add(2); //ascend major second
-        allLegalMoves.add(3); //ascend minor third
-        allLegalMoves.add(4); //ascend major third
-        allLegalMoves.add(5); //ascend P4
-        allLegalMoves.add(7); //ascend P5
-        allLegalMoves.add(8); //ascend minor sixth
-        allLegalMoves.add(12); //ascend octave
+        allLegalMoves.add(-Interval.octave.distance); //descend octave
+        allLegalMoves.add(-Interval.perfectFifth.distance); //descend P5
+        allLegalMoves.add(-Interval.perfectFourth.distance); //descend P4
+        allLegalMoves.add(-Interval.majorThird.distance); //descend major third
+        allLegalMoves.add(-Interval.minorThird.distance); //descend minor third
+        allLegalMoves.add(-Interval.majorSecond.distance); //descend major second
+        allLegalMoves.add(-Interval.minorSecond.distance); //descend minor second
+        allLegalMoves.add(Interval.minorSecond.distance); //ascend minor second
+        allLegalMoves.add(Interval.majorSecond.distance); //ascend major second
+        allLegalMoves.add(Interval.minorThird.distance); //ascend minor third
+        allLegalMoves.add(Interval.majorThird.distance); //ascend major third
+        allLegalMoves.add(Interval.perfectFourth.distance); //ascend P4
+        allLegalMoves.add(Interval.perfectFifth.distance); //ascend P5
+        allLegalMoves.add(Interval.minorSixth.distance); //ascend minor sixth
+        allLegalMoves.add(Interval.octave.distance); //ascend octave
         if(allowAllSixths) {
-            allLegalMoves.add(-9); //descend major sixth
-            allLegalMoves.add(-8); //descend minor sixth
-            allLegalMoves.add(9); //ascend major sixth
+            allLegalMoves.add(-Interval.majorSixth.distance); //descend major sixth
+            allLegalMoves.add(-Interval.minorSixth.distance); //descend minor sixth
+            allLegalMoves.add(Interval.majorSixth.distance); //ascend major sixth
         }
         if(debugMessagesOn) {
             printAllLegalMoves();
@@ -506,25 +506,27 @@ class IO {
     }
 
     private static void chooseReset(int size) throws InvalidInputException {
-        System.out.print("Enter 0 to quit, 1 to start again with new parameters");
+        System.out.print("Enter 0 to quit, 1 to start again with new parameters, 2 to output a cantus firmus to a file");
         if(size > 0) {
-            System.out.println(", or 2 to proceed to first species.");
+            System.out.println(", or 3 to proceed to first species.");
         } else {
             System.out.println(".");
         }
-        System.out.println("Note if you have write to file on, this will overwrite your previous cantusfirmi.txt.");
+        System.out.println("Note if you have write to file on, generating new cantus firmi will overwrite your previous cantusfirmi.txt.");
         int choose = Integer.parseInt(keyboard.next());
         if(size > 0) {
             switch(choose){
                 case 0: break;
-                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
-                case 2: selectACantusFirmus(size); break;
+                case 1: clearCantusFirmusInput(); cantusFirmusInput();
+                case 2: selectACantusFirmus(size, false);
+                case 3: selectACantusFirmus(size, true);
                 default: throw new InvalidInputException(Integer.toString(choose), " is not 0, 1, or 2");
             }
         } else {
             switch(choose){
                 case 0: break;
-                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
+                case 1: clearCantusFirmusInput(); cantusFirmusInput();
+                case 2: selectACantusFirmus(size, false);
                 default: throw new InvalidInputException(Integer.toString(choose), " is not 0 or 1");
             }
         }
@@ -534,7 +536,7 @@ class IO {
         cantusFirmus = cantus;
     }
 
-    private static void selectACantusFirmus(int size) throws InvalidInputException {
+    private static void selectACantusFirmus(int size, boolean proceeding) throws InvalidInputException {
         try {
             LinkedList<CantusFirmusNode> selectedCF = cantusFirmi.get(0);
             int input = 1;
@@ -547,8 +549,6 @@ class IO {
                     throw new InvalidInputException(Integer.toString(input), " is above " + size);
                 } else {
                     selectedCF = cantusFirmi.get(input - 1);
-                    OutputMusicXML.setComposition(new Composition(selectedCF, null, null, null, null));
-                    new OutputMusicXML().outputFile("test");
                 }
             } System.out.println("The cantus firmus that will be used is " + input + ", whose notes are:");
             String str = "";
@@ -560,17 +560,51 @@ class IO {
                 System.out.println("Is this acceptable? Enter 1 for yes, 0 to select a different cantus firmus.");
                 int acceptable = Integer.parseInt(keyboard.next());
                 switch(acceptable) {
-                    case 0: selectACantusFirmus(size); break;
+                    case 0: selectACantusFirmus(size, proceeding); break;
                     case 1: setCF(selectedCF); break;
                     default: throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
                 }
-            } firstSpeciesInput();
+            } if(!proceeding) {
+                saveCompositionToFile(size, new Composition(cantusFirmus, null, null, null, null));
+                return;
+            }
+            firstSpeciesInput();
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
-            selectACantusFirmus(size);
+            selectACantusFirmus(size, proceeding);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param size the amount of melodic lines generated
+     * @param aComposition to be set equal to the static variable in this class
+     */
+    private static void saveCompositionToFile(int size, Composition aComposition) throws IOException, InvalidInputException {
+        composition = aComposition;
+        System.out.println("Type the name you would like the file to be, using only alphanumeric characters, and under 256 characters.");
+        String fileName = keyboard.next();
+        if(!fileName.matches("^[A-Za-z0-9]+$")) {
+            saveCompositionToFile(size, aComposition);
+        }
+        try {
+            new OutputMusicXML().outputFile(fileName);
+        } catch (IOException e) {
+            System.out.println("File could not be output.");
+            throw new RuntimeException(e);
+        }
+        System.out.println("File successfully created! Enter 0 to exit, 1 to output to another file, or 2 to move on to the next species.");
+        int next = Integer.parseInt(keyboard.next());
+        switch(next) {
+            case 0: break;
+            case 1: selectACantusFirmus(size, false);
+            case 2: firstSpeciesInput();
+            default:
+                throw new InvalidInputException(Integer.toString(next), " is not 0, 1, or 2.");
+        }
+
+
     }
 
     private static void selectCounterpointAboveOrBelow() throws InvalidInputException, IOException {
@@ -612,11 +646,11 @@ class IO {
         ArrayList<FirstSpeciesNode> firstColumn = new ArrayList<FirstSpeciesNode>();
         if(CTPAbove) {
             firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
-            firstColumn.add(new FirstSpeciesNode(start.pitch + 7)); //P5
-            firstColumn.add(new FirstSpeciesNode(start.pitch + 12)); //P8
+            firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.perfectFifth.distance)); //P5
+            firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.octave.distance)); //P8
         } else {
             firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
-            firstColumn.add(new FirstSpeciesNode(start.pitch - 12)); //P8
+            firstColumn.add(new FirstSpeciesNode(start.pitch - Interval.octave.distance)); //P8
         }
         columnsFirstSpecies.add(firstColumn);
         for(int i = 1; i < length - 2; i++) {
@@ -653,7 +687,7 @@ class IO {
         columnsFirstSpecies.add(finalColumn);
     }
 
-    private static void makeGetsToFirstSpecies() { //this is very very rough
+    private static void makeGetsToFirstSpecies() {
         for(int i = 0; i < length - 2; i++) {
             for(FirstSpeciesNode node : columnsFirstSpecies.get(i)) {
                 for(FirstSpeciesNode nextColumnNode : columnsFirstSpecies.get(i + 1)) {
