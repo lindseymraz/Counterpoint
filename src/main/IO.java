@@ -9,9 +9,10 @@ class IO {
     private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
     private static ArrayList<ArrayList<FirstSpeciesNode>> columnsFirstSpecies;
-    static Composition composition;
+    public static Composition composition;
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
+    static boolean firstSpeciesAbove;
     static LinkedList<CantusFirmusNode> cantusFirmus;
 
     private static Scanner keyboard = new Scanner(System.in);
@@ -232,12 +233,12 @@ class IO {
             String input = (keyboard.next());
             switch (Integer.parseInt(input)) {
                 case 0:
-                    climax = lower;
+                    climax = upper;
                     tonic = tonics.get(0);
                     break;
                 case 1:
-                    climax = upper;
-                    tonic = tonics.get(0);
+                    climax = lower;
+                    tonic = tonics.get(1);
                     break;
                 default:
                     throw new InvalidInputException((input), " is not 0 or 1");
@@ -248,7 +249,7 @@ class IO {
             climax = upper;
             tonic = tonics.get(0);
             if(upperTo1DistBigger) { tonic = tonics.get(1); }
-        } else {
+        } else if(tonicToLowerDist > tonicToUpperDist) {
             isClimaxInappropriate(tonicToLowerDist);
             climax = lower;
             tonic = tonics.get(0);
@@ -598,9 +599,12 @@ class IO {
         int input = Integer.parseInt(keyboard.next());
         switch(input) {
             case 0:
-                output(0);
+                firstSpeciesAbove = true;
+                outputFS();
                 break;
-            case 1: output(1);
+            case 1:
+                firstSpeciesAbove = false;
+                outputFS();
             break;
             default: throw new InvalidInputException(Integer.toString(input), " is not 1 or 0");
         }
@@ -633,22 +637,22 @@ class IO {
         for(int i = 1; i < length - 2; i++) {
             ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>(); //assumes max range tenth
             int currCantusFirmusPitch = cantusFirmus.get(i).pitch;
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.perfectFifth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.perfectFifth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorSixth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorSixth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorSixth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorSixth.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.octave.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.minorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.minorThird.distance)));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.majorThird.distance));
-            aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.majorThird.distance)));
+            if(isDiatonic(currCantusFirmusPitch + Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.majorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.majorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.perfectFifth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.perfectFifth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.perfectFifth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.perfectFifth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.minorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.minorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.majorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.majorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.octave.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.octave.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.octave.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + (Interval.octave.distance + Interval.minorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - (Interval.octave.distance + Interval.minorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.minorThird.distance))); }
+            if(isDiatonic(currCantusFirmusPitch + (Interval.octave.distance + Interval.majorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - (Interval.octave.distance + Interval.majorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.majorThird.distance))); }
             columnsFirstSpecies.add(aColumn);
         }
         ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
@@ -679,12 +683,11 @@ class IO {
 
     /**
      *
-     * @param aboveOrBelow 0 is above, 1 is below
      * @return
      */
-    private static void output(int aboveOrBelow) throws IOException {
+    private static void outputFS() throws IOException {
         int size = 0;
-        if(aboveOrBelow==0) {
+        if(firstSpeciesAbove) {
             setColumnsFirstSpecies(true);
             makeGetsToFirstSpecies();
             size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));

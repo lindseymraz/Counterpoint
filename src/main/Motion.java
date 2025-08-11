@@ -28,4 +28,20 @@ public enum Motion {
         }
     }
 
+    public static boolean isOblique(int firstPitchV1, int nextPitchV1, int firstPitchV2, int nextPitchV2) {
+        return(isMotion(firstPitchV1, nextPitchV1, firstPitchV2, nextPitchV2) == OBLIQUE);
+    }
+
+    public static boolean isParallel(int firstPitchV1, int nextPitchV1, int firstPitchV2, int nextPitchV2) {
+        return(isMotion(firstPitchV1, nextPitchV1, firstPitchV2, nextPitchV2) == PARALLEL);
+    }
+
+    public static boolean isContrary(int firstPitchV1, int nextPitchV1, int firstPitchV2, int nextPitchV2) {
+        return(isMotion(firstPitchV1, nextPitchV1, firstPitchV2, nextPitchV2) == CONTRARY);
+    }
+
+    public static boolean isSimilar(int firstPitchV1, int nextPitchV1, int firstPitchV2, int nextPitchV2) {
+        return(isMotion(firstPitchV1, nextPitchV1, firstPitchV2, nextPitchV2) == SIMILAR);
+    }
+
 }
