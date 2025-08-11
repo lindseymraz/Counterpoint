@@ -6,14 +6,15 @@ import java.util.Scanner;
 
 class IO {
 
-    private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
+    private static LinkedList<? extends LinkedList<? extends Node>> melodyList;
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
     private static ArrayList<ArrayList<FirstSpeciesNode>> columnsFirstSpecies;
     public static Composition composition;
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
+
+    private static int species = 0;
     static boolean firstSpeciesAbove;
-    static LinkedList<CantusFirmusNode> cantusFirmus;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
@@ -85,7 +86,10 @@ class IO {
 
     static void firstSpeciesInput() throws InvalidInputException {
         try {
+            species = 1;
+            melodyList.clear();
             selectCounterpointAboveOrBelow();
+            outputFS();
         } catch(InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             firstSpeciesInput();
@@ -446,25 +450,16 @@ class IO {
         System.out.println(str);
     }
 
-    protected static String writeFirstSpecies(LinkedList<FirstSpeciesNode> line, int acc) {
-        int size = (line.size() - 1);
-        String str = (acc + ", ");
-        for(int i = 0; (i < size); i++) {
-            str = str + (line.get(i).pitch + " ");
-        }
-        return(str + (line.get(size).pitch + ";\n"));
-    }
-
     private static LinkedList<LinkedList<CantusFirmusNode>> output(CantusFirmusNode from, CantusFirmusNode to) throws IOException {
-        cantusFirmi = new LinkedList<LinkedList<CantusFirmusNode>>();
-        from.giveRoute(to, new LinkedList<CantusFirmusNode>(), cantusFirmi);
-        int size = cantusFirmi.size();
+        melodyList = new LinkedList<LinkedList<CantusFirmusNode>>();
+        from.giveRoute(to, new LinkedList<CantusFirmusNode>(), (LinkedList<LinkedList<CantusFirmusNode>>) melodyList);
+        int size = melodyList.size();
         switch(size) {
             case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;
             case 1: System.out.println(size + " cantus firmus generated!"); break;
             default: System.out.println(size + " cantus firmi generated!");
         }
-        return cantusFirmi;
+        return (LinkedList<LinkedList<CantusFirmusNode>>) melodyList;
     }
 
     private static void clearCantusFirmusInput() {
@@ -480,11 +475,15 @@ class IO {
         inRangeDiatonics.clear();
     }
 
+    private static void clearFirstSpeciesInput() {
+        columnsFirstSpecies.clear();
+    }
+
     private static void choosePostGenerationMove(LinkedList<? extends LinkedList<? extends Node>> melodies) throws InvalidInputException, IOException {
         System.out.print("Enter 0 to quit, 1 to start again with new parameters");
         int size = melodies.size();
         if(size > 0) {
-            System.out.println(", 2 to proceed to first species without exporting to a file,\nor 3 to export to a file before proceeding.");
+            System.out.println(", 2 to proceed to the next species without exporting to a file,\nor 3 to export to a file before proceeding.");
         } else {
             System.out.println(".");
         }
@@ -492,8 +491,12 @@ class IO {
             int choose = Integer.parseInt(keyboard.next());
             switch (choose) {
                 case 0: break;
-                case 1: clearCantusFirmusInput();cantusFirmusInput();
-                case 2: if (size != 0) { composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null); firstSpeciesInput();}
+                case 1:
+                    if(species == 0) { clearCantusFirmusInput(); cantusFirmusInput(); }
+                    else if(species == 1) {clearFirstSpeciesInput(); firstSpeciesInput(); }
+                case 2: if (size != 0) {
+                    if(species == 0) { composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null); firstSpeciesInput();}}
+                    else if(species == 1) { composition.firstSpecies = (LinkedList<FirstSpeciesNode>) selectAMelody(size); break; }
                 case 3: if (size != 0) { export(size, melodies, false);}
                 default:
                     throw new InvalidInputException(Integer.toString(choose), " is not an accepted input.");
@@ -534,7 +537,8 @@ class IO {
         switch(next) {
             case 0: break;
             case 1: export(size, melodies, selectedNewMelody);
-            case 2: updateComposition(selectedNewMelody, size); firstSpeciesInput();
+            case 2: updateComposition(selectedNewMelody, size);
+            if(species == 0) { firstSpeciesInput(); break; }
             default:
                 throw new InvalidInputException(Integer.toString(next), " is not 0, 1, or 2.");
         }
@@ -542,13 +546,17 @@ class IO {
 
     private static void updateComposition(boolean selectedNewMelody, int size) throws InvalidInputException {
         if(!selectedNewMelody) {
-            composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null);
+            if(species == 0) {
+                composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null);
+            } else if(species == 1) {
+                composition.firstSpecies = (LinkedList<FirstSpeciesNode>) selectAMelody(size);
+            }
         }
     }
 
     private static LinkedList<? extends Node> selectAMelody(int size) throws InvalidInputException {
         try {
-            LinkedList<? extends Node> selectedMelody = cantusFirmi.get(0);
+            LinkedList<? extends Node> selectedMelody = melodyList.get(0);
             int input = 1;
             if(size > 1) {
                 System.out.println("Select a generated melody. Options are from 1 to " + size + ".");
@@ -558,7 +566,7 @@ class IO {
                 } if(input > size) {
                     throw new InvalidInputException(Integer.toString(input), " is above " + size);
                 } else {
-                    selectedMelody = cantusFirmi.get(input - 1);
+                    selectedMelody = melodyList.get(input - 1);
                 }
             } System.out.println("The melody that will be used is " + input + ", whose notes are:");
             String str = "";
@@ -571,8 +579,7 @@ class IO {
                 int acceptable = Integer.parseInt(keyboard.next());
                 switch (acceptable) {
                     case 0: selectAMelody(size); break;
-                    case 1:
-                        cantusFirmus = (LinkedList<CantusFirmusNode>) selectedMelody; break;
+                    case 1: break;
                     default:
                         throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
                 }
@@ -600,25 +607,17 @@ class IO {
         switch(input) {
             case 0:
                 firstSpeciesAbove = true;
-                outputFS();
                 break;
             case 1:
                 firstSpeciesAbove = false;
-                outputFS();
-            break;
+                break;
             default: throw new InvalidInputException(Integer.toString(input), " is not 1 or 0");
         }
     }
 
     private static int outputHelper(FirstSpeciesNode from, FirstSpeciesNode to) throws IOException {
-        LinkedList<LinkedList<FirstSpeciesNode>> firstSpeciesLines = new LinkedList<LinkedList<FirstSpeciesNode>>();
-        from.giveRoute(to, new LinkedList<FirstSpeciesNode>(), firstSpeciesLines);
-        int acc = 1;
-            for(LinkedList<FirstSpeciesNode> firstSpeciesLine : firstSpeciesLines) {
-                System.out.print(writeFirstSpecies(firstSpeciesLine, acc));
-                acc++;
-            }
-        int size = firstSpeciesLines.size();
+        from.giveRoute(to, new LinkedList<FirstSpeciesNode>(), (LinkedList<LinkedList<FirstSpeciesNode>>) melodyList);
+        int size = melodyList.size();
         return size;
     }
 
@@ -636,7 +635,7 @@ class IO {
         columnsFirstSpecies.add(firstColumn);
         for(int i = 1; i < length - 2; i++) {
             ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>(); //assumes max range tenth
-            int currCantusFirmusPitch = cantusFirmus.get(i).pitch;
+            int currCantusFirmusPitch = composition.cantusFirmus.get(i).pitch;
             if(isDiatonic(currCantusFirmusPitch + Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorThird.distance)); }
             if(isDiatonic(currCantusFirmusPitch - Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorThird.distance)); }
             if(isDiatonic(currCantusFirmusPitch + Interval.majorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorThird.distance)); }
@@ -656,10 +655,16 @@ class IO {
             columnsFirstSpecies.add(aColumn);
         }
         ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
-        //refactor to actually fit rule in case cantus firmus ends any way different than 2 1
-        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch)); //to go with U ending
-        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch + 12)); //to go with octave + ending
-        penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(6) + end.pitch - 12)); //to go with octave - ending
+        int penultimateCFPitch = composition.cantusFirmus.get(length - 2).pitch;
+        if(penultimateCFPitch % 12 == mode.steps.get(1)) {
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - mode.steps.get(6))); //to go with U ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch + 12 - mode.steps.get(6))); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - 12 - mode.steps.get(6))); //to go with octave - ending
+        } else {
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch)); //to go with U ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch + 12)); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch - 12)); //to go with octave - ending
+        }
         columnsFirstSpecies.add(penultimateColumn);
         ArrayList<FirstSpeciesNode> finalColumn = new ArrayList<FirstSpeciesNode>();
         finalColumn.add(new FirstSpeciesNode(end.pitch)); //U
@@ -685,8 +690,9 @@ class IO {
      *
      * @return
      */
-    private static void outputFS() throws IOException {
+    private static void outputFS() throws IOException, InvalidInputException {
         int size = 0;
+        melodyList = new LinkedList<LinkedList<FirstSpeciesNode>>();
         if(firstSpeciesAbove) {
             setColumnsFirstSpecies(true);
             makeGetsToFirstSpecies();
@@ -716,5 +722,6 @@ class IO {
             case 1: System.out.println(size + " first species line generated!"); break;
             default: System.out.println(size + " first species lines generated!");
         }
+        choosePostGenerationMove(melodyList);
     }
 }

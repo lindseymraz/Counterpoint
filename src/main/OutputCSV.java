@@ -8,16 +8,16 @@ public class OutputCSV implements IFileExport {
         composition = IO.composition;
         FileWriter myWriter = new FileWriter(fileName + ".csv");
         String toWrite = writeMelody(composition.cantusFirmus, 0);
-        if(composition.hasFirstSpecies) {
+        if(composition.hasFirstSpecies()) {
             toWrite += writeMelody(composition.firstSpecies, 1);
         }
-        if(composition.hasSecondSpecies) {
+        if(composition.hasSecondSpecies()) {
             toWrite += writeMelody(composition.secondSpecies, 2);
         }
-        if(composition.hasThirdSpecies) {
+        if(composition.hasThirdSpecies()) {
             toWrite += writeMelody(composition.thirdSpecies, 3);
         }
-        if(composition.hasFourthSpecies) {
+        if(composition.hasFourthSpecies()) {
             toWrite += writeMelody(composition.fourthSpecies, 4);
         }
         myWriter.write(toWrite);

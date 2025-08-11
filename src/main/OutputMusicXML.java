@@ -82,16 +82,16 @@ public class OutputMusicXML implements IFileExport {
     public String partList() {
         String toReturn = partListStart;
         toReturn += partListHelper("Cantus Firmus", "CF");
-        if(composition.hasFirstSpecies) {
+        if(composition.hasFirstSpecies()) {
             toReturn += partListHelper("First Species", "1S");
         }
-        if(composition.hasSecondSpecies) {
+        if(composition.hasSecondSpecies()) {
             toReturn += partListHelper("Second Species", "2S");
         }
-        if(composition.hasThirdSpecies) {
+        if(composition.hasThirdSpecies()) {
             toReturn += partListHelper("Third Species", "3S");
         }
-        if(composition.hasFourthSpecies) {
+        if(composition.hasFourthSpecies()) {
             toReturn += partListHelper("Fourth Species", "4S");
         }
         toReturn += partListEnd;
@@ -141,16 +141,16 @@ public class OutputMusicXML implements IFileExport {
     private String partElements() {
         String toReturn = "";
         toReturn += partElement(composition.cantusFirmus, "CantusFirmus");
-        if(composition.hasFirstSpecies) {
+        if(composition.hasFirstSpecies()) {
             toReturn += partElement(composition.firstSpecies, "FirstSpecies");
         }
-        if(composition.hasSecondSpecies) {
+        if(composition.hasSecondSpecies()) {
             toReturn += partElement(composition.secondSpecies, "SecondSpecies");
         }
-        if(composition.hasThirdSpecies) {
+        if(composition.hasThirdSpecies()) {
             toReturn += partElement(composition.thirdSpecies, "ThirdSpecies");
         }
-        if(composition.hasFourthSpecies) {
+        if(composition.hasFourthSpecies()) {
             toReturn += partElement(composition.fourthSpecies, "FourthSpecies");
         }
         return toReturn;

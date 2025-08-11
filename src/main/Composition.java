@@ -16,13 +16,22 @@ public class Composition {
         this.thirdSpecies = thirdSpecies;
         this.fourthSpecies = fourthSpecies;
     }
+    boolean hasCantusFirmus() {
+        return (this.cantusFirmus != null);
+    }
+    boolean hasFirstSpecies() {
+        return (this.firstSpecies != null);
+    }
+    boolean hasSecondSpecies() {
+        return (this.secondSpecies != null);
+    }
 
-    boolean hasFirstSpecies = (this.firstSpecies != null);
-    boolean hasSecondSpecies = (this.secondSpecies != null);
+    boolean hasThirdSpecies() {
+        return (this.thirdSpecies != null);
+    }
 
-    boolean hasThirdSpecies = (this.thirdSpecies != null);
-
-
-    boolean hasFourthSpecies = (this.fourthSpecies != null);
+    boolean hasFourthSpecies() {
+        return (this.fourthSpecies != null);
+    }
 
 }
