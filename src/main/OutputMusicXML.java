@@ -28,12 +28,48 @@ public class OutputMusicXML implements IFileExport {
             "\t\t\t\t<type>whole</type>\n" +
             "\t\t\t</note>\n";
 
-    public void outputFile(String fileName) throws IOException {
+    private final String endBar = "\t\t\t<barline location=\"right\">\n" +
+            "\t\t\t\t<bar-style>light-heavy</bar-style>\n" +
+            "\t\t\t</barline>\n";
+
+    private final String newSystem = "\t\t\t<print new-system=\"yes\">\n" +
+            "\t\t\t</print>\n";
+
+    private final String labelStart = "\t\t\t<direction placement=\"above\">\n" +
+            "\t\t\t\t<direction-type>\n" +
+            "\t\t\t\t\t<words>";
+
+    private final String labelEnd = "</words>\n" +
+            "\t\t\t\t</direction-type>\n" +
+            "\t\t\t</direction>\n";
+
+
+    public void outputAllCounterpoint(String fileName) throws IOException {
         composition = IO.composition;
         FileWriter myWriter = new FileWriter(fileName + ".musicxml");
         String toWrite = fileStart;
         toWrite += partList();
         toWrite += partElements();
+        toWrite += fileEnd;
+        myWriter.write(toWrite);
+        myWriter.close();
+    }
+
+    public void outputAllMelodicOptions(String fileName, LinkedList<? extends LinkedList<? extends Node>> melodies) throws IOException {
+        FileWriter myWriter = new FileWriter(fileName + ".musicxml");
+        String toWrite = fileStart;
+        toWrite += partListSinglePart(melodies.get(0).get(0));
+        toWrite += partElementsSinglePartManyMelodies(melodies.get(0).get(0), melodies);
+        toWrite += fileEnd;
+        myWriter.write(toWrite);
+        myWriter.close();
+    }
+
+    public void outputSingleMelody(String fileName, LinkedList<? extends Node> melody) throws IOException {
+        FileWriter myWriter = new FileWriter(fileName + ".musicxml");
+        String toWrite = fileStart;
+        toWrite += partListSinglePart(melody.get(0));
+        toWrite += partElementsSinglePart(melody.get(0), melody);
         toWrite += fileEnd;
         myWriter.write(toWrite);
         myWriter.close();
@@ -56,6 +92,29 @@ public class OutputMusicXML implements IFileExport {
             toReturn += partListHelper("Third Species", "3S");
         }
         if(composition.hasFourthSpecies) {
+            toReturn += partListHelper("Fourth Species", "4S");
+        }
+        toReturn += partListEnd;
+        return toReturn;
+    }
+
+    /**
+     * Modified from {@link #partList()} for outputting one part only.
+     * @param node A single node from the list of melodies, used to identify which melody type the list is of.
+     * @return String with XML needed to represent a <part-list>
+     */
+
+    public String partListSinglePart(Node node) {
+        String toReturn = partListStart;
+        if(node instanceof CantusFirmusNode) {
+            toReturn += partListHelper("Cantus Firmus", "CF");
+        } else if(node instanceof FirstSpeciesNode) {
+            toReturn += partListHelper("First Species", "1S");
+        } else if(node instanceof SecondSpeciesNode) {
+            toReturn += partListHelper("Second Species", "2S");
+        } else if(node instanceof ThirdSpeciesNode) {
+            toReturn += partListHelper("Third Species", "3S");
+        } else if(node instanceof FourthSpeciesNode) {
             toReturn += partListHelper("Fourth Species", "4S");
         }
         toReturn += partListEnd;
@@ -98,6 +157,53 @@ public class OutputMusicXML implements IFileExport {
     }
 
     /**
+     * Modified from {@link #partElements()} for outputting many melodies from one part only.
+     * @param node A single node from the list of melodies, used to identify which melody type the list is of.
+     * @param melodies list of melodies
+     * @return A String with XML for almost all of the rest of the score, which is <part> elements.
+     */
+
+    private String partElementsSinglePartManyMelodies(Node node, LinkedList<? extends LinkedList<? extends Node>> melodies) {
+        String toReturn = "";
+        if(node instanceof CantusFirmusNode) {
+            toReturn = partElementSinglePart(melodies, "CantusFirmus");
+        }
+        else if(node instanceof FirstSpeciesNode) {
+            toReturn = partElementSinglePart(melodies, "FirstSpecies");
+        }
+        else if(node instanceof SecondSpeciesNode) {
+            toReturn = partElementSinglePart(melodies, "SecondSpecies");
+        }
+        else if(node instanceof ThirdSpeciesNode) {
+            toReturn = partElementSinglePart(melodies, "ThirdSpecies");
+        }
+        else if(node instanceof FourthSpeciesNode) {
+            toReturn = partElementSinglePart(melodies, "FourthSpecies");
+        }
+        return toReturn;
+    }
+
+    private String partElementsSinglePart(Node node, LinkedList<? extends Node> melody) {
+        String toReturn = "";
+        if(node instanceof CantusFirmusNode) {
+            toReturn = partElement(melody, "CantusFirmus");
+        }
+        else if(node instanceof FirstSpeciesNode) {
+            toReturn = partElement(melody, "FirstSpecies");
+        }
+        else if(node instanceof SecondSpeciesNode) {
+            toReturn = partElement(melody, "SecondSpecies");
+        }
+        else if(node instanceof ThirdSpeciesNode) {
+            toReturn = partElement(melody, "ThirdSpecies");
+        }
+        else if(node instanceof FourthSpeciesNode) {
+            toReturn = partElement(melody, "FourthSpecies");
+        }
+        return toReturn;
+    }
+
+    /**
      *
      * @param nodes a list of nodes making up the melodic line for the given part
      * @param ID the part ID
@@ -106,7 +212,25 @@ public class OutputMusicXML implements IFileExport {
     private String partElement(LinkedList<? extends Node> nodes, String ID) {
         String toReturn = "\t<part id=\"" + ID + "\">\n";
         fifthsValue = calculateFifths();
-        toReturn += measures(nodes);
+        toReturn += measures(nodes, false, 0);
+        toReturn += partEnd;
+        return toReturn;
+    }
+
+    /**
+     * Modified from {@link #partElement(LinkedList, String)} for outputting many melodies from one part only.
+     * @param nodes a list of melodies
+     * @param ID the part ID
+     * @return all XML holding measure data for the given part
+     */
+    private String partElementSinglePart(LinkedList<? extends LinkedList<? extends Node>> nodes, String ID) {
+        String toReturn = "\t<part id=\"" + ID + "\">\n";
+        fifthsValue = calculateFifths();
+        int count = 1;
+        for(LinkedList<? extends Node> melody : nodes) {
+            toReturn += measures(melody,true, count);
+            count++;
+        }
         toReturn += partEnd;
         return toReturn;
     }
@@ -116,11 +240,14 @@ public class OutputMusicXML implements IFileExport {
     /**
      *
      * @param nodes a list of nodes making up the melodic line for the given part
+     * @param newline true if outputting all melodies in a single type, else false
+     * @param count which number melody this is
      * @return all measure XML for a part: from <measure number="1"> to the final </measure> closing the last measure
      */
-    private String measures(LinkedList<? extends Node> nodes) {
-        String toReturn = "\t\t<measure number=\"1\">\n" +
-                "\t\t\t<attributes>\n" +
+    private String measures(LinkedList<? extends Node> nodes, boolean newline, int count) {
+        String toReturn = "\t\t<measure number=\"1\">\n";
+        if(newline) { toReturn += newSystem; }
+        toReturn += "\t\t\t<attributes>\n" +
                 "\t\t\t\t<divisions>1</divisions>\n" +
                 "\t\t\t\t<key>\n";
         if(fifthsValue >= 7 || fifthsValue <= -7) {
@@ -211,6 +338,7 @@ public class OutputMusicXML implements IFileExport {
                     "\t\t\t\t\t<line>2</line>\n" +
                     "\t\t\t\t</clef>\n" +
                     "\t\t\t</attributes>\n";
+        if(newline) { toReturn += labelStart + "Melody " + count + labelEnd; }
         toReturn += noteStart;
         String[] MIDItoSPNResult = MIDItoSPN(nodes.get(0).pitch);
         toReturn += "\t\t\t\t\t<step>" + MIDItoSPNResult[0] + "</step>\n";
@@ -240,6 +368,9 @@ public class OutputMusicXML implements IFileExport {
             }
             toReturn += "\t\t\t\t\t<octave>" + MIDItoSPNResult[2] + "</octave>\n";
             toReturn += noteEnd;
+            if(i == IO.length - 1) {
+                toReturn += endBar;
+            }
             toReturn += measureEnd;
         }
         return toReturn;
