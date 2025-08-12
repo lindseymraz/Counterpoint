@@ -279,7 +279,7 @@ class IO {
     }
 
     private static void isClimaxInappropriate(int pitch) throws InvalidInputException {
-        if(((key.offset + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
+        if(((key.offset + Interval.majorSeventh.distance) % 12) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
     }
 
     private static void setLength() throws InvalidInputException {
@@ -594,10 +594,15 @@ class IO {
     private static String nameFile() throws InvalidInputException {
         System.out.println("Type the name you would like the file to be, using only alphanumeric characters, and under 256 characters.");
         String fileName = keyboard.next();
-        if(!fileName.matches("^[A-Za-z0-9]+$")) {
+        try {
+            if (!fileName.matches("^[A-Za-z0-9]+$")) {
+                throw new InvalidInputException(fileName, " uses characters besides alphanumeric ones.");
+            } else {
+                return fileName;
+            }
+        } catch (InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
             return nameFile();
-        } else {
-            return fileName;
         }
     }
 
@@ -621,10 +626,10 @@ class IO {
         return size;
     }
 
-    private static void setColumnsFirstSpecies(boolean CTPAbove) {
+    private static void setColumnsFirstSpecies() {
         columnsFirstSpecies = new ArrayList<ArrayList<FirstSpeciesNode>>(length);
         ArrayList<FirstSpeciesNode> firstColumn = new ArrayList<FirstSpeciesNode>();
-        if(CTPAbove) {
+        if(firstSpeciesAbove) {
             firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
             firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.perfectFifth.distance)); //P5
             firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.octave.distance)); //P8
@@ -634,7 +639,7 @@ class IO {
         }
         columnsFirstSpecies.add(firstColumn);
         for(int i = 1; i < length - 2; i++) {
-            ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>(); //assumes max range tenth
+            ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>();
             int currCantusFirmusPitch = composition.cantusFirmus.get(i).pitch;
             if(isDiatonic(currCantusFirmusPitch + Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorThird.distance)); }
             if(isDiatonic(currCantusFirmusPitch - Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorThird.distance)); }
@@ -656,20 +661,20 @@ class IO {
         }
         ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
         int penultimateCFPitch = composition.cantusFirmus.get(length - 2).pitch;
-        if(penultimateCFPitch % 12 == mode.steps.get(1)) {
-            penultimateColumn.add(new FirstSpeciesNode(end.pitch - mode.steps.get(6))); //to go with U ending
-            penultimateColumn.add(new FirstSpeciesNode(end.pitch + 12 - mode.steps.get(6))); //to go with octave + ending
-            penultimateColumn.add(new FirstSpeciesNode(end.pitch - 12 - mode.steps.get(6))); //to go with octave - ending
+        if(penultimateCFPitch % 12 == ((key.offset + mode.steps.get(1)) % 12)) {
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - mode.steps.get(6))); //to go with unison ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch + Interval.octave.distance - mode.steps.get(6))); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - Interval.octave.distance - mode.steps.get(6))); //to go with octave - ending
         } else {
-            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch)); //to go with U ending
-            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch + 12)); //to go with octave + ending
-            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch - 12)); //to go with octave - ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch)); //to go with unison ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch + Interval.octave.distance)); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch - Interval.octave.distance)); //to go with octave - ending
         }
         columnsFirstSpecies.add(penultimateColumn);
         ArrayList<FirstSpeciesNode> finalColumn = new ArrayList<FirstSpeciesNode>();
         finalColumn.add(new FirstSpeciesNode(end.pitch)); //U
-        finalColumn.add(new FirstSpeciesNode(end.pitch + 12)); //octave
-        finalColumn.add(new FirstSpeciesNode(end.pitch - 12)); //octave
+        finalColumn.add(new FirstSpeciesNode(end.pitch + Interval.octave.distance)); //octave
+        finalColumn.add(new FirstSpeciesNode(end.pitch - Interval.octave.distance)); //octave
         columnsFirstSpecies.add(finalColumn);
     }
 
@@ -693,29 +698,18 @@ class IO {
     private static void outputFS() throws IOException, InvalidInputException {
         int size = 0;
         melodyList = new LinkedList<LinkedList<FirstSpeciesNode>>();
+        setColumnsFirstSpecies();
+        makeGetsToFirstSpecies();
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
         if(firstSpeciesAbove) {
-            setColumnsFirstSpecies(true);
-            makeGetsToFirstSpecies();
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
             size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(0));
             size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(1));
             size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(2));
-            //add combos of P1, P5, P8 above cantus tonic + P1 or P8 above cantus end, may be messy, cite
-        } else {
-            setColumnsFirstSpecies(false);
-            makeGetsToFirstSpecies();
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
-            size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
-            size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
-            //add combos of P1, P8 below cantus tonic + P1 or P8 below cantus end, may be messy, cite me
         }
         switch(size) {
             case 0: System.out.println("Could not generate any first species lines with the given parameters :("); break;

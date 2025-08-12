@@ -1,6 +1,7 @@
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import static org.junit.Assert.*;
 
@@ -34,6 +35,41 @@ public class Tests {
     FirstSpeciesNode F5f = new FirstSpeciesNode(77);
     FirstSpeciesNode Fs5f = new FirstSpeciesNode(78);
     FirstSpeciesNode G5f = new FirstSpeciesNode(79);
+
+    FirstSpeciesNode K = new FirstSpeciesNode(86);
+    FirstSpeciesNode L = new FirstSpeciesNode(90);
+    FirstSpeciesNode M = new FirstSpeciesNode(83);
+
+
+    @Test
+    public void testReasonableRange() {
+        LinkedList<FirstSpeciesNode> test = new LinkedList<FirstSpeciesNode>();
+        test.add(G4f);
+        test.add(E5f);
+        test.add(Fs5f);
+        test.add(E5f);
+        test.add(E5f);
+        assertTrue(E5f.reasonableRange(test));
+        assertFalse(K.reasonableRange(test));
+        test.add(K);
+        assertFalse(L.reasonableRange(test));
+        test.add(L);
+        assertFalse(M.reasonableRange(test));
+    }
+    @Test
+    public void testFindLowestPitch() {
+        LinkedList<FirstSpeciesNode> test = new LinkedList<>();
+        FirstSpeciesNode a = new FirstSpeciesNode(43);
+        test.add(G5f);
+        test.add(Fs5f);
+        test.add(F5f);
+        assertEquals(77, a.findLowestPitch(test));
+        test.add(E5f);
+        test.add(D5f);
+        test.add(C5f);
+        test.add(B4f);
+        assertEquals(71, a.findLowestPitch(test));
+    }
 
     @Test
     public void testIsMotion() {

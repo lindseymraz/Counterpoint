@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.LinkedList;
 
 public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
@@ -29,6 +30,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
         FirstSpeciesNode prevNode = currPath.get(getColumnPosition(currPath));
 
         if(!noCrossing(potentialCantusNode)) { return false; }
+        if(!reasonableRange(currPath)) { return false; }
         if(getColumnPositionOfPotentialNodes(currPath) > 1) {
             if(!notParallelEighthOrFifth(prevCantusNode, potentialCantusNode, prevNode)) { return false; }
             if(!noOverlap(prevCantusNode, potentialCantusNode, prevNode)) { return false; }
@@ -60,7 +62,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     boolean makesConsonance(CantusFirmusNode cantusNote) {
         int diff = (this.pitch - cantusNote.pitch);
         switch(diff) {
-            case -19, -16, -15, -12, -9, -8, -7, -4, -3, 0, 3, 4, 7, 8, 9, 12, 15, 16, 19: return true;
+            case -15, -12, -9, -8, -7, -4, -3, 0, 3, 4, 7, 8, 9, 12, 15: return true;
             default: return false;
         }
     }
@@ -68,7 +70,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     boolean makesPerfectConsonance(CantusFirmusNode cantusNote) {
         int diff = (this.pitch - cantusNote.pitch);
         switch(diff) {
-            case -19, -12, -7, 0, 7, 12, 19: return true;
+            case -12, -7, 0, 7, 12: return true;
             default: return false;
         }
     }
@@ -83,7 +85,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     boolean notParallelEighthOrFifth(CantusFirmusNode firstCantusNote, CantusFirmusNode secondCantusNote, FirstSpeciesNode prevNote) {
         int diff = this.pitch - secondCantusNote.pitch;
         switch(diff) {
-            case 19, -19, 12, -12, 7, -7: return(!Motion.isParallel(firstCantusNote.pitch, secondCantusNote.pitch, prevNote.pitch, this.pitch));
+            case 12, -12, 7, -7: return(!Motion.isParallel(firstCantusNote.pitch, secondCantusNote.pitch, prevNote.pitch, this.pitch));
             default: return true;
         }
     }
@@ -98,7 +100,7 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
     boolean notDirectEighthOrFifth(CantusFirmusNode firstCantusNote, CantusFirmusNode secondCantusNote, FirstSpeciesNode prevNote) {
         int diff = this.pitch - secondCantusNote.pitch;
         switch(diff) {
-            case 19, -19, 12, -12, 7, -7: return(!Motion.isSimilar(firstCantusNote.pitch, secondCantusNote.pitch, prevNote.pitch, this.pitch));
+            case 12, -12, 7, -7: return(!Motion.isSimilar(firstCantusNote.pitch, secondCantusNote.pitch, prevNote.pitch, this.pitch));
             default: return true;
         }
     }
@@ -131,6 +133,16 @@ public class FirstSpeciesNode extends Node<FirstSpeciesNode> {
         }
     }
 
+    public boolean reasonableRange(LinkedList<FirstSpeciesNode> currPath) {
+        int lowestPitch = findLowestPitch(currPath);
+        if(lowestPitch > this.pitch) {
+            lowestPitch = this.pitch;
+        }
+        return((this.pitch - lowestPitch) < (Interval.octave.distance + Interval.majorThird.distance));
+    }
 
+    public int findLowestPitch(LinkedList<FirstSpeciesNode> currPath) {
+        return currPath.stream().mapToInt(node -> node.pitch).min().orElse(127);
+    }
 
 }
