@@ -16,6 +16,8 @@ class IO {
     private static int species = 0;
     static boolean firstSpeciesAbove;
 
+    static boolean copyCantusFirmusRulesAsGeneralMelodic;
+
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
 
@@ -52,6 +54,7 @@ class IO {
         CantusFirmusNode.forceAtLeastTwoLeaps = true;
         debugMessagesOn = false;
         CantusFirmusNode.naturalSeventhAvoidsRaisedSeventh = false;
+        copyCantusFirmusRulesAsGeneralMelodic = true;
     }
 
     static void cantusFirmusInput() throws InvalidInputException {

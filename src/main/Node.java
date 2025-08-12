@@ -1,6 +1,7 @@
 import java.util.LinkedList;
 
 abstract public class Node<TDATA extends Node<TDATA>> {
+
     int pitch;
     LinkedList<TDATA> getsTo = new LinkedList<TDATA>();
 

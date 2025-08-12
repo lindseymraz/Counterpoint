@@ -62,7 +62,7 @@ public class CantusFirmusNode extends Node<CantusFirmusNode> {
         } return true;
     }
 
-    private boolean nonLastNodeIsDeadEnd() {
+    boolean nonLastNodeIsDeadEnd() {
         return(this.getsTo.size() < 1);
     }
 
