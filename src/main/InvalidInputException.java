@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 class InvalidInputException extends Exception {
     String badInput;
     String whyBad;

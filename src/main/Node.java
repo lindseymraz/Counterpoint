@@ -1,8 +1,7 @@
-package com.counterpoint;
-
 import java.util.LinkedList;
 
 abstract public class Node<TDATA extends Node<TDATA>> {
+
     int pitch;
     LinkedList<TDATA> getsTo = new LinkedList<TDATA>();
 
@@ -67,5 +66,4 @@ abstract public class Node<TDATA extends Node<TDATA>> {
     abstract void giveRoute(TDATA to, LinkedList<TDATA> currPath, LinkedList<LinkedList<TDATA>> list);
 
     abstract boolean passesTests(TDATA n, LinkedList<TDATA> currPath);
-
 }

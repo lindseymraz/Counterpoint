@@ -1,5 +1,3 @@
-package com.counterpoint;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,31 +6,36 @@ import java.util.Scanner;
 
 class IO {
 
-    private static LinkedList<LinkedList<CantusFirmusNode>> cantusFirmi;
+    private static LinkedList<? extends LinkedList<? extends Node>> melodyList;
     private static ArrayList<ArrayList<CantusFirmusNode>> columns;
+    private static ArrayList<ArrayList<FirstSpeciesNode>> columnsFirstSpecies;
+    public static Composition composition;
     private static CantusFirmusNode start;
     private static CantusFirmusNode end;
-    static LinkedList<CantusFirmusNode> cantusFirmus;
+
+    private static int species = 0;
+    static boolean firstSpeciesAbove;
+
+    static boolean copyCantusFirmusRulesAsGeneralMelodic;
 
     private static Scanner keyboard = new Scanner(System.in);
     IO(){}
 
-    IO(Mode mode, int key){
+    IO(Mode mode, Key key){
         this.mode = mode;
         this.key = key;
     }
 
     private static boolean allowAllSixths;
-    private static boolean writeToFile;
     private static boolean debugMessagesOn;
 
     static Mode mode;
-    private static int key; //0 is C, 11 is B
-    private static int length; //8 to 16
+    static Key key;
+    static int length; //8 to 16
     private static int upperBound; //the upper bound is allowed, nothing above it
     private static int lowerBound; //the lower bound is allowed, nothing below it
-    static int tonic; //the actual pitch value, stuff like 60, not just pitch class
-    static int climax; //actual pitch value, not just pitch class
+    static int tonic; //MIDI pitch value, not just pitch class
+    static int climax; //MIDI pitch value, not just pitch class
     static int climaxEarlyBound; //earliest climax can occur. ex: if 3, climax can be 3rd note at earliest (this means 2nd column in array though)
     static int climaxLateBound; //latest climax can occur. ex: if 6, climax can be 6th note at latest (this means 5th column in array though)
 
@@ -40,13 +43,18 @@ class IO {
     private static ArrayList<Integer> diatonicPitchClasses = new ArrayList<Integer>(7); //ranging from 0 to 11
     private static ArrayList<Integer> inRangeDiatonics = new ArrayList<Integer>();
 
+    /**
+     * Currently, all config values are set by setting the values in this function before running the script.
+     * The end user will not have access to the source code to do this; this function should eventually be modified to
+     * allow end user input.
+     */
     private static void config() {
         allowAllSixths = false;
         CantusFirmusNode.allSixthsPrecedeFollowStepInOppDir = false;
         CantusFirmusNode.forceAtLeastTwoLeaps = true;
-        writeToFile = true;
-        debugMessagesOn = true;
+        debugMessagesOn = false;
         CantusFirmusNode.naturalSeventhAvoidsRaisedSeventh = false;
+        copyCantusFirmusRulesAsGeneralMelodic = true;
     }
 
     static void cantusFirmusInput() throws InvalidInputException {
@@ -56,10 +64,10 @@ class IO {
             setMode();
             setKey();
             setDiatonicPitchClasses();
-            System.out.println("Enter bound 1, no higher than 127, no lower than 0");
+            System.out.println("Enter first bound as a MIDI note number, no higher than 127, no lower than 0.\nYou will be asked for a second bound after this. Feel free to input either an upper or lower bound.");
             int bound1 = Integer.parseInt(keyboard.next());
             boundOK(bound1);
-            System.out.println("Enter bound 2, no higher than 127, no lower than 0");
+            System.out.println("Enter second bound as a MIDI note number, no higher than 127, no lower than 0");
             int bound2 = Integer.parseInt(keyboard.next());
             boundOK(bound2);
             setBoundsTonicClimax(bound1, bound2);
@@ -69,8 +77,7 @@ class IO {
             setInRangeDiatonics();
             setColumns();
             makeGetsTo();
-            int size = output(start, end);
-            chooseReset(size);
+            choosePostGenerationMove(output(start,end));
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             clearCantusFirmusInputException();
@@ -82,33 +89,38 @@ class IO {
 
     static void firstSpeciesInput() throws InvalidInputException {
         try {
+            species = 1;
+            melodyList.clear();
             selectCounterpointAboveOrBelow();
+            outputFS();
         } catch(InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
             firstSpeciesInput();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private static void setUpAllLegalMoves() {
-        allLegalMoves.add(-12); //descend octave
-        allLegalMoves.add(-7); //descend P5
-        allLegalMoves.add(-5); //descend P4
-        allLegalMoves.add(-4); //descend major third
-        allLegalMoves.add(-3); //descend minor third
-        allLegalMoves.add(-2); //descend major second
-        allLegalMoves.add(-1); //descend minor second
-        allLegalMoves.add(1); //ascend minor second
-        allLegalMoves.add(2); //ascend major second
-        allLegalMoves.add(3); //ascend minor third
-        allLegalMoves.add(4); //ascend major third
-        allLegalMoves.add(5); //ascend P4
-        allLegalMoves.add(7); //ascend P5
-        allLegalMoves.add(8); //ascend minor sixth
-        allLegalMoves.add(12); //ascend octave
+        allLegalMoves.add(-Interval.octave.distance); //descend octave
+        allLegalMoves.add(-Interval.perfectFifth.distance); //descend P5
+        allLegalMoves.add(-Interval.perfectFourth.distance); //descend P4
+        allLegalMoves.add(-Interval.majorThird.distance); //descend major third
+        allLegalMoves.add(-Interval.minorThird.distance); //descend minor third
+        allLegalMoves.add(-Interval.majorSecond.distance); //descend major second
+        allLegalMoves.add(-Interval.minorSecond.distance); //descend minor second
+        allLegalMoves.add(Interval.minorSecond.distance); //ascend minor second
+        allLegalMoves.add(Interval.majorSecond.distance); //ascend major second
+        allLegalMoves.add(Interval.minorThird.distance); //ascend minor third
+        allLegalMoves.add(Interval.majorThird.distance); //ascend major third
+        allLegalMoves.add(Interval.perfectFourth.distance); //ascend P4
+        allLegalMoves.add(Interval.perfectFifth.distance); //ascend P5
+        allLegalMoves.add(Interval.minorSixth.distance); //ascend minor sixth
+        allLegalMoves.add(Interval.octave.distance); //ascend octave
         if(allowAllSixths) {
-            allLegalMoves.add(-9); //descend major sixth
-            allLegalMoves.add(-8); //descend minor sixth
-            allLegalMoves.add(9); //ascend major sixth
+            allLegalMoves.add(-Interval.majorSixth.distance); //descend major sixth
+            allLegalMoves.add(-Interval.minorSixth.distance); //descend minor sixth
+            allLegalMoves.add(Interval.majorSixth.distance); //ascend major sixth
         }
         if(debugMessagesOn) {
             printAllLegalMoves();
@@ -131,19 +143,20 @@ class IO {
     }
 
     private static void setKey() throws InvalidInputException {
-        System.out.println("Enter key.\n0 for C, 11 for B, no higher or lower");
+        System.out.println("Enter key.\ne.g. C, D#, Eb");
         String input = (keyboard.next());
-        switch(Integer.parseInt(input)) {
-            case 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11: key = Integer.parseInt(input); break;
-            default: throw new InvalidInputException((input), " is not an integer between 0 and 11");
+        if(input.matches("^[A-G]{1}[b#]?$")) {
+            key = Key.getKeyFromString(input);
+        } else {
+            throw new InvalidInputException((input), " is not a valid input.");
         }
     }
 
     //starting with the tonic, add steps (from mode.steps) needed to jump to the next diatonic note.
     //the % 12 ensures the values are 0-11
     static void setDiatonicPitchClasses() {
-        diatonicPitchClasses.add(key); //adds tonic
-        int hop = key;
+        diatonicPitchClasses.add(key.offset); //adds tonic
+        int hop = key.offset;
         for(int i = 0; i < 6; i++) { //not using element-based for because you need to avoid the last
             hop = (hop + mode.steps.get(i)) % 12; //item in mode.steps, which is ti2Do.
             diatonicPitchClasses.add(hop);
@@ -209,7 +222,6 @@ class IO {
         LinkedList<Integer> tonics = findTonics(upper, lower);
         int tonicToUpperDist = (upper - tonics.get(0));
         int tonicToLowerDist = (tonics.get(0) - lower);
-        int whichTonic = 0;
         boolean upperTo1DistBigger = false;
         boolean lowerTo1DistBigger = false;
         if(tonics.size() == 2) {
@@ -222,13 +234,29 @@ class IO {
                 lowerTo1DistBigger = true;
             }
         }
-        if(tonicToUpperDist == tonicToLowerDist) { throw new InvalidInputException("", "Is bottom or top climax? It's equidistant, unclear"); }
+        if(tonicToUpperDist == tonicToLowerDist) {
+            isClimaxInappropriate(tonicToUpperDist); //the error message this throws isn't too helpful if you get here
+            System.out.println("The program picks the climax to be the note furthest from the tonic." + "\nBoth the top and bottom note are the same distance from the tonic." + "\nPlease select whether you would like the lower or upper bound to be your tonic. Enter 0 for lower, 1 for upper.");
+            String input = (keyboard.next());
+            switch (Integer.parseInt(input)) {
+                case 0:
+                    climax = upper;
+                    tonic = tonics.get(0);
+                    break;
+                case 1:
+                    climax = lower;
+                    tonic = tonics.get(1);
+                    break;
+                default:
+                    throw new InvalidInputException((input), " is not 0 or 1");
+            }
+        }
         if(tonicToUpperDist > tonicToLowerDist) {
             isClimaxInappropriate(tonicToUpperDist);
             climax = upper;
             tonic = tonics.get(0);
             if(upperTo1DistBigger) { tonic = tonics.get(1); }
-        } else {
+        } else if(tonicToLowerDist > tonicToUpperDist) {
             isClimaxInappropriate(tonicToLowerDist);
             climax = lower;
             tonic = tonics.get(0);
@@ -242,7 +270,7 @@ class IO {
         LinkedList<Integer> tonics = new LinkedList<Integer>();
         int counter = diatonicPitchClasses.indexOf(hop%12);
         while(hop <= upper) {
-            if((hop%12) == key) {
+            if((hop%12) == key.offset) {
                 tonics.add(hop);
                 if(alreadyFoundATonic) { return tonics; }
                 alreadyFoundATonic = true;
@@ -254,11 +282,11 @@ class IO {
     }
 
     private static void isClimaxInappropriate(int pitch) throws InvalidInputException {
-        if(((key + 12) - 1) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
+        if(((key.offset + Interval.majorSeventh.distance) % 12) == (pitch%12)) { throw new InvalidInputException("", "Climax must not be ti"); }
     }
 
     private static void setLength() throws InvalidInputException {
-        System.out.println("Enter length. 8 min, 16 max");
+        System.out.println("Enter length in notes. 8 minimum, 16 maximum");
         int input = Integer.parseInt(keyboard.next());
         if(input < 8) {
             throw new InvalidInputException(Integer.toString(input), " is less than 8");
@@ -267,7 +295,7 @@ class IO {
             throw new InvalidInputException(Integer.toString(input), " is greater than 16");
         } length = input;
         if(debugMessagesOn) {
-            System.out.println("Length is " + length);
+            System.out.println("Length is " + length + " notes");
         }
     }
 
@@ -425,39 +453,16 @@ class IO {
         System.out.println(str);
     }
 
-    private static int output(CantusFirmusNode from, CantusFirmusNode to) throws IOException {
-        cantusFirmi = new LinkedList<LinkedList<CantusFirmusNode>>();
-        from.giveRoute(to, new LinkedList<CantusFirmusNode>(), cantusFirmi);
-        int acc = 1;
-        if(writeToFile) {
-            FileWriter myWriter = new FileWriter("cantusFirmi.txt");
-            for (LinkedList<CantusFirmusNode> cantus : cantusFirmi) {
-                myWriter.write(writeCantus(cantus, acc));
-                acc++;
-            }
-            myWriter.close();
-        } else {
-            for(LinkedList<CantusFirmusNode> cantus : cantusFirmi) {
-                System.out.print(writeCantus(cantus, acc));
-                acc++;
-            }
-        }
-        int size = cantusFirmi.size();
+    private static LinkedList<LinkedList<CantusFirmusNode>> output(CantusFirmusNode from, CantusFirmusNode to) throws IOException {
+        melodyList = new LinkedList<LinkedList<CantusFirmusNode>>();
+        from.giveRoute(to, new LinkedList<CantusFirmusNode>(), (LinkedList<LinkedList<CantusFirmusNode>>) melodyList);
+        int size = melodyList.size();
         switch(size) {
             case 0: System.out.println("Could not generate any cantus firmi with the given parameters :("); break;
             case 1: System.out.println(size + " cantus firmus generated!"); break;
             default: System.out.println(size + " cantus firmi generated!");
         }
-        return size;
-    }
-
-    private static String writeCantus(LinkedList<CantusFirmusNode> cantus, int acc) {
-        int size = (cantus.size() - 1);
-        String str = (acc + ", ");
-        for(int i = 0; (i < size); i++) {
-            str = str + (cantus.get(i).pitch + " ");
-        }
-        return(str + (cantus.get(size).pitch + ";\n"));
+        return (LinkedList<LinkedList<CantusFirmusNode>>) melodyList;
     }
 
     private static void clearCantusFirmusInput() {
@@ -473,78 +478,247 @@ class IO {
         inRangeDiatonics.clear();
     }
 
-    private static void chooseReset(int size) throws InvalidInputException {
+    private static void clearFirstSpeciesInput() {
+        columnsFirstSpecies.clear();
+    }
+
+    private static void choosePostGenerationMove(LinkedList<? extends LinkedList<? extends Node>> melodies) throws InvalidInputException, IOException {
         System.out.print("Enter 0 to quit, 1 to start again with new parameters");
+        int size = melodies.size();
         if(size > 0) {
-            System.out.println(", or 2 to proceed to first species.");
+            System.out.println(", 2 to proceed to the next species without exporting to a file,\nor 3 to export to a file before proceeding.");
         } else {
             System.out.println(".");
         }
-        System.out.println("Note if you have write to file on, this will overwrite your previous cantusfirmi.txt.");
-        int choose = Integer.parseInt(keyboard.next());
-        if(size > 0) {
-            switch(choose){
+        try {
+            int choose = Integer.parseInt(keyboard.next());
+            switch (choose) {
                 case 0: break;
-                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
-                case 2: selectACantusFirmus(size); break;
-                default: throw new InvalidInputException(Integer.toString(choose), " is not 0, 1, or 2");
+                case 1:
+                    if(species == 0) { clearCantusFirmusInput(); cantusFirmusInput(); }
+                    else if(species == 1) {clearFirstSpeciesInput(); firstSpeciesInput(); }
+                case 2: if (size != 0) {
+                    if(species == 0) { composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null); firstSpeciesInput();}}
+                    else if(species == 1) { composition.firstSpecies = (LinkedList<FirstSpeciesNode>) selectAMelody(size); break; }
+                case 3: if (size != 0) { export(size, melodies, false);}
+                default:
+                    throw new InvalidInputException(Integer.toString(choose), " is not an accepted input.");
             }
-        } else {
-            switch(choose){
-                case 0: break;
-                case 1: clearCantusFirmusInput(); cantusFirmusInput(); break;
-                default: throw new InvalidInputException(Integer.toString(choose), " is not 0 or 1");
+        } catch (InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
+            choosePostGenerationMove(melodies);
+        }
+    }
+
+    static void export(int size, LinkedList<? extends LinkedList<? extends Node>> melodies, boolean selectedNewMelody) throws InvalidInputException {
+        IFileExport saver;
+        System.out.println("Enter 0 to export to a MusicXML file, or 1 to export to a CSV file.");
+        int whereToSave = Integer.parseInt(keyboard.next());
+        switch(whereToSave) {
+            case 0: saver = new OutputMusicXML(); break;
+            case 1: saver = new OutputCSV(); break;
+            default:
+                throw new InvalidInputException(Integer.toString(whereToSave), " is not 0 or 1.");
+        }
+        System.out.println("Enter 0 to export a single melody, 1 to export all of the just-generated melodies, or 2 to export the entire composition up to this point.");
+        int whatToSave = Integer.parseInt(keyboard.next());
+        try {
+            switch (whatToSave) {
+                case 0: saver.outputSingleMelody(nameFile(), selectAMelody(size)); break;
+                case 1: saver.outputAllMelodicOptions(nameFile(), melodies); break;
+                case 2: updateComposition(selectedNewMelody, size);
+                    selectedNewMelody = true;
+                    saver.outputAllCounterpoint(nameFile()); break;
+                default: throw new InvalidInputException(Integer.toString(whatToSave), " is not 0, 1, or 2.");
+            }
+        } catch (IOException e) {
+            System.out.println("File could not be output.");
+            throw new RuntimeException(e);
+        }
+        System.out.println("File successfully created! Enter 0 to exit, 1 to output to another file, or 2 to move on to the next species.");
+        int next = Integer.parseInt(keyboard.next());
+        switch(next) {
+            case 0: break;
+            case 1: export(size, melodies, selectedNewMelody);
+            case 2: updateComposition(selectedNewMelody, size);
+            if(species == 0) { firstSpeciesInput(); break; }
+            default:
+                throw new InvalidInputException(Integer.toString(next), " is not 0, 1, or 2.");
+        }
+    }
+
+    private static void updateComposition(boolean selectedNewMelody, int size) throws InvalidInputException {
+        if(!selectedNewMelody) {
+            if(species == 0) {
+                composition = new Composition((LinkedList<CantusFirmusNode>) selectAMelody(size), null, null, null, null);
+            } else if(species == 1) {
+                composition.firstSpecies = (LinkedList<FirstSpeciesNode>) selectAMelody(size);
             }
         }
     }
 
-    static void setCF(LinkedList<CantusFirmusNode> cantus) {
-        cantusFirmus = cantus;
-    }
-
-    private static void selectACantusFirmus(int size) throws InvalidInputException {
+    private static LinkedList<? extends Node> selectAMelody(int size) throws InvalidInputException {
         try {
-            LinkedList<CantusFirmusNode> selectedCF = cantusFirmi.get(0);
+            LinkedList<? extends Node> selectedMelody = melodyList.get(0);
             int input = 1;
             if(size > 1) {
-                System.out.println("Select a generated cantus firmus. Options are from 1 to " + size + ".");
+                System.out.println("Select a generated melody. Options are from 1 to " + size + ".");
                 input = Integer.parseInt(keyboard.next());
                 if(input < 1) {
                     throw new InvalidInputException(Integer.toString(input), " is below 1");
                 } if(input > size) {
                     throw new InvalidInputException(Integer.toString(input), " is above " + size);
                 } else {
-                    selectedCF = cantusFirmi.get(input - 1);
+                    selectedMelody = melodyList.get(input - 1);
                 }
-            } System.out.println("The cantus firmus that will be used is " + input + ", whose notes are:");
+            } System.out.println("The melody that will be used is " + input + ", whose notes are:");
             String str = "";
-            for(int i = 0; (i < selectedCF.size()); i++) {
-                str = str + (selectedCF.get(i).pitch + " ");
+            for(int i = 0; (i < selectedMelody.size()); i++) {
+                str = str + (selectedMelody.get(i).pitch + " ");
             }
             System.out.println(str);
             if(size > 1) {
-                System.out.println("Is this acceptable? Enter 1 for yes, 0 to select a different cantus firmus.");
+                System.out.println("Is this acceptable? Enter 1 for yes, 0 to select a different melody.");
                 int acceptable = Integer.parseInt(keyboard.next());
-                switch(acceptable) {
-                    case 0: selectACantusFirmus(size); break;
-                    case 1: setCF(selectedCF); break;
-                    default: throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
+                switch (acceptable) {
+                    case 0: selectAMelody(size); break;
+                    case 1: break;
+                    default:
+                        throw new InvalidInputException(Integer.toString(acceptable), " is not 1 or 0");
                 }
-            } firstSpeciesInput();
+            }
+            return selectedMelody;
         } catch (InvalidInputException e) {
             System.out.println(e.badInput + e.whyBad);
-            selectACantusFirmus(size);
+            return selectAMelody(size);
         }
     }
 
-    private static void selectCounterpointAboveOrBelow() throws InvalidInputException {
+    private static String nameFile() throws InvalidInputException {
+        System.out.println("Type the name you would like the file to be, using only alphanumeric characters, and under 256 characters.");
+        String fileName = keyboard.next();
+        try {
+            if (!fileName.matches("^[A-Za-z0-9]+$")) {
+                throw new InvalidInputException(fileName, " uses characters besides alphanumeric ones.");
+            } else {
+                return fileName;
+            }
+        } catch (InvalidInputException e) {
+            System.out.println(e.badInput + e.whyBad);
+            return nameFile();
+        }
+    }
+
+    private static void selectCounterpointAboveOrBelow() throws InvalidInputException, IOException {
         System.out.println("Enter 0 to put the counterpoint above the cantus firmus; 1 to put the counterpoint below the cantus firmus.");
         int input = Integer.parseInt(keyboard.next());
         switch(input) {
-            case 0: break; //above
-            case 1: break; //below
+            case 0:
+                firstSpeciesAbove = true;
+                break;
+            case 1:
+                firstSpeciesAbove = false;
+                break;
             default: throw new InvalidInputException(Integer.toString(input), " is not 1 or 0");
         }
     }
 
+    private static int outputHelper(FirstSpeciesNode from, FirstSpeciesNode to) throws IOException {
+        from.giveRoute(to, new LinkedList<FirstSpeciesNode>(), (LinkedList<LinkedList<FirstSpeciesNode>>) melodyList);
+        int size = melodyList.size();
+        return size;
+    }
+
+    private static void setColumnsFirstSpecies() {
+        columnsFirstSpecies = new ArrayList<ArrayList<FirstSpeciesNode>>(length);
+        ArrayList<FirstSpeciesNode> firstColumn = new ArrayList<FirstSpeciesNode>();
+        if(firstSpeciesAbove) {
+            firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
+            firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.perfectFifth.distance)); //P5
+            firstColumn.add(new FirstSpeciesNode(start.pitch + Interval.octave.distance)); //P8
+        } else {
+            firstColumn.add(new FirstSpeciesNode(start.pitch)); //unison
+            firstColumn.add(new FirstSpeciesNode(start.pitch - Interval.octave.distance)); //P8
+        }
+        columnsFirstSpecies.add(firstColumn);
+        for(int i = 1; i < length - 2; i++) {
+            ArrayList<FirstSpeciesNode> aColumn = new ArrayList<FirstSpeciesNode>();
+            int currCantusFirmusPitch = composition.cantusFirmus.get(i).pitch;
+            if(isDiatonic(currCantusFirmusPitch + Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.minorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.majorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.majorThird.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.perfectFifth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.perfectFifth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.perfectFifth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.perfectFifth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.minorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.minorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.minorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.minorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.majorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.majorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.majorSixth.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.majorSixth.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + Interval.octave.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - Interval.octave.distance)) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - Interval.octave.distance)); }
+            if(isDiatonic(currCantusFirmusPitch + (Interval.octave.distance + Interval.minorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.minorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - (Interval.octave.distance + Interval.minorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.minorThird.distance))); }
+            if(isDiatonic(currCantusFirmusPitch + (Interval.octave.distance + Interval.majorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch + Interval.octave.distance + Interval.majorThird.distance)); }
+            if(isDiatonic(currCantusFirmusPitch - (Interval.octave.distance + Interval.majorThird.distance))) { aColumn.add(new FirstSpeciesNode(currCantusFirmusPitch - (Interval.octave.distance + Interval.majorThird.distance))); }
+            columnsFirstSpecies.add(aColumn);
+        }
+        ArrayList<FirstSpeciesNode> penultimateColumn = new ArrayList<FirstSpeciesNode>();
+        int penultimateCFPitch = composition.cantusFirmus.get(length - 2).pitch;
+        if(penultimateCFPitch % 12 == ((key.offset + mode.steps.get(1)) % 12)) {
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - mode.steps.get(6))); //to go with unison ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch + Interval.octave.distance - mode.steps.get(6))); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(end.pitch - Interval.octave.distance - mode.steps.get(6))); //to go with octave - ending
+        } else {
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch)); //to go with unison ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch + Interval.octave.distance)); //to go with octave + ending
+            penultimateColumn.add(new FirstSpeciesNode(mode.steps.get(1) + end.pitch - Interval.octave.distance)); //to go with octave - ending
+        }
+        columnsFirstSpecies.add(penultimateColumn);
+        ArrayList<FirstSpeciesNode> finalColumn = new ArrayList<FirstSpeciesNode>();
+        finalColumn.add(new FirstSpeciesNode(end.pitch)); //U
+        finalColumn.add(new FirstSpeciesNode(end.pitch + Interval.octave.distance)); //octave
+        finalColumn.add(new FirstSpeciesNode(end.pitch - Interval.octave.distance)); //octave
+        columnsFirstSpecies.add(finalColumn);
+    }
+
+    private static void makeGetsToFirstSpecies() {
+        for(int i = 0; i < length - 2; i++) {
+            for(FirstSpeciesNode node : columnsFirstSpecies.get(i)) {
+                for(FirstSpeciesNode nextColumnNode : columnsFirstSpecies.get(i + 1)) {
+                    node.getsTo.add(nextColumnNode);
+                }
+            }
+        }
+        for(int i = 0; i < 3; i++) { //funnily enough, item x of penultimate column goes with item x of ultimate column
+            columnsFirstSpecies.get(length - 2).get(i).getsTo.add((columnsFirstSpecies.get(length-1).get(i)));
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    private static void outputFS() throws IOException, InvalidInputException {
+        int size = 0;
+        melodyList = new LinkedList<LinkedList<FirstSpeciesNode>>();
+        setColumnsFirstSpecies();
+        makeGetsToFirstSpecies();
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(0));
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(1));
+        size += outputHelper(columnsFirstSpecies.get(0).get(0), columnsFirstSpecies.get(length - 1).get(2));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(0));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(1));
+        size += outputHelper(columnsFirstSpecies.get(0).get(1), columnsFirstSpecies.get(length - 1).get(2));
+        if(firstSpeciesAbove) {
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(0));
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(1));
+            size += outputHelper(columnsFirstSpecies.get(0).get(2), columnsFirstSpecies.get(length - 1).get(2));
+        }
+        switch(size) {
+            case 0: System.out.println("Could not generate any first species lines with the given parameters :("); break;
+            case 1: System.out.println(size + " first species line generated!"); break;
+            default: System.out.println(size + " first species lines generated!");
+        }
+        choosePostGenerationMove(melodyList);
+    }
 }

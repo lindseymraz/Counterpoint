@@ -1,5 +1,6 @@
 body {
     font-size: 100%;
+    font-family: "Verdana";
 }
 h1 {
     font-size: 150%;
@@ -22,4 +23,17 @@ h2 {
 }
 #references :target{
     background-color: #D6E8FC;
+}
+.citation{
+    border: 2px solid mediumpurple;
+    background: lavender;
+    padding: 0.5em;
+}
+.explanation{
+    border: 2px solid lightpink;
+    background: lavenderblush;
+    padding: 0.5em;
+}
+ol, li{
+    overflow-wrap: break-word;
 }

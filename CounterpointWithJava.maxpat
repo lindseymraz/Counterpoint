@@ -3,14 +3,14 @@
 		"fileversion" : 1,
 		"appversion" : 		{
 			"major" : 8,
-			"minor" : 2,
-			"revision" : 1,
+			"minor" : 6,
+			"revision" : 5,
 			"architecture" : "x64",
 			"modernui" : 1
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 54.0, 117.0, 493.0, 491.0 ],
+		"rect" : [ 338.0, 192.0, 463.0, 527.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -40,6 +40,20 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"id" : "obj-80",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 182.0, 118.0, 150.0, 20.0 ],
+					"presentation" : 1,
+					"presentation_linecount" : 2,
+					"presentation_rect" : [ 42.5, 46.0, 59.0, 33.0 ],
+					"text" : "start/stop playback"
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-48",
 					"maxclass" : "comment",
 					"numinlets" : 1,
@@ -60,6 +74,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 545.0, 418.0, 150.0, 22.0 ]
 				}
 
@@ -85,6 +100,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 709.0, 418.0, 150.0, 22.0 ]
 				}
 
@@ -110,6 +126,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 545.0, 490.0, 150.0, 22.0 ]
 				}
 
@@ -135,6 +152,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 709.0, 490.0, 150.0, 22.0 ]
 				}
 
@@ -160,6 +178,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 545.0, 555.0, 150.0, 22.0 ]
 				}
 
@@ -185,6 +204,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 709.0, 555.0, 150.0, 22.0 ]
 				}
 
@@ -210,6 +230,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 545.0, 621.0, 150.0, 22.0 ]
 				}
 
@@ -235,6 +256,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 709.0, 621.0, 150.0, 22.0 ]
 				}
 
@@ -536,6 +558,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 1010.0, 585.0, 150.0, 22.0 ]
 				}
 
@@ -548,6 +571,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 858.0, 585.0, 150.0, 22.0 ]
 				}
 
@@ -560,6 +584,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 1010.0, 517.0, 150.0, 22.0 ]
 				}
 
@@ -572,6 +597,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 858.0, 517.0, 150.0, 22.0 ]
 				}
 
@@ -584,6 +610,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 990.0, 446.0, 150.0, 22.0 ]
 				}
 
@@ -596,6 +623,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 838.0, 446.0, 150.0, 22.0 ]
 				}
 
@@ -608,6 +636,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 990.0, 376.0, 150.0, 22.0 ]
 				}
 
@@ -620,6 +649,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
+					"parameter_enable" : 0,
 					"patching_rect" : [ 838.0, 376.0, 150.0, 22.0 ]
 				}
 
@@ -674,7 +704,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 406.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 406.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -693,7 +722,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 325.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 325.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -712,7 +740,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 379.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 379.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -731,7 +758,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 352.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 352.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -750,7 +776,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 298.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 298.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -769,7 +794,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 271.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 271.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -788,7 +812,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 244.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 244.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -807,7 +830,6 @@
 					"outlettype" : [ "int", "int" ],
 					"parameter_enable" : 0,
 					"patching_rect" : [ 217.0, 555.0, 75.0, 198.0 ],
-					"presentation" : 1,
 					"presentation_rect" : [ 217.0, 286.0, 75.0, 198.0 ]
 				}
 
@@ -980,7 +1002,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 161.0, 485.0, 336.0, 53.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 73.0, 238.0, 336.0, 53.0 ]
+					"presentation_rect" : [ 37.5, 154.0, 336.0, 53.0 ]
 				}
 
 			}
@@ -1190,7 +1212,7 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 463.0, 10.0, 100.0, 22.0 ],
 					"presentation" : 1,
-					"presentation_rect" : [ 276.0, 20.0, 100.0, 22.0 ]
+					"presentation_rect" : [ 258.0, 19.0, 100.0, 22.0 ]
 				}
 
 			}
@@ -2879,8 +2901,8 @@
  ],
 		"dependency_cache" : [ 			{
 				"name" : "cantusFirmi.txt",
-				"bootpath" : "~/Documents/Max 8",
-				"patcherrelativepath" : "../Documents/Max 8",
+				"bootpath" : "~/IdeaProjects/Counterpoint",
+				"patcherrelativepath" : ".",
 				"type" : "TEXT",
 				"implicit" : 1
 			}
